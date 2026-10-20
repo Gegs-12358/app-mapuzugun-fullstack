@@ -3,10 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // <-- IMPORTANTE para los inputs
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { 
-  IonHeader, IonToolbar, IonTitle, IonContent, IonCard, 
-  IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent, 
-  IonItem, IonInput, IonButton, IonSpinner, IonText 
+import {
+  IonHeader, IonToolbar, IonTitle, IonContent, IonCard,
+  IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent,
+  IonItem, IonInput, IonButton, IonSpinner, IonText
 } from '@ionic/angular/standalone';
 
 @Component({
@@ -16,8 +16,8 @@ import {
   standalone: true,
   imports: [
     CommonModule, FormsModule,
-    IonHeader, IonToolbar, IonTitle, IonContent, IonCard, 
-    IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent, 
+    IonHeader, IonToolbar, IonTitle, IonContent, IonCard,
+    IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent,
     IonItem, IonInput, IonButton, IonSpinner, IonText
   ]
 })
@@ -28,7 +28,7 @@ export class LoginPage {
   loading = false;
   errorMsg = '';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) { }
 
   toggleMode() {
     this.isLoginMode = !this.isLoginMode;
@@ -43,16 +43,16 @@ export class LoginPage {
 
     this.loading = true;
     this.errorMsg = '';
-    
+
     const endpoint = this.isLoginMode ? '/api/login' : '/api/register';
     const body = { username: this.username, password: this.password };
 
     this.http.post(`http://localhost:3000${endpoint}`, body).subscribe({
-      next: (user: any) => {
-        // Guardamos el usuario en el navegador para mantener la sesión
+      next: (res: any) => {
+        const { token, ...user } = res;
+        localStorage.setItem('mapu_token', token);
         localStorage.setItem('mapu_user', JSON.stringify(user));
         this.loading = false;
-        // Redirigimos al menú de unidades
         this.router.navigateByUrl('/units', { replaceUrl: true });
       },
       error: (err) => {

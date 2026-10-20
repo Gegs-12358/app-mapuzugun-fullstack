@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { 
-  IonHeader, IonToolbar, IonTitle, IonContent, 
-  IonIcon, IonButtons, IonButton 
+import {
+  IonHeader, IonToolbar, IonTitle, IonContent,
+  IonIcon, IonButtons, IonButton
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { logOutOutline, checkmark, lockClosed } from 'ionicons/icons';
@@ -15,7 +15,7 @@ import { logOutOutline, checkmark, lockClosed } from 'ionicons/icons';
   styleUrls: ['./units.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, IonHeader, IonToolbar, IonTitle, IonContent, 
+    CommonModule, IonHeader, IonToolbar, IonTitle, IonContent,
     IonIcon, IonButtons, IonButton
   ]
 })
@@ -35,7 +35,6 @@ export class UnitsPage implements OnInit {
       this.username = JSON.parse(userStr).username;
     }
 
-    // Cargar unidades
     this.http.get<any[]>('http://localhost:3000/api/units').subscribe({
       next: (data) => {
         this.unidades = data;
@@ -65,30 +64,26 @@ export class UnitsPage implements OnInit {
     });
   }
 
-  // ¿Está completada esta unidad?
   estaCompletada(unitId: number): boolean {
     return this.progreso.some(p => p.unit_id === unitId && p.completed);
   }
 
-  // ¿Está desbloqueada esta unidad?
   estaDesbloqueada(unitId: number): boolean {
-    if (unitId === 1) return true; // La primera siempre está abierta
-    return this.estaCompletada(unitId - 1); // Necesitas completar la anterior
+    if (unitId === 1) return true;
+    return this.estaCompletada(unitId - 1);
   }
 
-  // ¿Es la unidad actual (la próxima por completar)?
   esActual(unitId: number): boolean {
     return this.estaDesbloqueada(unitId) && !this.estaCompletada(unitId);
   }
 
-  // Estado visual de la unidad
+  // 👇 ESTA ERA LA FUNCIÓN QUE FALTABA
   estadoUnidad(unitId: number): string {
     if (this.estaCompletada(unitId)) return 'completada';
     if (!this.estaDesbloqueada(unitId)) return 'bloqueada';
     return 'actual';
   }
 
-  // Cuántas unidades completadas (para el contador)
   get completadas(): number {
     return this.progreso.filter(p => p.completed).length;
   }
@@ -99,12 +94,14 @@ export class UnitsPage implements OnInit {
 
   irAUnidad(id: number) {
     if (this.estaDesbloqueada(id)) {
-      this.router.navigate(['/home', id]);
+      // Navegación hacia la Etapa 1 de la unidad
+      this.router.navigateByUrl(`/home/${id}/1`);
     }
   }
 
   cerrarSesion() {
     localStorage.removeItem('mapu_user');
+    localStorage.removeItem('mapu_token');
     this.router.navigateByUrl('/login', { replaceUrl: true });
   }
 }
