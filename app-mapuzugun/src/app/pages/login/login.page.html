@@ -1,0 +1,64 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-title class="ion-text-center">Mapuzugun</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding" style="background-color: #F5EBE1;">
+  
+  <div class="login-container">
+    <ion-card style="border-radius: 20px; border: 3px solid #1F3A60;">
+      
+      <ion-card-header class="ion-text-center">
+        <div style="font-size: 50px; margin-bottom: 10px;">🌿</div>
+        <ion-card-title style="color: #1F3A60; font-weight: bold;">
+          {{ isLoginMode ? 'Bienvenido' : 'Crear Cuenta' }}
+        </ion-card-title>
+        <ion-card-subtitle>
+          {{ isLoginMode ? 'Ingresa para continuar aprendiendo' : 'Únete para empezar tu viaje' }}
+        </ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        
+        <ion-item lines="none" style="margin-bottom: 15px;">
+          <ion-input 
+            label="Usuario" 
+            labelPlacement="floating" 
+            [(ngModel)]="username" 
+            placeholder="Ej: estudiante1"
+            style="--color: #1F3A60; font-weight: bold;">
+          </ion-input>
+        </ion-item>
+
+        <ion-item lines="none" style="margin-bottom: 15px;">
+          <ion-input 
+            type="password" 
+            label="Contraseña" 
+            labelPlacement="floating" 
+            [(ngModel)]="password" 
+            placeholder="********"
+            style="--color: #1F3A60; font-weight: bold;">
+          </ion-input>
+        </ion-item>
+
+        <ion-text color="danger" *ngIf="errorMsg" class="ion-text-center" style="display: block; margin-bottom: 15px; font-size: 0.9em;">
+          <p>{{ errorMsg }}</p>
+        </ion-text>
+
+        <ion-button expand="block" (click)="onSubmit()" [disabled]="loading" style="--background: #1F3A60; height: 50px; font-weight: bold;">
+          <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+          <span *ngIf="!loading">{{ isLoginMode ? 'INICIAR SESIÓN' : 'REGISTRARSE' }}</span>
+        </ion-button>
+
+        <div class="ion-text-center" style="margin-top: 20px;">
+          <ion-button fill="clear" (click)="toggleMode()" style="--color: #C47B66; font-weight: bold;">
+            {{ isLoginMode ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión' }}
+          </ion-button>
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+</ion-content>

@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router'; 
-import { RouterLink } from '@angular/router'; // <-- IMPORTANTE para que funcione el botón
+import { ActivatedRoute, RouterLink } from '@angular/router'; 
 import { 
   IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, 
   IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, 
@@ -15,8 +14,7 @@ import {
   styleUrls: ['home.page.scss'],
   standalone: true,
   imports: [
-    CommonModule,
-    RouterLink, // <-- Agregado aquí
+    CommonModule, RouterLink,
     IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, 
     IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, 
     IonProgressBar, IonBackButton
@@ -28,13 +26,13 @@ export class HomePage implements OnInit {
   loading = true;
   xp = 120;
   streak = 3;
-  username = 'estudiante1';
+  username: string = ''; // <-- Ya no está fijo en 'estudiante1'
   selectedOption: string | null = null;
   isAnswered = false;
   isCorrect = false;
   leccionTerminada = false;
   unitId: string | null = null;
-  notaCultural: string = ""; // <-- Nueva variable para el texto
+  notaCultural: string = "";
 
   constructor(private http: HttpClient, private route: ActivatedRoute) {}
 
@@ -48,13 +46,21 @@ export class HomePage implements OnInit {
   }
 
   ngOnInit() {
+    // 1. Obtenemos el usuario logueado
+    const userStr = localStorage.getItem('mapu_user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      this.username = user.username;
+    }
+
+    // 2. Cargamos el ID de la unidad
     this.unitId = this.route.snapshot.paramMap.get('unitId');
 
-    // Asignamos una nota cultural según la unidad
     if (this.unitId === '1') this.notaCultural = "Nota cultural: Los saludos son una muestra de respeto.";
     else if (this.unitId === '2') this.notaCultural = "Nota cultural: Presentarse es el primer paso para crear lazos.";
     else if (this.unitId === '3') this.notaCultural = "Nota cultural: La familia es el núcleo fundamental de la cultura mapuche.";
 
+    // 3. Cargamos las preguntas
     if (this.unitId) {
       this.http.get<any[]>(`http://localhost:3000/api/exercises?unitId=${this.unitId}`).subscribe({
         next: (data) => {
@@ -73,16 +79,21 @@ export class HomePage implements OnInit {
       });
     }
 
-    this.http.get(`http://localhost:3000/api/user/${this.username}`).subscribe({
-      next: (user: any) => {
-        this.xp = user.xp;
-        this.streak = user.streak;
-      },
-      error: (err) => {
-        console.error('Error al cargar el usuario:', err);
-      }
-    });
+    // 4. Cargamos el perfil del usuario usando su nombre real
+    if (this.username) {
+      this.http.get(`http://localhost:3000/api/user/${this.username}`).subscribe({
+        next: (user: any) => {
+          this.xp = user.xp;
+          this.streak = user.streak;
+        },
+        error: (err) => {
+          console.error('Error al cargar el usuario:', err);
+        }
+      });
+    }
   }
+
+  // ... (El resto de las funciones playAudio, selectOption, checkAnswer, nextExercise, guardarProgreso, reiniciarLeccion y shuffleArray se mantienen exactamente igual que en el código anterior) ...
 
   playAudio() {
     const audio = new Audio('assets/audio/mari_mari.mp3');
@@ -97,10 +108,8 @@ export class HomePage implements OnInit {
 
   checkAnswer() {
     if (!this.selectedOption || this.isAnswered) return;
-    
     this.isAnswered = true;
     this.isCorrect = this.selectedOption === this.ejercicioActual.correct_answer;
-    
     if (this.isCorrect) {
       this.xp += 20;
     }
@@ -112,7 +121,6 @@ export class HomePage implements OnInit {
       this.guardarProgreso();
       return;
     }
-
     this.currentIndex++;
     this.selectedOption = null;
     this.isAnswered = false;
@@ -121,7 +129,7 @@ export class HomePage implements OnInit {
 
   guardarProgreso() {
     this.http.post('http://localhost:3000/api/update-xp', {
-      username: this.username,
+      username: this.username, // <-- Guarda con el usuario real
       xp: this.xp
     }).subscribe({
       next: (res) => console.log('Progreso guardado en la nube:', res),
@@ -136,7 +144,6 @@ export class HomePage implements OnInit {
       }
       return ejercicio;
     });
-
     this.currentIndex = 0;
     this.leccionTerminada = false;
     this.selectedOption = null;

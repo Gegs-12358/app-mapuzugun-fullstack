@@ -1,0 +1,15 @@
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+ion-item {
+  --background: #f9f9f9;
+  --border-radius: 12px;
+  --padding-start: 15px;
+  margin-bottom: 15px;
+}
