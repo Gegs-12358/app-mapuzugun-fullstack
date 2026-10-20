@@ -1,0 +1,33 @@
+.unidad-card {
+  --background: #FFFFFF;
+  --border-radius: 16px;
+  --padding-start: 16px;
+  --inner-padding-end: 16px;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-left: 6px solid #C47B66; /* Línea terracota a la izquierda */
+  border-radius: 16px;
+  margin-bottom: 16px;
+}
+
+.icono-unidad {
+  color: #1F3A60;
+  font-size: 28px;
+  margin-right: 12px;
+}
+
+.titulo-unidad {
+  color: #1F3A60;
+  font-weight: 800;
+  font-size: 1.1em;
+}
+
+.subtitulo-unidad {
+  color: #666;
+  font-size: 0.95em;
+  margin-top: 4px;
+}
+
+.flecha-unidad {
+  color: #A9BCCB;
+  font-size: 20px;
+}

@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router'; 
+import { RouterLink } from '@angular/router'; // <-- IMPORTANTE para que funcione el botón
 import { 
   IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, 
-  IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonProgressBar 
+  IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, 
+  IonProgressBar, IonBackButton 
 } from '@ionic/angular/standalone';
 
 @Component({
@@ -13,12 +16,13 @@ import {
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink, // <-- Agregado aquí
     IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, 
-    IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonProgressBar
+    IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, 
+    IonProgressBar, IonBackButton
   ]
 })
 export class HomePage implements OnInit {
-  // Variables de la app (Solo declaradas UNA vez)
   ejercicios: any[] = [];
   currentIndex = 0;
   loading = true;
@@ -29,8 +33,10 @@ export class HomePage implements OnInit {
   isAnswered = false;
   isCorrect = false;
   leccionTerminada = false;
+  unitId: string | null = null;
+  notaCultural: string = ""; // <-- Nueva variable para el texto
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private route: ActivatedRoute) {}
 
   get ejercicioActual() {
     return this.ejercicios[this.currentIndex];
@@ -42,24 +48,31 @@ export class HomePage implements OnInit {
   }
 
   ngOnInit() {
-    // 1. Cargamos los ejercicios
-    this.http.get<any[]>('http://localhost:3000/api/exercises').subscribe({
-      next: (data) => {
-        this.ejercicios = this.shuffleArray(data).map(ejercicio => {
-          if (Array.isArray(ejercicio.options)) {
-            ejercicio.options = this.shuffleArray([...ejercicio.options]);
-          }
-          return ejercicio;
-        });
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error al conectar con el backend:', err);
-        this.loading = false;
-      }
-    });
+    this.unitId = this.route.snapshot.paramMap.get('unitId');
 
-    // 2. Cargamos el perfil del usuario (XP y Racha reales desde PostgreSQL)
+    // Asignamos una nota cultural según la unidad
+    if (this.unitId === '1') this.notaCultural = "Nota cultural: Los saludos son una muestra de respeto.";
+    else if (this.unitId === '2') this.notaCultural = "Nota cultural: Presentarse es el primer paso para crear lazos.";
+    else if (this.unitId === '3') this.notaCultural = "Nota cultural: La familia es el núcleo fundamental de la cultura mapuche.";
+
+    if (this.unitId) {
+      this.http.get<any[]>(`http://localhost:3000/api/exercises?unitId=${this.unitId}`).subscribe({
+        next: (data) => {
+          this.ejercicios = this.shuffleArray(data).map(ejercicio => {
+            if (Array.isArray(ejercicio.options)) {
+              ejercicio.options = this.shuffleArray([...ejercicio.options]);
+            }
+            return ejercicio;
+          });
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Error al conectar con el backend:', err);
+          this.loading = false;
+        }
+      });
+    }
+
     this.http.get(`http://localhost:3000/api/user/${this.username}`).subscribe({
       next: (user: any) => {
         this.xp = user.xp;
@@ -72,7 +85,7 @@ export class HomePage implements OnInit {
   }
 
   playAudio() {
-    const audio = new Audio('assets/audio/mari_mari.wav'); // O .mp3 según tengas
+    const audio = new Audio('assets/audio/mari_mari.mp3');
     audio.play().catch(e => console.error('Error al reproducir el audio:', e));
   }
 
@@ -96,7 +109,7 @@ export class HomePage implements OnInit {
   nextExercise() {
     if (this.currentIndex === this.ejercicios.length - 1) {
       this.leccionTerminada = true;
-      this.guardarProgreso(); // Guarda el XP final en la base de datos
+      this.guardarProgreso();
       return;
     }
 
@@ -129,7 +142,6 @@ export class HomePage implements OnInit {
     this.selectedOption = null;
     this.isAnswered = false;
     this.isCorrect = false;
-    // Nota: No reiniciamos this.xp aquí para mantener el XP real del usuario
   }
 
   shuffleArray(array: any[]) {
