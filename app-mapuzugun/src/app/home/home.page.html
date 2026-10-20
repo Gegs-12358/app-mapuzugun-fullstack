@@ -7,8 +7,10 @@
     <ion-title class="ion-text-center">Lección</ion-title>
     
     <ion-buttons slot="end">
-      <ion-button>🔥 {{ streak }}</ion-button>
-      <ion-button>⭐ {{ xp }}</ion-button>
+      <ion-button style="font-size: 12px;">🔥 {{ streak }}</ion-button>
+      <ion-button style="font-size: 12px;">⭐ {{ xp }}</ion-button>
+      <ion-button style="font-size: 12px;">💎 {{ gems }}</ion-button>
+      <ion-button style="font-size: 12px; color: #ff4961;">❤️ {{ lives }}</ion-button>
     </ion-buttons>
   </ion-toolbar>
   <ion-progress-bar [value]="progreso" color="tertiary"></ion-progress-bar>
@@ -18,6 +20,22 @@
 
   <div *ngIf="loading" class="ion-text-center ion-margin-top">Cargando...</div>
 
+  <!-- PANTALLA DE JUEGO TERMINADO (Sin vidas) -->
+  <ion-card *ngIf="gameOver" class="ion-margin-top"
+    style="border-radius: 20px; border: 3px solid #F44336; text-align: center; padding: 20px;">
+    <h2 style="color: #F44336; font-weight: bold;">¡Te has quedado sin vidas!</h2>
+    <p style="font-size: 40px; margin: 20px 0;">💔</p>
+    
+    <ion-button expand="block" (click)="comprarVidas()" style="--background: #C47B66; margin-top: 10px;">
+      💎 COMPRAR 5 VIDAS (100 GEMAS)
+    </ion-button>
+
+    <ion-button expand="block" routerLink="/units" routerDirection="back" fill="clear" style="--color: #1F3A60; margin-top: 10px;">
+      VOLVER AL MENÚ
+    </ion-button>
+  </ion-card>
+
+  <!-- PANTALLA DE LECCIÓN TERMINADA -->
   <ion-card *ngIf="leccionTerminada" class="ion-margin-top"
     style="border-radius: 20px; border: 3px solid #1F3A60; text-align: center; padding: 20px;">
     <h2 style="color: #1F3A60; font-weight: bold;">¡Lección Completada!</h2>
@@ -27,30 +45,29 @@
     <ion-button expand="block" routerLink="/units" routerDirection="back" style="--background: #C47B66; margin-top: 10px;">
       VOLVER AL MENÚ
     </ion-button>
-    
-    <ion-button expand="block" (click)="reiniciarLeccion()" style="--background: #1F3A60; margin-top: 10px;">
-      VOLVER A INTENTAR
-    </ion-button>
   </ion-card>
 
-  <ion-card *ngIf="!loading && !leccionTerminada && ejercicioActual" class="ion-margin-top"
+  <!-- PANTALLA DE PREGUNTA -->
+  <ion-card *ngIf="!loading && !leccionTerminada && !gameOver && ejercicioActual" class="ion-margin-top"
     style="border-radius: 20px; border: 3px solid #1F3A60;">
     <ion-card-header>
+      <!-- Indicador de Repaso -->
+      <p *ngIf="ejercicioActual.isReview" style="color: #C47B66; font-size: 12px; font-weight: bold; text-align: center; margin-bottom: 5px;">
+        🔄 Pregunta de repaso
+      </p>
+      
       <ion-card-title class="ion-text-center" style="color: #1F3A60;">{{ ejercicioActual.question }}</ion-card-title>
-      <p class="ion-text-center" style="font-size: 12px; color: gray;">Pregunta {{ currentIndex + 1 }} de {{
-        ejercicios.length }}</p>
+      <p class="ion-text-center" style="font-size: 12px; color: gray;">Pregunta {{ currentIndex + 1 }} de {{ ejercicios.length }}</p>
     </ion-card-header>
 
     <ion-card-content class="ion-text-center">
 
-      <!-- Nota Cultural Dinámica -->
       <div [ngClass]="{
         'bg-beige': !isAnswered,
         'bg-green': isAnswered && isCorrect,
         'bg-red': isAnswered && !isCorrect
       }" class="nota-cultural">
-        {{ isAnswered ? (isCorrect ? "¡Correcto! Muy bien." : "¡Casi! La respuesta correcta era " +
-        ejercicioActual.correct_answer) : notaCultural }}
+        {{ isAnswered ? (isCorrect ? "¡Correcto! Muy bien." : "¡Casi! La respuesta correcta era: " + ejercicioActual.correct_answer) : notaCultural }}
       </div>
 
       <ion-button fill="clear" (click)="playAudio()" style="margin: 20px auto; display: block;">
@@ -59,7 +76,8 @@
         </div>
       </ion-button>
 
-      <div style="display: flex; flex-direction: column; gap: 10px;">
+      <!-- MODO SELECCIÓN MÚLTIPLE -->
+      <div *ngIf="ejercicioActual.type === 'multiple_choice'" style="display: flex; flex-direction: column; gap: 10px;">
         <ion-button *ngFor="let option of ejercicioActual.options" expand="block" fill="outline" [ngClass]="{
             'btn-selected': !isAnswered && selectedOption === option,
             'btn-correct': isAnswered && option === ejercicioActual.correct_answer,
@@ -69,11 +87,24 @@
           {{ option }}
         </ion-button>
       </div>
+
+      <!-- MODO ESCRITURA (NUEVO) -->
+      <div *ngIf="ejercicioActual.type === 'write'" style="margin-top: 20px;">
+        <ion-input 
+          [(ngModel)]="writtenAnswer" 
+          [disabled]="isAnswered"
+          placeholder="Escribe tu respuesta aquí..."
+          style="border: 2px solid #A9BCCB; border-radius: 12px; padding: 15px; font-size: 1.1em; color: #1F3A60; font-weight: bold; background-color: white;">
+        </ion-input>
+      </div>
+
     </ion-card-content>
 
     <div style="padding: 20px; border-top: 2px solid #f0f0f0;">
+      <!-- El botón se bloquea si no hay opción O si no hay texto (según el tipo) -->
       <ion-button expand="block" (click)="isAnswered ? nextExercise() : checkAnswer()"
-        [disabled]="!selectedOption && !isAnswered" style="--background: #1F3A60; height: 50px; font-weight: bold;">
+        [disabled]="(ejercicioActual.type === 'multiple_choice' && !selectedOption && !isAnswered) || (ejercicioActual.type === 'write' && !writtenAnswer && !isAnswered)"
+        style="--background: #1F3A60; height: 50px; font-weight: bold;">
         {{ isAnswered ? (currentIndex === ejercicios.length - 1 ? 'FINALIZAR' : 'CONTINUAR') : 'COMPROBAR' }}
       </ion-button>
     </div>

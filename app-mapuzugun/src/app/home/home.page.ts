@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms'; // <-- NUEVO IMPORT para el input
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router'; 
 import { 
   IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, 
   IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, 
-  IonProgressBar, IonBackButton 
+  IonProgressBar, IonBackButton, IonInput 
 } from '@ionic/angular/standalone';
 
 @Component({
@@ -14,10 +15,10 @@ import {
   styleUrls: ['home.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, RouterLink,
+    CommonModule, FormsModule, RouterLink, // <-- Agregamos FormsModule
     IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, 
     IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, 
-    IonProgressBar, IonBackButton
+    IonProgressBar, IonBackButton, IonInput
   ]
 })
 export class HomePage implements OnInit {
@@ -26,11 +27,17 @@ export class HomePage implements OnInit {
   loading = true;
   xp = 120;
   streak = 3;
-  username: string = ''; // <-- Ya no está fijo en 'estudiante1'
+  lives = 5;
+  gems = 500;
+  username = '';
+  
   selectedOption: string | null = null;
+  writtenAnswer = ''; // <-- NUEVA variable para la escritura
+  
   isAnswered = false;
   isCorrect = false;
   leccionTerminada = false;
+  gameOver = false;
   unitId: string | null = null;
   notaCultural: string = "";
 
@@ -46,21 +53,22 @@ export class HomePage implements OnInit {
   }
 
   ngOnInit() {
-    // 1. Obtenemos el usuario logueado
     const userStr = localStorage.getItem('mapu_user');
     if (userStr) {
       const user = JSON.parse(userStr);
       this.username = user.username;
+      this.xp = user.xp;
+      this.streak = user.streak;
+      this.lives = user.lives !== undefined ? user.lives : 5;
+      this.gems = user.gems !== undefined ? user.gems : 500;
     }
 
-    // 2. Cargamos el ID de la unidad
     this.unitId = this.route.snapshot.paramMap.get('unitId');
 
     if (this.unitId === '1') this.notaCultural = "Nota cultural: Los saludos son una muestra de respeto.";
     else if (this.unitId === '2') this.notaCultural = "Nota cultural: Presentarse es el primer paso para crear lazos.";
     else if (this.unitId === '3') this.notaCultural = "Nota cultural: La familia es el núcleo fundamental de la cultura mapuche.";
 
-    // 3. Cargamos las preguntas
     if (this.unitId) {
       this.http.get<any[]>(`http://localhost:3000/api/exercises?unitId=${this.unitId}`).subscribe({
         next: (data) => {
@@ -78,22 +86,7 @@ export class HomePage implements OnInit {
         }
       });
     }
-
-    // 4. Cargamos el perfil del usuario usando su nombre real
-    if (this.username) {
-      this.http.get(`http://localhost:3000/api/user/${this.username}`).subscribe({
-        next: (user: any) => {
-          this.xp = user.xp;
-          this.streak = user.streak;
-        },
-        error: (err) => {
-          console.error('Error al cargar el usuario:', err);
-        }
-      });
-    }
   }
-
-  // ... (El resto de las funciones playAudio, selectOption, checkAnswer, nextExercise, guardarProgreso, reiniciarLeccion y shuffleArray se mantienen exactamente igual que en el código anterior) ...
 
   playAudio() {
     const audio = new Audio('assets/audio/mari_mari.mp3');
@@ -107,33 +100,84 @@ export class HomePage implements OnInit {
   }
 
   checkAnswer() {
-    if (!this.selectedOption || this.isAnswered) return;
+    if (this.isAnswered) return;
+
+    // Evaluamos si es de escritura o de selección
+    if (this.ejercicioActual.type === 'write') {
+      if (!this.writtenAnswer.trim()) return; // No dejar avanzar si está vacío
+      
+      // Comparamos ignorando mayúsculas, minúsculas y espacios extra
+      this.isCorrect = this.writtenAnswer.trim().toLowerCase() === this.ejercicioActual.correct_answer.trim().toLowerCase();
+    } else {
+      if (!this.selectedOption) return;
+      this.isCorrect = this.selectedOption === this.ejercicioActual.correct_answer;
+    }
+    
     this.isAnswered = true;
-    this.isCorrect = this.selectedOption === this.ejercicioActual.correct_answer;
+    
     if (this.isCorrect) {
       this.xp += 20;
+    } else {
+      this.restarVida();
+      
+      const yaEstaEnRepaso = this.ejercicios.slice(this.currentIndex + 1).some(e => e.id === this.ejercicioActual.id);
+      if (!yaEstaEnRepaso) {
+        this.ejercicios.push({ ...this.ejercicioActual, isReview: true });
+      }
     }
   }
 
+  restarVida() {
+    this.lives--;
+    if (this.lives <= 0) {
+      this.lives = 0;
+      this.gameOver = true; 
+    }
+    this.http.post('http://localhost:3000/api/lose-life', { username: this.username }).subscribe({
+      next: (res: any) => {
+        this.lives = res.lives;
+        this.gems = res.gems;
+      },
+      error: (err) => console.error('Error al restar vida:', err)
+    });
+  }
+
   nextExercise() {
+    if (this.lives <= 0) return;
+    
     if (this.currentIndex === this.ejercicios.length - 1) {
       this.leccionTerminada = true;
       this.guardarProgreso();
       return;
     }
+
     this.currentIndex++;
     this.selectedOption = null;
+    this.writtenAnswer = ''; // <-- Limpiamos la caja de texto
     this.isAnswered = false;
     this.isCorrect = false;
   }
 
   guardarProgreso() {
     this.http.post('http://localhost:3000/api/update-xp', {
-      username: this.username, // <-- Guarda con el usuario real
+      username: this.username,
       xp: this.xp
     }).subscribe({
-      next: (res) => console.log('Progreso guardado en la nube:', res),
+      next: (res) => console.log('Progreso guardado:', res),
       error: (err) => console.error('Error al guardar progreso:', err)
+    });
+  }
+
+  comprarVidas() {
+    this.http.post('http://localhost:3000/api/buy-lives', { username: this.username }).subscribe({
+      next: (res: any) => {
+        this.lives = res.lives;
+        this.gems = res.gems;
+        this.gameOver = false; 
+      },
+      error: (err) => {
+        alert(err.error.error || 'Error al comprar vidas');
+      }
     });
   }
 
@@ -144,9 +188,12 @@ export class HomePage implements OnInit {
       }
       return ejercicio;
     });
+
     this.currentIndex = 0;
     this.leccionTerminada = false;
+    this.gameOver = false;
     this.selectedOption = null;
+    this.writtenAnswer = '';
     this.isAnswered = false;
     this.isCorrect = false;
   }
