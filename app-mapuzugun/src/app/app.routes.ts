@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'login',
+    redirectTo: 'units',
     pathMatch: 'full'
   },
   {
@@ -15,7 +15,7 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/units/units.page').then( m => m.UnitsPage)
   },
   {
-    path: 'home/:unitId',
-    loadComponent: () => import('./home/home.page').then( m => m.HomePage)
+    path: 'home/:unitId/:stage',
+    loadComponent: () => import('./home/home.page').then( m => m.HomePage) // 👈 Lazy loading
   }
 ];

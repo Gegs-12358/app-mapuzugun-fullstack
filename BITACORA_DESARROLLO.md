@@ -109,28 +109,29 @@ Alineado con el documento fundacional del proyecto:
 
 ## 🚀 7. Próximos Pasos (Roadmap de Mejoras)
 
-Este es el plan de evolución de la app, priorizado por impacto pedagógico y experiencia de usuario:
+Este es el plan de evolución de la app, priorizado por impacto pedagógico, retención de usuarios y experiencia técnica.
 
-### 🎯 Prioridad Alta (Pedagógico)
-*   **Ejercicio de Micrófono:** Implementar grabación de voz para evaluar pronunciación.
-*   **Unidad de Gramática Básica:** Enseñar a formar oraciones simples (ej. *"Inche tañi üy..."*).
-*   **Modo Repaso Inteligente:** Sección aparte que repita las palabras falladas usando repetición espaciada.
-*   **Audio Real:** Reemplazar los audios genéricos por grabaciones de hablantes nativos (previo consentimiento).
+### 🎯 1. Lo más urgente (Pedagógico)
+*   **Ejercicio de Micrófono (Hablar):** El usuario graba su voz y la app la compara. Es clave para una lengua oral.
+*   **Unidad de Gramática Explícita:** Enseñar a formar oraciones simples (ej. *"Inche tañi üy..."*).
+*   **Frases Completas:** Introducir oraciones completas en lugar de solo palabras aisladas (ej. *"Mari mari, kümelkülen"*).
+*   **Modo Repaso (Repetición Espaciada):** Sección aparte para practicar solo las palabras falladas.
+*   **Audio Real:** Reemplazar audios genéricos por grabaciones de hablantes nativos (previo consentimiento).
 
-### 🎮 Prioridad Media (Gamificación y Retención)
+### 🎮 2. Gamificación y Retención
 *   **Logros / Insignias:** Ej. "Primer Mari mari", "Racha de 7 días", "1000 de Kimün".
 *   **Perfil de Usuario:** Pantalla con estadísticas, logros y selección de avatar (animal de poder).
-*   **Tienda Ampliada:** Comprar "doble Kimün por 1 día", avatares o temas con Llankas.
-*   **Sonidos de Acierto/Error:** Feedback auditivo inmediato.
-*   **Temporizador de Próxima Vida:** Mostrar "Próximo Newen en 7:32" en Game Over.
+*   **Tienda Ampliada:** Usar Llankas para comprar "doble Kimün por 1 día", avatares o temas.
+*   **Sonidos de Acierto/Error:** Feedback auditivo (un "ding" al acertar, "buzz" al fallar).
+*   **Temporizador de Próxima Vida:** Mostrar "Próximo Newen en 7:32" en la pantalla de Game Over.
+*   **Ligas Semanales:** Competir con otros usuarios por Kimün (requiere backend más complejo con rankings).
 
-### 🛠️ Prioridad Técnica (Experiencia)
+### 🛠️ 3. Técnico y de Experiencia
 *   **Modo Oscuro:** Adaptar la paleta de colores para entornos con poca luz.
-*   **PWA Instalable:** Configurar el Service Worker para funcionamiento offline.
+*   **PWA Instalable (Offline):** Configurar el Service Worker para funcionar sin internet.
 *   **Despliegue en la Nube:** Subir Backend (Render/Railway) y BD (Supabase) para independencia del localhost.
 
-### 📚 Prioridad de Contenido
-*   **Más Unidades:** "Ropa", "Clima", "Direcciones", "Frases completas".
-*   **Sección Nütram:** Cuentos cortos en mapuzugun con traducción para practicar lectura.
-*   **Panel de Contribución:** Espacio para que hablantes propongan correcciones.
-```
+### 📚 4. Contenido y Comunidad
+*   **Más Unidades Temáticas:** Agregar "Ropa", "Colores avanzados", "Clima", "Direcciones".
+*   **Sección de "Historia" (Nütram):** Un cuento corto en mapuzugun con traducción para practicar lectura.
+*   **Contribución Comunitaria:** Espacio para que hablantes propongan nuevas palabras o correcciones (requiere panel de admin).

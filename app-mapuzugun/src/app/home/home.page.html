@@ -25,7 +25,6 @@
   <ion-progress-bar [value]="progreso" color="tertiary"></ion-progress-bar>
 </ion-header>
 
-<!-- FONDO GLOBAL APLICADO AQUÍ -->
 <ion-content class="ion-padding map-background">
 
   <div *ngIf="loading" class="ion-text-center ion-margin-top" style="color: #1F3A60; font-weight: bold;">
@@ -49,6 +48,11 @@
       </p>
     </div>
 
+    <!-- TEMPORIZADOR DE PRÓXIMA VIDA -->
+    <p *ngIf="nextLifeInMinutes > 0" style="color: #1F3A60; font-size: 0.9em; margin-bottom: 15px; font-weight: bold;">
+      ⏰ Próximo Newen en <strong>{{ nextLifeInMinutes }} minuto{{ nextLifeInMinutes === 1 ? '' : 's' }}</strong>
+    </p>
+
     <!-- OPCIÓN 1: Practicar (gratis) -->
     <ion-button expand="block" (click)="ganarVidaPracticando()" 
       style="--background: #36802D; margin-top: 10px; font-weight: bold;">
@@ -61,10 +65,10 @@
       🟢 COMPRAR 5 NEWEN (100 LLANKAS)
     </ion-button>
 
-    <!-- OPCIÓN 3: Volver al menú (las vidas se regeneran con el tiempo) -->
+    <!-- OPCIÓN 3: Volver al menú -->
     <ion-button expand="block" routerLink="/units" routerDirection="back" fill="clear" 
       style="--color: #1F3A60; margin-top: 10px; font-weight: bold;">
-      ⏰ VOLVER AL MENÚ (regenera con el tiempo)
+      ⏰ VOLVER AL MENÚ
     </ion-button>
     
     <p style="color: #888; font-size: 0.8em; margin-top: 15px; font-style: italic;">

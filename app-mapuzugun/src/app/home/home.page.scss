@@ -13,17 +13,21 @@
 .bg-green { background-color: #E8F3E0; color: #2D5A28; border-left-color: #4A7C59; }
 .bg-red { background-color: #F8E5E0; color: #8B2E2E; border-left-color: #A64B2A; }
 
+/* Selección neutral (azul suave) */
 .btn-selected {
-  --border-color: #C47B66 !important;
-  --background: #fdf0eb;
+  --border-color: #1F3A60 !important; /* Azul profundo */
+  --background: #E8EEF5; /* Fondo celeste muy claro */
+  --color: #1F3A60 !important; /* Texto azul */
 }
 
+/* Acierto (verde) */
 .btn-correct {
   --border-color: #4CAF50 !important;
   --background: #e8f5e9;
   --color: #4CAF50 !important;
 }
 
+/* Error (rojo) */
 .btn-incorrect {
   --border-color: #F44336 !important;
   --background: #ffebee;

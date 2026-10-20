@@ -32,6 +32,7 @@ export class HomePage implements OnInit {
   lives = 5;
   gems = 500;
   username = '';
+  nextLifeInMinutes = 0;
   
   // Variables de estado
   selectedOption: string | null = null;
@@ -83,6 +84,14 @@ export class HomePage implements OnInit {
           this.lives = userData.lives;
           this.gems = userData.gems;
           
+          // Calcular minutos para la próxima vida
+          if (this.lives < 5 && userData.last_life_regen) {
+            const lastRegen = new Date(userData.last_life_regen).getTime();
+            const minutesPassed = Math.floor((Date.now() - lastRegen) / 60000);
+            const minutesRemaining = 10 - (minutesPassed % 10);
+            this.nextLifeInMinutes = minutesRemaining;
+          }
+
           // Actualizamos el localStorage con los datos frescos de la BD
           localStorage.setItem('mapu_user', JSON.stringify(userData));
 
@@ -91,7 +100,7 @@ export class HomePage implements OnInit {
             this.gameOver = true;
           }
 
-          // 3. Regenerar vidas si pasó tiempo suficiente (AQUÍ VA)
+          // 3. Regenerar vidas si pasó tiempo suficiente
           this.regenerarVidasPorTiempo();
         },
         error: (err) => console.error('Error al cargar el usuario desde el backend:', err)
@@ -100,7 +109,7 @@ export class HomePage implements OnInit {
 
     this.unitId = this.route.snapshot.paramMap.get('unitId');
 
-        // NOTAS CULTURALES - Cosmovisión Mapuche (basadas en Aukanaw)
+    // NOTAS CULTURALES (8 unidades)
     if (this.unitId === '1') {
       this.notaCultural = "Küme Mongen: el 'buen vivir'. Mari mari no es solo un saludo; es el deseo de que la otra persona mantenga el equilibrio entre su cuerpo, su espíritu y la tierra.";
     } else if (this.unitId === '2') {
@@ -197,8 +206,11 @@ export class HomePage implements OnInit {
         if (this.matchedLeft.length === this.ejercicioActual.options.length) {
           this.isAnswered = true;
           this.isCorrect = true;
-          this.xp += 20; 
+          this.xp += 20;
+          this.playCorrectSound();
         }
+      } else {
+        this.playWrongSound();
       }
       this.selectedLeft = null;
       this.selectedRight = null;
@@ -222,8 +234,10 @@ export class HomePage implements OnInit {
     this.isAnswered = true;
     
     if (this.isCorrect) {
+      this.playCorrectSound();
       this.xp += 20;
     } else {
+      this.playWrongSound();
       this.restarVida();
       const yaEstaEnRepaso = this.ejercicios.slice(this.currentIndex + 1).some(e => e.id === this.ejercicioActual.id);
       if (!yaEstaEnRepaso) {
@@ -236,7 +250,8 @@ export class HomePage implements OnInit {
     this.lives--;
     if (this.lives <= 0) {
       this.lives = 0;
-      this.gameOver = true; 
+      this.gameOver = true;
+      this.nextLifeInMinutes = 10;
     }
     
     this.http.post('http://localhost:3000/api/lose-life', { username: this.username }).subscribe({
@@ -329,7 +344,6 @@ export class HomePage implements OnInit {
     });
   }
 
-  // Ganar 1 vida practicando
   ganarVidaPracticando() {
     this.http.post('http://localhost:3000/api/earn-life', { username: this.username }).subscribe({
       next: (res: any) => {
@@ -351,7 +365,6 @@ export class HomePage implements OnInit {
     });
   }
 
-  // Regenerar vidas por tiempo
   regenerarVidasPorTiempo() {
     if (!this.username) return;
     
@@ -359,6 +372,10 @@ export class HomePage implements OnInit {
       next: (res: any) => {
         if (res.regened > 0) {
           this.lives = res.lives;
+          // Recalcular el temporizador
+          if (this.lives < 5) {
+            this.nextLifeInMinutes = 10;
+          }
           const userStr = localStorage.getItem('mapu_user');
           if (userStr) {
             const user = JSON.parse(userStr);
@@ -396,5 +413,40 @@ export class HomePage implements OnInit {
       [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
     }
     return newArray;
+  }
+
+  // --- SONIDOS (Web Audio API) ---
+  playCorrectSound() {
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+    osc.frequency.exponentialRampToValueAtTime(1046.50, ctx.currentTime + 0.1); // C6
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.3);
+  }
+
+  playWrongSound() {
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(200, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.2);
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.4);
   }
 }
