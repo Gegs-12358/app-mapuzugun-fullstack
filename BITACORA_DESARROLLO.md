@@ -1,11 +1,10 @@
-Paso 1: Crear el archivo
-En VS Code, dentro de la carpeta principal (mapuche), crea una nueva carpeta llamada docs.
+¡Me alegra mucho que te hayan gustado las ideas! Aquí tienes la **Bitácora de Desarrollo actualizada**, incluyendo todo lo que construimos hoy (el mapa con candados, los tipos de ejercicios, la estética mapuche, las notas culturales específicas) y la sección de **Próximos Pasos (Roadmap)** ampliada con todas las recomendaciones que te gustaron.
 
-Dentro de docs, crea un archivo llamado BITACORA_DESARROLLO.md.
+Copia todo el texto de abajo, pégalo en tu archivo `docs/BITACORA_DESARROLLO.md` (reemplazando el contenido anterior) y guarda.
 
-Copia y pega el siguiente contenido:
+---
 
-markdown
+```markdown
 # 📘 Bitácora de Desarrollo y Arquitectura: App Mapuzugun
 
 Este documento detalla el proceso de construcción, desde cero, de la aplicación Full-Stack para el aprendizaje y revitalización del mapuzugun. Sirve como registro técnico de las decisiones tomadas, las tecnologías implementadas y los desafíos superados.
@@ -26,113 +25,112 @@ El proyecto utiliza una arquitectura desacoplada (Cliente-Servidor), garantizand
 /mapuche
   ├── /backend         # API en Node.js (server.js)
   ├── /app-mapuzugun   # Aplicación Frontend (Ionic/Angular)
-  ├── /docs            # Documentación
+  ├── /docs            # Documentación (incluye esta bitácora)
   ├── .gitignore       # Exclusión de node_modules y variables de entorno
   └── database.sql     # Script de respaldo y creación de la base de datos
-🗄️ 2. Fase 1: Base de Datos (PostgreSQL)
+```
+
+## 🗄️ 2. Fase 1: Base de Datos (PostgreSQL)
+
 Se diseñó una base de datos relacional para soportar el contenido dinámico y el progreso de los usuarios.
 
-Esquema de Tablas
-users: Almacena las credenciales y el progreso.
+**Esquema de Tablas:**
+*   **`users`**: Almacena credenciales y progreso.
+    *   `id` (Serial), `username` (Varchar), `password` (Varchar encriptado).
+    *   `xp` (Entero), `streak` (Entero), `lives` (Entero), `gems` (Entero).
+    *   `last_life_regen` (Timestamp) para la regeneración automática de vidas.
+*   **`units`**: Las unidades temáticas del curso.
+    *   `id` (Serial), `title` (Varchar).
+*   **`exercises`**: Los ejercicios de cada unidad.
+    *   `id` (Serial), `unit_id` (Llave foránea), `type` (Varchar: 'multiple_choice', 'write', 'match').
+    *   `question` (Texto), `correct_answer` (Varchar), `options` (JSONB), `audio_url` (Varchar).
+    *   `cultural_note` (Texto) para notas específicas por palabra.
+*   **`user_progress`**: Registra el avance del usuario por las unidades.
+    *   `id` (Serial), `username` (FK), `unit_id` (FK), `completed` (Boolean), `score` (Entero).
 
-id (Serial), username (Varchar), password (Varchar encriptado).
+*(Nota: Todo el esquema y los datos iniciales están exportados en el archivo `database.sql` en la raíz del proyecto).*
 
-xp (Entero), streak (Entero), lives (Entero), gems (Entero).
+## ⚙️ 3. Fase 2: Backend (Node.js + Express)
 
-units: Las unidades temáticas del curso.
-
-id (Serial), title (Varchar).
-
-exercises: Los ejercicios de cada unidad.
-
-id (Serial), unit_id (Llave foránea), question (Texto), correct_answer (Varchar), options (JSONB), audio_url (Varchar).
-
-(Nota: Todo el esquema y los datos iniciales están exportados en el archivo database.sql en la raíz del proyecto).
-
-⚙️ 3. Fase 2: Backend (Node.js + Express)
 El backend expone una serie de endpoints para manejar la lógica de negocio.
 
-Dependencias principales:
-express: Servidor web.
+**Dependencias principales:** `express`, `pg`, `cors`, `bcrypt`.
 
-pg: Conexión a PostgreSQL.
+**Endpoints Desarrollados:**
+*   `POST /api/register`: Registro de usuarios con hash de contraseña.
+*   `POST /api/login`: Validación de credenciales y entrega de sesión.
+*   `GET /api/units`: Obtiene el listado de unidades.
+*   `GET /api/exercises?unitId=X`: Obtiene los ejercicios filtrados por unidad.
+*   `POST /api/update-xp`: Actualiza el puntaje (Kimün) del usuario.
+*   `POST /api/lose-life`: Resta un Newen (vida) en caso de error.
+*   `POST /api/buy-lives`: Compra 5 Newen con Llankas (gemas).
+*   `POST /api/earn-life`: Gana 1 Newen practicando.
+*   `POST /api/regen-lives`: Regenera Newen por tiempo (1 cada 10 min).
+*   `POST /api/progress`: Guarda el progreso de una unidad completada.
+*   `GET /api/progress/:username`: Obtiene el progreso de un usuario.
 
-cors: Permite peticiones cruzadas desde el frontend.
+## 📱 4. Fase 3: Frontend (Ionic + Angular)
 
-bcrypt: Encriptación de contraseñas.
+Se diseñó una interfaz con identidad visual propia, inspirada en la cosmovisión mapuche (Aukanaw).
 
-Endpoints Desarrollados:
-POST /api/register: Registro de usuarios con hash de contraseña.
+**Identidad Visual:**
+*   **Colores:** Índigo profundo (#23406B), Terracota (#A64B2A), Ocre (#D4A017), Crema (#F4EBD8).
+*   **Tipografía:** *Bitter* (títulos, sensación artesanal) y *Lora* (texto, serif cálido).
+*   **Fondo:** Mapa cultural de la Patagonia con un filtro crema para mantener legibilidad.
 
-POST /api/login: Validación de credenciales y entrega de sesión (XP, vidas, etc.).
+**Pantallas Desarrolladas:**
+1.  **Login / Registro (`login.page`):** Permite crear cuentas y guarda la sesión en `localStorage`.
+2.  **Menú de Unidades (`units.page`):** 
+    *   Visualización tipo "Camino" (Rüpü) con estrellas de 8 puntas (Flor del Foye).
+    *   Sistema de progreso: Unidades completadas (✓ verde), actual (pulso dorado), bloqueadas (🔒 gris).
+    *   Barra superior con contador de unidades completadas.
+3.  **Lección (`home.page`):** El núcleo de la app.
+    *   Barra superior con Kütral (🔥 racha), Kimün (🏵️ XP), Llanka (🟢 gemas) y Newen (🌿 vidas).
+    *   **Tres tipos de ejercicios:** Selección múltiple, escritura (input de texto) y emparejamiento (match de columnas).
+    *   **Notas Culturales Dinámicas:** La nota general de la unidad aparece antes de responder; al responder, se revela la nota específica de la palabra (ej. *"Weza es lo que desequilibra..."*).
+    *   **Game Over:** Si el Newen llega a 0, el usuario puede recuperarlo practicando (+1), comprando con Llankas (+5) o esperando regeneración por tiempo.
 
-GET /api/units: Obtiene el listado de unidades disponibles.
+## 🐙 5. Fase 4: Control de Versiones (Git + GitHub)
 
-GET /api/exercises?unitId=X: Obtiene los ejercicios filtrados por unidad.
+El proyecto se gestiona con Git y se aloja en el repositorio `app-mapuzugun-fullstack`.
 
-POST /api/update-xp: Actualiza el puntaje del usuario al finalizar una lección.
+**Desafíos superados (Lecciones de Ingeniería):**
+*   **Configuración de Node.js en Windows:** Se solucionó el problema de reconocimiento de comandos agregando la ruta al PATH del sistema.
+*   **Conflicto de versiones (Angular 22 vs Ionic):** Se degradaron las versiones a Angular 18 e Ionic 8 para garantizar compatibilidad con Standalone Components.
+*   **Archivos Basura en Git:** Se implementó un `.gitignore` estricto. Se usó `git rm -r -f --cached .` para limpiar el historial previo y `git push -f` para forzar el repositorio limpio.
 
-POST /api/lose-life: Resta una vida en caso de error del usuario.
+## ⚖️ 6. Enfoque Ético
 
-📱 4. Fase 3: Frontend (Ionic + Angular)
-Se diseñó una interfaz con identidad visual propia (Colores: Azul profundo #1F3A60, Terracota #C47B66, Beige #F5EBE1).
-
-Pantallas Desarrolladas:
-Login / Registro (login.page): Permite crear cuentas y guardar la sesión en el localStorage.
-
-Menú de Unidades (units.page): Lista las unidades y saluda al usuario por su nombre. Incluye botón de cerrar sesión.
-
-Lección (home.page): El núcleo de la app.
-
-Barra superior con Racha (🔥), Gemas (💎) y Vidas (❤️).
-
-Barra de progreso dinámica.
-
-Reproductor de audio nativo.
-
-Lógica de Gamificación: Si el usuario falla, pierde un corazón y se actualiza en la base de datos. Si llega a 0, aparece una pantalla de "Game Over".
-
-Lógica de Juego Implementada:
-Aleatoriedad: Se implementó el algoritmo de Fisher-Yates para mezclar las opciones de respuesta y las preguntas en cada intento, evitando la memorización posicional.
-
-Notas Culturales Dinámicas: El texto de respaldo cambia según el ID de la unidad (Saludos, Familia, etc.).
-
-🐙 5. Fase 4: Control de Versiones (Git + GitHub)
-El proyecto se gestiona con Git y se aloja en el repositorio app-mapuzugun-fullstack.
-
-Desafíos superados (Lecciones de Ingeniería):
-Configuración de Node.js en Windows: Se solucionó el problema de reconocimiento de comandos (npm no se reconoce) agregando la ruta al PATH del sistema.
-
-Conflicto de versiones (Angular 22 vs Ionic): Se degradaron las versiones a Angular 18 e Ionic 8 para garantizar la compatibilidad con Standalone Components.
-
-Archivos Basura en Git: Se implementó un .gitignore estricto para evitar subir la carpeta node_modules y .angular/cache. Se usó git rm -r -f --cached . para limpiar el historial previo y git push -f para forzar el repositorio limpio.
-
-⚖️ 6. Enfoque Ético
 Alineado con el documento fundacional del proyecto:
+*   **No comercial:** La app es un apoyo educativo.
+*   **Revisión comunitaria:** Las palabras y audios deben ser validados por hablantes y kimeltuchefe antes de su publicación oficial.
+*   **Respeto a la variante:** Preparado para soportar distintos grafemarios (Azümchefe, Raguileo, etc.).
+*   **Precisión conceptual:** Se diferencia entre *Mongen* (vida) y *Newen* (fuerza vital), educando al usuario en la cosmovisión mapuche.
 
-No comercial: La app es un apoyo educativo.
+## 🚀 7. Próximos Pasos (Roadmap de Mejoras)
 
-Revisión comunitaria: Las palabras y audios deben ser validados por hablantes y kimeltuchefe antes de su publicación oficial.
+Este es el plan de evolución de la app, priorizado por impacto pedagógico y experiencia de usuario:
 
-Respeto a la variante: Preparado para soportar distintos grafemarios (Azümchefe, Raguileo, etc.).
+### 🎯 Prioridad Alta (Pedagógico)
+*   **Ejercicio de Micrófono:** Implementar grabación de voz para evaluar pronunciación.
+*   **Unidad de Gramática Básica:** Enseñar a formar oraciones simples (ej. *"Inche tañi üy..."*).
+*   **Modo Repaso Inteligente:** Sección aparte que repita las palabras falladas usando repetición espaciada.
+*   **Audio Real:** Reemplazar los audios genéricos por grabaciones de hablantes nativos (previo consentimiento).
 
-🚀 7. Próximos Pasos (Roadmap)
-Nuevos tipos de ejercicios: Rellenar espacios en blanco, emparejamiento de pares, dictado.
+### 🎮 Prioridad Media (Gamificación y Retención)
+*   **Logros / Insignias:** Ej. "Primer Mari mari", "Racha de 7 días", "1000 de Kimün".
+*   **Perfil de Usuario:** Pantalla con estadísticas, logros y selección de avatar (animal de poder).
+*   **Tienda Ampliada:** Comprar "doble Kimün por 1 día", avatares o temas con Llankas.
+*   **Sonidos de Acierto/Error:** Feedback auditivo inmediato.
+*   **Temporizador de Próxima Vida:** Mostrar "Próximo Newen en 7:32" en Game Over.
 
-Integración de Micrófono: Para evaluación de pronunciación.
+### 🛠️ Prioridad Técnica (Experiencia)
+*   **Modo Oscuro:** Adaptar la paleta de colores para entornos con poca luz.
+*   **PWA Instalable:** Configurar el Service Worker para funcionamiento offline.
+*   **Despliegue en la Nube:** Subir Backend (Render/Railway) y BD (Supabase) para independencia del localhost.
 
-Despliegue en la Nube: Subir el Backend a Render/Railway y la Base de Datos a Supabase para independencia del localhost.
-
-Compilación APK: Generar el archivo instalable para Android usando Capacitor.
-
-text
-
----
-
-### Paso 2: Guardar y subir a GitHub
-Guarda el archivo (`Ctrl + S`). Luego, en la terminal (en la carpeta `mapuche`), sube esta documentación a tu repositorio:
-
-```powershell
-git add docs/BITACORA_DESARROLLO.md
-git commit -m "docs: agregar bitacora detallada del desarrollo de la app"
-git push origin main
+### 📚 Prioridad de Contenido
+*   **Más Unidades:** "Ropa", "Clima", "Direcciones", "Frases completas".
+*   **Sección Nütram:** Cuentos cortos en mapuzugun con traducción para practicar lectura.
+*   **Panel de Contribución:** Espacio para que hablantes propongan correcciones.
+```

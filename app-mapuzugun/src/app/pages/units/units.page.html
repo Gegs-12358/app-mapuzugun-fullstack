@@ -16,11 +16,18 @@
   </ion-toolbar>
 </ion-header>
 
-<!-- Usamos la clase map-content para manejar el fondo desde el SCSS -->
 <ion-content class="ion-padding map-content">
   
   <div *ngIf="loading" class="ion-text-center ion-margin-top" style="color: #1F3A60; font-weight: bold;">
     Cargando el camino...
+  </div>
+
+  <!-- CONTADOR DE PROGRESO -->
+  <div *ngIf="!loading" class="progress-summary">
+    <p>Has completado <strong>{{ completadas }}</strong> de <strong>{{ totalUnidades }}</strong> unidades</p>
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill" [style.width.%]="(completadas / totalUnidades) * 100"></div>
+    </div>
   </div>
 
   <div class="path-container" *ngIf="!loading">
@@ -29,19 +36,28 @@
       class="path-node-container"
       [ngClass]="{'left-align': i % 2 !== 0, 'right-align': i % 2 === 0}">
       
-      <!-- Línea conectora -->
       <div class="path-line" *ngIf="i !== 0"></div>
       
-      <!-- Estrella (Flor del Foye) -->
+      <!-- Estrella con estado dinámico -->
       <div class="path-node" 
-           [ngClass]="'color-unit-' + ((unidad.id % 5) === 0 ? 5 : (unidad.id % 5))"
+           [ngClass]="[
+             'color-unit-' + ((i % 5) + 1),
+             'state-' + estadoUnidad(unidad.id)
+           ]"
            (click)="irAUnidad(unidad.id)">
         <div class="star-shape"></div>
-        <span class="node-number">{{ unidad.id }}</span>
+        
+        <!-- Número (si no está completada) -->
+        <span class="node-number" *ngIf="!estaCompletada(unidad.id)">{{ unidad.id }}</span>
+        
+        <!-- Checkmark (si está completada) -->
+        <ion-icon *ngIf="estaCompletada(unidad.id)" name="checkmark" class="node-icon-check"></ion-icon>
+        
+        <!-- Candado (si está bloqueada) -->
+        <ion-icon *ngIf="!estaDesbloqueada(unidad.id)" name="lock-closed" class="node-icon-lock"></ion-icon>
       </div>
       
-      <!-- Título de la unidad -->
-      <p class="node-title">Unidad {{ unidad.id }}: {{ unidad.title }}</p>
+      <p class="node-title">{{ unidad.title }}</p>
     </div>
   </div>
 

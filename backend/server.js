@@ -162,6 +162,86 @@ app.post('/api/buy-lives', async (req, res) => {
   }
 });
 
+// GUARDAR PROGRESO DE UNA UNIDAD
+app.post('/api/progress', async (req, res) => {
+  const { username, unitId, score } = req.body;
+  try {
+    const result = await pool.query(
+      `INSERT INTO user_progress (username, unit_id, completed, score)
+       VALUES ($1, $2, true, $3)
+       ON CONFLICT (username, unit_id) 
+       DO UPDATE SET completed = true, 
+                     score = GREATEST(user_progress.score, $3),
+                     completed_at = CURRENT_TIMESTAMP
+       RETURNING *`,
+      [username, unitId, score]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al guardar progreso' });
+  }
+});
+
+// OBTENER PROGRESO DE UN USUARIO
+app.get('/api/progress/:username', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const result = await pool.query(
+      'SELECT * FROM user_progress WHERE username = $1',
+      [username]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error en la base de datos' });
+  }
+});
+
+// PRACTICAR PARA GANAR UNA VIDA
+app.post('/api/earn-life', async (req, res) => {
+  const { username } = req.body;
+  try {
+    const result = await pool.query(
+      'UPDATE users SET lives = LEAST(lives + 1, 5) WHERE username = $1 RETURNING lives, gems',
+      [username]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al ganar vida' });
+  }
+});
+
+// REGENERACIÓN POR TIEMPO (cada 10 minutos = 1 vida, máx 5)
+app.post('/api/regen-lives', async (req, res) => {
+  const { username } = req.body;
+  try {
+    const userRes = await pool.query('SELECT lives, last_life_regen FROM users WHERE username = $1', [username]);
+    if (userRes.rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const user = userRes.rows[0];
+    const minutesSinceLast = (Date.now() - new Date(user.last_life_regen).getTime()) / 60000;
+    const livesToAdd = Math.floor(minutesSinceLast / 10); // 1 vida cada 10 minutos
+
+    if (livesToAdd > 0 && user.lives < 5) {
+      const newLives = Math.min(user.lives + livesToAdd, 5);
+      const updateRes = await pool.query(
+        'UPDATE users SET lives = $1, last_life_regen = CURRENT_TIMESTAMP WHERE username = $2 RETURNING lives',
+        [newLives, username]
+      );
+      return res.json({ lives: updateRes.rows[0].lives, regened: livesToAdd });
+    }
+
+    res.json({ lives: user.lives, regened: 0 });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al regenerar vidas' });
+  }
+});
+
+
 app.listen(3000, () => {
   console.log('✅ Backend corriendo en http://localhost:3000');
 });

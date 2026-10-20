@@ -75,7 +75,7 @@ export class HomePage implements OnInit {
       this.lives = user.lives !== undefined ? user.lives : 5;
       this.gems = user.gems !== undefined ? user.gems : 500;
 
-      // 2. Consultamos la base de datos para tener los datos reales (sincronización)
+      // 2. Consultamos la base de datos para tener los datos reales
       this.http.get(`http://localhost:3000/api/user/${this.username}`).subscribe({
         next: (userData: any) => {
           this.xp = userData.xp;
@@ -90,6 +90,9 @@ export class HomePage implements OnInit {
           if (this.lives <= 0) {
             this.gameOver = true;
           }
+
+          // 3. Regenerar vidas si pasó tiempo suficiente (AQUÍ VA)
+          this.regenerarVidasPorTiempo();
         },
         error: (err) => console.error('Error al cargar el usuario desde el backend:', err)
       });
@@ -97,17 +100,23 @@ export class HomePage implements OnInit {
 
     this.unitId = this.route.snapshot.paramMap.get('unitId');
 
-    // NOTAS CULTURALES
+        // NOTAS CULTURALES - Cosmovisión Mapuche (basadas en Aukanaw)
     if (this.unitId === '1') {
-      this.notaCultural = "El Kütral (fuego) y el Newen (fuerza vital) son conceptos centrales. Los saludos buscan mantener el equilibrio de esa energía.";
+      this.notaCultural = "Küme Mongen: el 'buen vivir'. Mari mari no es solo un saludo; es el deseo de que la otra persona mantenga el equilibrio entre su cuerpo, su espíritu y la tierra.";
     } else if (this.unitId === '2') {
-      this.notaCultural = "La presentación no es solo decir tu nombre, sino reconocer tu origen. El Kimün (conocimiento) se comparte de generación en generación.";
+      this.notaCultural = "El nombre propio es identidad. Preguntar 'Iney pigeymi?' no es solo saber un nombre: es reconocer que la otra persona pertenece a un lof (comunidad).";
     } else if (this.unitId === '3') {
-      this.notaCultural = "En la cultura mapuche, la familia (Ruka) es el núcleo donde se resguarda la tradición y el Foye (Canelo) es el árbol que une el cielo con la tierra.";
+      this.notaCultural = "El sistema numérico mapuche es decimal: mari significa 10 y epu mari significa 20. Los colores tienen poder: el azul (kalfu) es cielo y agua; el rojo (kelü) es fuerza y sangre.";
     } else if (this.unitId === '4') {
-      this.notaCultural = "El Foye (Canelo) es el árbol sagrado, el eje del cosmos. Las plantas no solo curan el cuerpo, sino que mantienen el equilibrio espiritual.";
+      this.notaCultural = "El mapuzugun es aglutinante: de una raíz verbal como 'in' (comer) nacen decenas de palabras. Aprender un verbo es multiplicar tu vocabulario.";
     } else if (this.unitId === '5') {
-      this.notaCultural = "El cosmos mapuche se divide en Wenu Mapu (arriba), Nag Mapu (tierra) y Minche Mapu (abajo). Todo está conectado por el Newen.";
+      this.notaCultural = "La familia extensa (lof) es la base social. Los abuelos (Fücha y Kushe) son los guardianes del Kimün. El cuerpo (kalül) es tu primer territorio.";
+    } else if (this.unitId === '6') {
+      this.notaCultural = "El Ñamku anuncia buenas noticias; el Chonchón es el alma de un brujo que vuela de noche. El Kofke (pan) y el Ko (agua) nunca deben faltar en la mesa.";
+    } else if (this.unitId === '7') {
+      this.notaCultural = "El Foye (Canelo) es el eje del cosmos, el árbol que une el cielo con la tierra. El Kulen ('remedio del ají') cura heridas. El Antü (sol) y la Küyen (luna) rigen el tiempo.";
+    } else if (this.unitId === '8') {
+      this.notaCultural = "El cosmos tiene tres niveles: Wenu Mapu (arriba), Nag Mapu (aquí) y Minche Mapu (abajo). El Newen circula entre ellos. El Kimün se hereda de los antepasados.";
     }
 
     // Cargar Ejercicios
@@ -235,7 +244,6 @@ export class HomePage implements OnInit {
         this.lives = res.lives;
         this.gems = res.gems;
         
-        // Actualizamos localStorage al perder vida
         const userStr = localStorage.getItem('mapu_user');
         if (userStr) {
           const user = JSON.parse(userStr);
@@ -257,6 +265,7 @@ export class HomePage implements OnInit {
     if (this.currentIndex === this.ejercicios.length - 1) {
       this.leccionTerminada = true;
       this.guardarProgreso();
+      this.guardarProgresoUnidad();
       return;
     }
 
@@ -275,7 +284,6 @@ export class HomePage implements OnInit {
     }).subscribe({
       next: (res) => {
         console.log('Progreso guardado:', res);
-        // Actualizamos localStorage al ganar XP
         const userStr = localStorage.getItem('mapu_user');
         if (userStr) {
           const user = JSON.parse(userStr);
@@ -287,6 +295,19 @@ export class HomePage implements OnInit {
     });
   }
 
+  guardarProgresoUnidad() {
+    if (!this.unitId) return;
+    
+    this.http.post('http://localhost:3000/api/progress', {
+      username: this.username,
+      unitId: parseInt(this.unitId),
+      score: this.xp
+    }).subscribe({
+      next: (res) => console.log('Progreso de unidad guardado:', res),
+      error: (err) => console.error('Error al guardar progreso de unidad:', err)
+    });
+  }
+
   comprarVidas() {
     this.http.post('http://localhost:3000/api/buy-lives', { username: this.username }).subscribe({
       next: (res: any) => {
@@ -294,7 +315,6 @@ export class HomePage implements OnInit {
         this.gems = res.gems;
         this.gameOver = false; 
 
-        // Actualizamos localStorage al comprar vidas
         const userStr = localStorage.getItem('mapu_user');
         if (userStr) {
           const user = JSON.parse(userStr);
@@ -306,6 +326,48 @@ export class HomePage implements OnInit {
       error: (err) => {
         alert(err.error.error || 'Error al comprar vidas');
       }
+    });
+  }
+
+  // Ganar 1 vida practicando
+  ganarVidaPracticando() {
+    this.http.post('http://localhost:3000/api/earn-life', { username: this.username }).subscribe({
+      next: (res: any) => {
+        this.lives = res.lives;
+        this.gems = res.gems;
+        this.gameOver = false;
+        
+        const userStr = localStorage.getItem('mapu_user');
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          user.lives = this.lives;
+          user.gems = this.gems;
+          localStorage.setItem('mapu_user', JSON.stringify(user));
+        }
+        
+        this.reiniciarLeccion();
+      },
+      error: (err) => alert(err.error.error || 'Error al ganar vida')
+    });
+  }
+
+  // Regenerar vidas por tiempo
+  regenerarVidasPorTiempo() {
+    if (!this.username) return;
+    
+    this.http.post('http://localhost:3000/api/regen-lives', { username: this.username }).subscribe({
+      next: (res: any) => {
+        if (res.regened > 0) {
+          this.lives = res.lives;
+          const userStr = localStorage.getItem('mapu_user');
+          if (userStr) {
+            const user = JSON.parse(userStr);
+            user.lives = this.lives;
+            localStorage.setItem('mapu_user', JSON.stringify(user));
+          }
+        }
+      },
+      error: (err) => console.error('Error al regenerar vidas:', err)
     });
   }
 

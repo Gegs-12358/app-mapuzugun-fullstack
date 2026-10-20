@@ -1,16 +1,49 @@
-/* --- FONDO DEL MAPA CON LA IMAGEN Y FILTRO --- */
 .map-content {
-  /* Usamos un gradiente semitransparente sobre la imagen para dar contraste */
   --background: linear-gradient(rgba(245, 235, 225, 0.75), rgba(245, 235, 225, 0.75)), 
                 url('../../../assets/img/mapa_cultural.jpg') no-repeat center center / cover;
 }
 
-/* --- CONTENEDOR DEL CAMINO --- */
+/* === CONTADOR DE PROGRESO === */
+.progress-summary {
+  background-color: white;
+  padding: 15px 20px;
+  border-radius: 15px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  text-align: center;
+  
+  p {
+    color: #1F3A60;
+    font-size: 0.95em;
+    margin: 0 0 10px 0;
+  }
+  
+  strong {
+    color: #C47B66;
+    font-size: 1.2em;
+  }
+}
+
+.progress-bar-container {
+  background-color: #E0D5C8;
+  height: 10px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  background: linear-gradient(90deg, #C47B66, #36802D);
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+/* === CONTENEDOR DEL CAMINO === */
 .path-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 30px;
+  padding-top: 10px;
   padding-bottom: 80px;
   position: relative;
   width: 100%;
@@ -25,29 +58,19 @@
   width: 100%;
 }
 
-/* Zigzag del camino */
 .left-align { transform: translateX(-18%); }
 .right-align { transform: translateX(18%); }
 
-/* Línea punteada conectora */
 .path-line {
   position: absolute;
   top: -35px;
   height: 55px;
   width: 4px;
-  background: repeating-linear-gradient(
-    0deg,
-    #C47B66,
-    #C47B66 8px,
-    transparent 8px,
-    transparent 16px
-  );
+  background: repeating-linear-gradient(0deg, #C47B66, #C47B66 8px, transparent 8px, transparent 16px);
   border-radius: 2px;
   z-index: 1;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* --- EL NODO (ESTRELLA) --- */
 .path-node {
   width: 85px;
   height: 85px;
@@ -60,12 +83,10 @@
   transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Efecto al presionar */
 .path-node:active {
   transform: translateY(4px) scale(0.95);
 }
 
-/* La Estrella de 8 puntas (Flor del Foye) usando clip-path */
 .star-shape {
   position: absolute;
   width: 100%;
@@ -77,22 +98,59 @@
     0% 50%, 30% 40%, 10% 20%, 40% 30%
   );
   transition: all 0.3s;
-  /* Sombra 3D */
   filter: drop-shadow(0px 6px 0px rgba(0,0,0,0.3)) drop-shadow(0px 10px 8px rgba(0,0,0,0.2));
 }
 
-/* Animación de "respiración" al pasar el mouse */
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.08); }
   100% { transform: scale(1); }
 }
 
-.path-node:hover .star-shape {
-  animation: pulse 1.5s infinite;
+/* === ESTADOS DE LAS UNIDADES === */
+/* COMPLETADA: Verde + check + brillo dorado */
+.state-completada .star-shape {
+  background: linear-gradient(135deg, #7ED957, #36802D) !important;
+  filter: drop-shadow(0px 6px 0px rgba(54, 128, 45, 0.5)) drop-shadow(0px 0px 15px rgba(255, 215, 0, 0.6));
 }
 
-/* Número dentro de la estrella */
+.node-icon-check {
+  position: absolute;
+  color: white;
+  font-size: 40px;
+  z-index: 3;
+  pointer-events: none;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+/* ACTUAL: Pulso + brillo amarillo */
+.state-actual .star-shape {
+  animation: pulse 1.5s infinite;
+  filter: drop-shadow(0px 6px 0px rgba(0,0,0,0.3)) drop-shadow(0px 0px 20px rgba(255, 215, 0, 0.9));
+}
+
+/* BLOQUEADA: Gris + opaca + candado */
+.state-bloqueada {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.state-bloqueada .star-shape {
+  background: linear-gradient(135deg, #999, #555) !important;
+  filter: drop-shadow(0px 4px 0px rgba(0,0,0,0.3));
+}
+
+.node-icon-lock {
+  position: absolute;
+  color: white;
+  font-size: 32px;
+  z-index: 3;
+  pointer-events: none;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+/* === NÚMERO Y TÍTULO === */
 .node-number {
   position: absolute;
   color: white;
@@ -103,7 +161,6 @@
   text-shadow: 0px 2px 4px rgba(0,0,0,0.6);
 }
 
-/* Título (Pastilla blanca debajo de la estrella) */
 .node-title {
   margin-top: 10px;
   font-weight: 800;
@@ -116,22 +173,16 @@
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
   z-index: 2;
   border-bottom: 3px solid #A9BCCB;
-  white-space: nowrap; /* Evita que el texto se rompa en dos líneas */
+  white-space: nowrap;
 }
 
-/* --- PALETA DE COLORES PARA LAS ESTRELLAS SEGÚN LA UNIDAD --- */
-/* Unidad 1: Terracota */
+/* Paleta de colores por unidad (cuando NO está completada) */
 .color-unit-1 .star-shape { background: linear-gradient(135deg, #FF9A7B, #C47B66); }
-/* Unidad 2: Azul Profundo */
 .color-unit-2 .star-shape { background: linear-gradient(135deg, #4A7DBF, #1F3A60); }
-/* Unidad 3: Verde Foye */
 .color-unit-3 .star-shape { background: linear-gradient(135deg, #7ED957, #36802D); }
-/* Unidad 4: Amarillo Sol */
 .color-unit-4 .star-shape { background: linear-gradient(135deg, #FFD54F, #F4B41A); }
-/* Unidad 5: Morado Llanka */
 .color-unit-5 .star-shape { background: linear-gradient(135deg, #9C27B0, #4A148C); }
 
-/* Borde inferior del título a juego con el color de la estrella */
 .color-unit-1 + .node-title { border-bottom-color: #C47B66; }
 .color-unit-2 + .node-title { border-bottom-color: #1F3A60; }
 .color-unit-3 + .node-title { border-bottom-color: #36802D; }

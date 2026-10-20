@@ -1,14 +1,17 @@
 .nota-cultural {
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 0.9em;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  line-height: 1.5;
   font-style: italic;
   margin-bottom: 20px;
   transition: all 0.3s;
+  border-left: 4px solid #D4A017;
+  text-align: left;
 }
-.bg-beige { background-color: #F5EBE1; color: #555; }
-.bg-green { background-color: #e8f5e9; color: #2e7d32; }
-.bg-red { background-color: #ffebee; color: #c62828; }
+.bg-beige { background-color: #F4EBD8; color: #4A3B2A; }
+.bg-green { background-color: #E8F3E0; color: #2D5A28; border-left-color: #4A7C59; }
+.bg-red { background-color: #F8E5E0; color: #8B2E2E; border-left-color: #A64B2A; }
 
 .btn-selected {
   --border-color: #C47B66 !important;
