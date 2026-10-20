@@ -1,7 +1,13 @@
-<ion-header class="ion-no-border">
+<ion-header class="ion-no-border" style="box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
   <ion-toolbar color="primary">
-    <ion-title>Hola, {{ username }}</ion-title>
+    <ion-title style="font-weight: 800; letter-spacing: 1px;">Küme Rüpü</ion-title>
     
+    <ion-buttons slot="start">
+      <ion-button>
+        <span style="font-size: 13px; font-weight: bold; color: white;">Hola, {{ username }}</span>
+      </ion-button>
+    </ion-buttons>
+
     <ion-buttons slot="end">
       <ion-button (click)="cerrarSesion()">
         <ion-icon name="log-out-outline" slot="icon-only"></ion-icon>
@@ -10,10 +16,11 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding" style="background-color: #F5EBE1;">
+<!-- Usamos la clase map-content para manejar el fondo desde el SCSS -->
+<ion-content class="ion-padding map-content">
   
   <div *ngIf="loading" class="ion-text-center ion-margin-top" style="color: #1F3A60; font-weight: bold;">
-    Cargando unidades...
+    Cargando el camino...
   </div>
 
   <div class="path-container" *ngIf="!loading">
@@ -25,10 +32,12 @@
       <!-- Línea conectora -->
       <div class="path-line" *ngIf="i !== 0"></div>
       
-      <!-- Botón circular de la unidad -->
-      <div class="path-node" (click)="irAUnidad(unidad.id)">
+      <!-- Estrella (Flor del Foye) -->
+      <div class="path-node" 
+           [ngClass]="'color-unit-' + ((unidad.id % 5) === 0 ? 5 : (unidad.id % 5))"
+           (click)="irAUnidad(unidad.id)">
+        <div class="star-shape"></div>
         <span class="node-number">{{ unidad.id }}</span>
-        <ion-icon name="book-outline"></ion-icon>
       </div>
       
       <!-- Título de la unidad -->

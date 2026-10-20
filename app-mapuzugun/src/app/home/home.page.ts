@@ -25,29 +25,31 @@ export class HomePage implements OnInit {
   ejercicios: any[] = [];
   currentIndex = 0;
   loading = true;
+  
+  // Variables del juego
   xp = 120;
   streak = 3;
   lives = 5;
   gems = 500;
   username = '';
   
+  // Variables de estado
   selectedOption: string | null = null;
   writtenAnswer = ''; 
-  
-  // Variables para el juego de emparejamiento
-  matchLeftColumn: any[] = [];
-  matchRightColumn: any[] = [];
-  selectedLeft: any = null;
-  selectedRight: any = null;
-  matchedLeft: string[] = [];
-  matchedRight: string[] = [];
-  
   isAnswered = false;
   isCorrect = false;
   leccionTerminada = false;
   gameOver = false;
   unitId: string | null = null;
   notaCultural: string = "";
+
+  // Variables para el juego de emparejamiento (Match)
+  matchLeftColumn: any[] = [];
+  matchRightColumn: any[] = [];
+  selectedLeft: any = null;
+  selectedRight: any = null;
+  matchedLeft: string[] = [];
+  matchedRight: string[] = [];
 
   constructor(private http: HttpClient, private route: ActivatedRoute) {}
 
@@ -60,36 +62,67 @@ export class HomePage implements OnInit {
     return this.currentIndex / this.ejercicios.length;
   }
 
-    ngOnInit() {
+  ngOnInit() {
     const userStr = localStorage.getItem('mapu_user');
+    
     if (userStr) {
       const user = JSON.parse(userStr);
       this.username = user.username;
+      
+      // 1. Mostramos los datos del localStorage rápido para que no parpadee
       this.xp = user.xp;
       this.streak = user.streak;
       this.lives = user.lives !== undefined ? user.lives : 5;
       this.gems = user.gems !== undefined ? user.gems : 500;
+
+      // 2. Consultamos la base de datos para tener los datos reales (sincronización)
+      this.http.get(`http://localhost:3000/api/user/${this.username}`).subscribe({
+        next: (userData: any) => {
+          this.xp = userData.xp;
+          this.streak = userData.streak;
+          this.lives = userData.lives;
+          this.gems = userData.gems;
+          
+          // Actualizamos el localStorage con los datos frescos de la BD
+          localStorage.setItem('mapu_user', JSON.stringify(userData));
+
+          // Si las vidas reales son 0, mostramos Game Over
+          if (this.lives <= 0) {
+            this.gameOver = true;
+          }
+        },
+        error: (err) => console.error('Error al cargar el usuario desde el backend:', err)
+      });
     }
 
     this.unitId = this.route.snapshot.paramMap.get('unitId');
 
-    if (this.unitId === '1') this.notaCultural = "Nota cultural: Los saludos son una muestra de respeto.";
-    else if (this.unitId === '2') this.notaCultural = "Nota cultural: Presentarse es el primer paso para crear lazos.";
-    else if (this.unitId === '3') this.notaCultural = "Nota cultural: La familia es el núcleo fundamental de la cultura mapuche.";
+    // NOTAS CULTURALES
+    if (this.unitId === '1') {
+      this.notaCultural = "El Kütral (fuego) y el Newen (fuerza vital) son conceptos centrales. Los saludos buscan mantener el equilibrio de esa energía.";
+    } else if (this.unitId === '2') {
+      this.notaCultural = "La presentación no es solo decir tu nombre, sino reconocer tu origen. El Kimün (conocimiento) se comparte de generación en generación.";
+    } else if (this.unitId === '3') {
+      this.notaCultural = "En la cultura mapuche, la familia (Ruka) es el núcleo donde se resguarda la tradición y el Foye (Canelo) es el árbol que une el cielo con la tierra.";
+    } else if (this.unitId === '4') {
+      this.notaCultural = "El Foye (Canelo) es el árbol sagrado, el eje del cosmos. Las plantas no solo curan el cuerpo, sino que mantienen el equilibrio espiritual.";
+    } else if (this.unitId === '5') {
+      this.notaCultural = "El cosmos mapuche se divide en Wenu Mapu (arriba), Nag Mapu (tierra) y Minche Mapu (abajo). Todo está conectado por el Newen.";
+    }
 
+    // Cargar Ejercicios
     if (this.unitId) {
       this.http.get<any[]>(`http://localhost:3000/api/exercises?unitId=${this.unitId}`).subscribe({
         next: (data) => {
           this.ejercicios = this.shuffleArray(data).map(ejercicio => {
-            // Si el backend devuelve las opciones como string (por error de PostgreSQL), las parseamos
             if (typeof ejercicio.options === 'string') {
               try { ejercicio.options = JSON.parse(ejercicio.options); } catch(e){}
             }
 
-            // FORZAMOS EL TIPO SI DETECTAMOS LA ESTRUCTURA
+            // Detectar si es match
             if (Array.isArray(ejercicio.options) && ejercicio.options.length > 0) {
               if (ejercicio.options[0].mapuche !== undefined) {
-                ejercicio.type = 'match'; // Forzamos a que sea match
+                ejercicio.type = 'match'; 
               } else {
                 ejercicio.options = this.shuffleArray([...ejercicio.options]);
               }
@@ -97,7 +130,7 @@ export class HomePage implements OnInit {
             return ejercicio;
           });
           this.loading = false;
-          this.initMatchGame(); 
+          this.initMatchGame();
         },
         error: (err) => {
           console.error('Error al conectar con el backend:', err);
@@ -107,7 +140,6 @@ export class HomePage implements OnInit {
     }
   }
 
-  // Inicializa las columnas si el ejercicio es de tipo 'match'
   initMatchGame() {
     if (this.ejercicioActual && this.ejercicioActual.type === 'match') {
       this.matchLeftColumn = this.shuffleArray([...this.ejercicioActual.options]);
@@ -120,11 +152,14 @@ export class HomePage implements OnInit {
   }
 
   playAudio() {
-    const audio = new Audio('assets/audio/mari_mari.mp3');
+    if (!this.ejercicioActual || !this.ejercicioActual.audio_url) {
+      console.log('Esta pregunta no tiene audio.');
+      return;
+    }
+    const audio = new Audio(this.ejercicioActual.audio_url);
     audio.play().catch(e => console.error('Error al reproducir el audio:', e));
   }
 
-  // --- LÓGICA DE SELECCIÓN MÚLTIPLE ---
   selectOption(option: string) {
     if (!this.isAnswered) {
       this.selectedOption = option;
@@ -146,22 +181,16 @@ export class HomePage implements OnInit {
 
   checkMatch() {
     if (this.selectedLeft && this.selectedRight) {
-      // Si la palabra en mapuche coincide con la seleccionada en la derecha
       if (this.selectedLeft.mapuche === this.selectedRight.mapuche) {
         this.matchedLeft.push(this.selectedLeft.mapuche);
         this.matchedRight.push(this.selectedRight.spanish);
         
-        // Si ya emparejó todas las palabras
         if (this.matchedLeft.length === this.ejercicioActual.options.length) {
           this.isAnswered = true;
           this.isCorrect = true;
-          this.xp += 20; // Sumamos XP por completar
+          this.xp += 20; 
         }
-      } else {
-        // Si se equivoca, podemos hacer que pierda una vida o simplemente limpiar
-        // Aquí solo limpiamos la selección para que lo intente de nuevo
       }
-      
       this.selectedLeft = null;
       this.selectedRight = null;
     }
@@ -178,7 +207,6 @@ export class HomePage implements OnInit {
       if (!this.selectedOption) return;
       this.isCorrect = this.selectedOption === this.ejercicioActual.correct_answer;
     } else if (this.ejercicioActual.type === 'match') {
-       // El match se evalúa solo en checkMatch(), pero si llega aquí es porque no completó todo
        return; 
     }
     
@@ -201,17 +229,30 @@ export class HomePage implements OnInit {
       this.lives = 0;
       this.gameOver = true; 
     }
+    
     this.http.post('http://localhost:3000/api/lose-life', { username: this.username }).subscribe({
       next: (res: any) => {
         this.lives = res.lives;
         this.gems = res.gems;
+        
+        // Actualizamos localStorage al perder vida
+        const userStr = localStorage.getItem('mapu_user');
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          user.lives = this.lives;
+          user.gems = this.gems;
+          localStorage.setItem('mapu_user', JSON.stringify(user));
+        }
       },
       error: (err) => console.error('Error al restar vida:', err)
     });
   }
 
   nextExercise() {
-    if (this.lives <= 0) return;
+    if (this.lives <= 0) {
+      this.gameOver = true; 
+      return;
+    }
     
     if (this.currentIndex === this.ejercicios.length - 1) {
       this.leccionTerminada = true;
@@ -224,7 +265,7 @@ export class HomePage implements OnInit {
     this.writtenAnswer = ''; 
     this.isAnswered = false;
     this.isCorrect = false;
-    this.initMatchGame(); // <-- Inicializamos el match para la nueva pregunta
+    this.initMatchGame(); 
   }
 
   guardarProgreso() {
@@ -232,7 +273,16 @@ export class HomePage implements OnInit {
       username: this.username,
       xp: this.xp
     }).subscribe({
-      next: (res) => console.log('Progreso guardado:', res),
+      next: (res) => {
+        console.log('Progreso guardado:', res);
+        // Actualizamos localStorage al ganar XP
+        const userStr = localStorage.getItem('mapu_user');
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          user.xp = this.xp;
+          localStorage.setItem('mapu_user', JSON.stringify(user));
+        }
+      },
       error: (err) => console.error('Error al guardar progreso:', err)
     });
   }
@@ -243,6 +293,15 @@ export class HomePage implements OnInit {
         this.lives = res.lives;
         this.gems = res.gems;
         this.gameOver = false; 
+
+        // Actualizamos localStorage al comprar vidas
+        const userStr = localStorage.getItem('mapu_user');
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          user.lives = this.lives;
+          user.gems = this.gems;
+          localStorage.setItem('mapu_user', JSON.stringify(user));
+        }
       },
       error: (err) => {
         alert(err.error.error || 'Error al comprar vidas');

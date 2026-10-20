@@ -1,27 +1,28 @@
 <ion-header class="ion-no-border">
   <ion-toolbar color="primary">
-    <ion-title class="ion-text-center">Mapuzugun</ion-title>
+    <ion-title class="ion-text-center" style="font-weight: 800;">Mapuzugun</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding" style="background-color: #F5EBE1;">
+<!-- CAMBIO AQUÍ: Usamos map-background -->
+<ion-content class="ion-padding map-background">
   
   <div class="login-container">
-    <ion-card style="border-radius: 20px; border: 3px solid #1F3A60;">
+    <ion-card>
       
       <ion-card-header class="ion-text-center">
-        <div style="font-size: 50px; margin-bottom: 10px;">🌿</div>
-        <ion-card-title style="color: #1F3A60; font-weight: bold;">
+        <div style="font-size: 60px; margin-bottom: 10px;">🌿</div>
+        <ion-card-title style="color: #1F3A60; font-weight: 900;">
           {{ isLoginMode ? 'Bienvenido' : 'Crear Cuenta' }}
         </ion-card-title>
-        <ion-card-subtitle>
+        <ion-card-subtitle style="color: #C47B66; font-weight: bold;">
           {{ isLoginMode ? 'Ingresa para continuar aprendiendo' : 'Únete para empezar tu viaje' }}
         </ion-card-subtitle>
       </ion-card-header>
 
       <ion-card-content>
         
-        <ion-item lines="none" style="margin-bottom: 15px;">
+        <ion-item lines="none" style="margin-bottom: 15px; --background: #F5EBE1; border-radius: 12px;">
           <ion-input 
             label="Usuario" 
             labelPlacement="floating" 
@@ -31,7 +32,7 @@
           </ion-input>
         </ion-item>
 
-        <ion-item lines="none" style="margin-bottom: 15px;">
+        <ion-item lines="none" style="margin-bottom: 15px; --background: #F5EBE1; border-radius: 12px;">
           <ion-input 
             type="password" 
             label="Contraseña" 
@@ -46,7 +47,7 @@
           <p>{{ errorMsg }}</p>
         </ion-text>
 
-        <ion-button expand="block" (click)="onSubmit()" [disabled]="loading" style="--background: #1F3A60; height: 50px; font-weight: bold;">
+        <ion-button expand="block" (click)="onSubmit()" [disabled]="loading" style="--background: #1F3A60; height: 50px; font-weight: bold; margin-top: 10px;">
           <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
           <span *ngIf="!loading">{{ isLoginMode ? 'INICIAR SESIÓN' : 'REGISTRARSE' }}</span>
         </ion-button>

@@ -35,3 +35,16 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+/* Fondo global con el mapa cultural */
+.map-background {
+  --background: linear-gradient(rgba(245, 235, 225, 0.85), rgba(245, 235, 225, 0.85)), 
+                url('assets/img/mapa_cultural.jpg') no-repeat center center / cover !important;
+}
+
+/* Estilo global para las tarjetas (efecto cristal/limpio) */
+ion-card {
+  box-shadow: 0 8px 16px rgba(31, 58, 96, 0.15) !important;
+  border-radius: 20px !important;
+  background: #FFFFFF !important;
+}
