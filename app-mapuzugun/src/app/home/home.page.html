@@ -47,15 +47,13 @@
     </ion-button>
   </ion-card>
 
-  <!-- PANTALLA DE PREGUNTA -->
+    <!-- PANTALLA DE PREGUNTA -->
   <ion-card *ngIf="!loading && !leccionTerminada && !gameOver && ejercicioActual" class="ion-margin-top"
     style="border-radius: 20px; border: 3px solid #1F3A60;">
     <ion-card-header>
-      <!-- Indicador de Repaso -->
       <p *ngIf="ejercicioActual.isReview" style="color: #C47B66; font-size: 12px; font-weight: bold; text-align: center; margin-bottom: 5px;">
         🔄 Pregunta de repaso
       </p>
-      
       <ion-card-title class="ion-text-center" style="color: #1F3A60;">{{ ejercicioActual.question }}</ion-card-title>
       <p class="ion-text-center" style="font-size: 12px; color: gray;">Pregunta {{ currentIndex + 1 }} de {{ ejercicios.length }}</p>
     </ion-card-header>
@@ -70,7 +68,8 @@
         {{ isAnswered ? (isCorrect ? "¡Correcto! Muy bien." : "¡Casi! La respuesta correcta era: " + ejercicioActual.correct_answer) : notaCultural }}
       </div>
 
-      <ion-button fill="clear" (click)="playAudio()" style="margin: 20px auto; display: block;">
+      <!-- BOTÓN DE AUDIO (Oculto en modo Match) -->
+      <ion-button *ngIf="ejercicioActual.type !== 'match'" fill="clear" (click)="playAudio()" style="margin: 20px auto; display: block;">
         <div style="background-color: #C47B66; border-radius: 50%; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; font-size: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
           🔊
         </div>
@@ -88,7 +87,7 @@
         </ion-button>
       </div>
 
-      <!-- MODO ESCRITURA (NUEVO) -->
+      <!-- MODO ESCRITURA -->
       <div *ngIf="ejercicioActual.type === 'write'" style="margin-top: 20px;">
         <ion-input 
           [(ngModel)]="writtenAnswer" 
@@ -98,15 +97,57 @@
         </ion-input>
       </div>
 
+            <!-- MODO EMPAREJAMIENTO (MATCH) -->
+      <div *ngIf="ejercicioActual.type === 'match'" style="margin-top: 20px;">
+        <div style="display: flex; justify-content: space-between; gap: 15px;">
+          
+          <!-- Columna Izquierda (Mapuzugun) -->
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 12px;">
+            <div *ngFor="let item of matchLeftColumn" 
+                 (click)="selectLeft(item)"
+                 [ngClass]="{
+                   'match-completed': matchedLeft.includes(item.mapuche)
+                 }"
+                 [style.background-color]="selectedLeft === item ? '#fdf0eb' : (matchedLeft.includes(item.mapuche) ? '#e8f5e9' : 'white')"
+                 [style.border-color]="selectedLeft === item ? '#C47B66' : (matchedLeft.includes(item.mapuche) ? '#4CAF50' : '#A9BCCB')"
+                 [style.color]="matchedLeft.includes(item.mapuche) ? '#4CAF50' : '#1F3A60'"
+                 style="padding: 15px 10px; border: 2px solid; border-radius: 12px; font-weight: bold; text-align: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.2s; user-select: none;">
+              {{ item.mapuche }}
+            </div>
+          </div>
+
+          <!-- Columna Derecha (Español) -->
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 12px;">
+            <div *ngFor="let item of matchRightColumn" 
+                 (click)="selectRight(item)"
+                 [ngClass]="{
+                   'match-completed': matchedRight.includes(item.spanish)
+                 }"
+                 [style.background-color]="selectedRight === item ? '#fdf0eb' : (matchedRight.includes(item.spanish) ? '#e8f5e9' : 'white')"
+                 [style.border-color]="selectedRight === item ? '#C47B66' : (matchedRight.includes(item.spanish) ? '#4CAF50' : '#A9BCCB')"
+                 [style.color]="matchedRight.includes(item.spanish) ? '#4CAF50' : '#1F3A60'"
+                 style="padding: 15px 10px; border: 2px solid; border-radius: 12px; font-weight: bold; text-align: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.2s; user-select: none;">
+              {{ item.spanish }}
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </ion-card-content>
 
     <div style="padding: 20px; border-top: 2px solid #f0f0f0;">
-      <!-- El botón se bloquea si no hay opción O si no hay texto (según el tipo) -->
-      <ion-button expand="block" (click)="isAnswered ? nextExercise() : checkAnswer()"
+      <!-- BOTÓN COMPROBAR (Se oculta en modo match hasta que se completen las parejas) -->
+      <ion-button *ngIf="ejercicioActual.type !== 'match' || isAnswered" 
+        expand="block" (click)="isAnswered ? nextExercise() : checkAnswer()"
         [disabled]="(ejercicioActual.type === 'multiple_choice' && !selectedOption && !isAnswered) || (ejercicioActual.type === 'write' && !writtenAnswer && !isAnswered)"
         style="--background: #1F3A60; height: 50px; font-weight: bold;">
         {{ isAnswered ? (currentIndex === ejercicios.length - 1 ? 'FINALIZAR' : 'CONTINUAR') : 'COMPROBAR' }}
       </ion-button>
+      
+      <p *ngIf="ejercicioActual.type === 'match' && !isAnswered" style="text-align: center; color: #888; font-size: 0.9em; margin-top: 10px;">
+        Une todas las parejas para continuar
+      </p>
     </div>
   </ion-card>
 </ion-content>

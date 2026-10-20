@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // <-- NUEVO IMPORT para el input
+import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router'; 
 import { 
@@ -15,7 +15,7 @@ import {
   styleUrls: ['home.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, FormsModule, RouterLink, // <-- Agregamos FormsModule
+    CommonModule, FormsModule, RouterLink,
     IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, 
     IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, 
     IonProgressBar, IonBackButton, IonInput
@@ -32,7 +32,15 @@ export class HomePage implements OnInit {
   username = '';
   
   selectedOption: string | null = null;
-  writtenAnswer = ''; // <-- NUEVA variable para la escritura
+  writtenAnswer = ''; 
+  
+  // Variables para el juego de emparejamiento
+  matchLeftColumn: any[] = [];
+  matchRightColumn: any[] = [];
+  selectedLeft: any = null;
+  selectedRight: any = null;
+  matchedLeft: string[] = [];
+  matchedRight: string[] = [];
   
   isAnswered = false;
   isCorrect = false;
@@ -52,7 +60,7 @@ export class HomePage implements OnInit {
     return this.currentIndex / this.ejercicios.length;
   }
 
-  ngOnInit() {
+    ngOnInit() {
     const userStr = localStorage.getItem('mapu_user');
     if (userStr) {
       const user = JSON.parse(userStr);
@@ -73,12 +81,23 @@ export class HomePage implements OnInit {
       this.http.get<any[]>(`http://localhost:3000/api/exercises?unitId=${this.unitId}`).subscribe({
         next: (data) => {
           this.ejercicios = this.shuffleArray(data).map(ejercicio => {
-            if (Array.isArray(ejercicio.options)) {
-              ejercicio.options = this.shuffleArray([...ejercicio.options]);
+            // Si el backend devuelve las opciones como string (por error de PostgreSQL), las parseamos
+            if (typeof ejercicio.options === 'string') {
+              try { ejercicio.options = JSON.parse(ejercicio.options); } catch(e){}
+            }
+
+            // FORZAMOS EL TIPO SI DETECTAMOS LA ESTRUCTURA
+            if (Array.isArray(ejercicio.options) && ejercicio.options.length > 0) {
+              if (ejercicio.options[0].mapuche !== undefined) {
+                ejercicio.type = 'match'; // Forzamos a que sea match
+              } else {
+                ejercicio.options = this.shuffleArray([...ejercicio.options]);
+              }
             }
             return ejercicio;
           });
           this.loading = false;
+          this.initMatchGame(); 
         },
         error: (err) => {
           console.error('Error al conectar con el backend:', err);
@@ -88,29 +107,79 @@ export class HomePage implements OnInit {
     }
   }
 
+  // Inicializa las columnas si el ejercicio es de tipo 'match'
+  initMatchGame() {
+    if (this.ejercicioActual && this.ejercicioActual.type === 'match') {
+      this.matchLeftColumn = this.shuffleArray([...this.ejercicioActual.options]);
+      this.matchRightColumn = this.shuffleArray([...this.ejercicioActual.options]);
+      this.selectedLeft = null;
+      this.selectedRight = null;
+      this.matchedLeft = [];
+      this.matchedRight = [];
+    }
+  }
+
   playAudio() {
     const audio = new Audio('assets/audio/mari_mari.mp3');
     audio.play().catch(e => console.error('Error al reproducir el audio:', e));
   }
 
+  // --- LÓGICA DE SELECCIÓN MÚLTIPLE ---
   selectOption(option: string) {
     if (!this.isAnswered) {
       this.selectedOption = option;
     }
   }
 
+  // --- LÓGICA DE EMPAREJAMIENTO (MATCH) ---
+  selectLeft(item: any) {
+    if (this.isAnswered || this.matchedLeft.includes(item.mapuche)) return;
+    this.selectedLeft = item;
+    this.checkMatch();
+  }
+
+  selectRight(item: any) {
+    if (this.isAnswered || this.matchedRight.includes(item.spanish)) return;
+    this.selectedRight = item;
+    this.checkMatch();
+  }
+
+  checkMatch() {
+    if (this.selectedLeft && this.selectedRight) {
+      // Si la palabra en mapuche coincide con la seleccionada en la derecha
+      if (this.selectedLeft.mapuche === this.selectedRight.mapuche) {
+        this.matchedLeft.push(this.selectedLeft.mapuche);
+        this.matchedRight.push(this.selectedRight.spanish);
+        
+        // Si ya emparejó todas las palabras
+        if (this.matchedLeft.length === this.ejercicioActual.options.length) {
+          this.isAnswered = true;
+          this.isCorrect = true;
+          this.xp += 20; // Sumamos XP por completar
+        }
+      } else {
+        // Si se equivoca, podemos hacer que pierda una vida o simplemente limpiar
+        // Aquí solo limpiamos la selección para que lo intente de nuevo
+      }
+      
+      this.selectedLeft = null;
+      this.selectedRight = null;
+    }
+  }
+
+  // --- LÓGICA GENERAL DE RESPUESTA ---
   checkAnswer() {
     if (this.isAnswered) return;
 
-    // Evaluamos si es de escritura o de selección
     if (this.ejercicioActual.type === 'write') {
-      if (!this.writtenAnswer.trim()) return; // No dejar avanzar si está vacío
-      
-      // Comparamos ignorando mayúsculas, minúsculas y espacios extra
+      if (!this.writtenAnswer.trim()) return; 
       this.isCorrect = this.writtenAnswer.trim().toLowerCase() === this.ejercicioActual.correct_answer.trim().toLowerCase();
-    } else {
+    } else if (this.ejercicioActual.type === 'multiple_choice') {
       if (!this.selectedOption) return;
       this.isCorrect = this.selectedOption === this.ejercicioActual.correct_answer;
+    } else if (this.ejercicioActual.type === 'match') {
+       // El match se evalúa solo en checkMatch(), pero si llega aquí es porque no completó todo
+       return; 
     }
     
     this.isAnswered = true;
@@ -119,7 +188,6 @@ export class HomePage implements OnInit {
       this.xp += 20;
     } else {
       this.restarVida();
-      
       const yaEstaEnRepaso = this.ejercicios.slice(this.currentIndex + 1).some(e => e.id === this.ejercicioActual.id);
       if (!yaEstaEnRepaso) {
         this.ejercicios.push({ ...this.ejercicioActual, isReview: true });
@@ -153,9 +221,10 @@ export class HomePage implements OnInit {
 
     this.currentIndex++;
     this.selectedOption = null;
-    this.writtenAnswer = ''; // <-- Limpiamos la caja de texto
+    this.writtenAnswer = ''; 
     this.isAnswered = false;
     this.isCorrect = false;
+    this.initMatchGame(); // <-- Inicializamos el match para la nueva pregunta
   }
 
   guardarProgreso() {
@@ -196,6 +265,7 @@ export class HomePage implements OnInit {
     this.writtenAnswer = '';
     this.isAnswered = false;
     this.isCorrect = false;
+    this.initMatchGame();
   }
 
   shuffleArray(array: any[]) {
