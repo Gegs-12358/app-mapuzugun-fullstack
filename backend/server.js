@@ -1,18 +1,19 @@
+require('dotenv').config();
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 
 const app = express();
-app.use(cors());
+app.use(cors({ origin: process.env.CORS_ORIGIN }));
 app.use(express.json());
 
 const pool = new Pool({
-  user: 'postgres',          
-  host: 'localhost',
-  database: 'mapuzugun_db',  
-  password: 'Casa0025', // ¡Asegúrate de poner tu contraseña!
-  port: 5432,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: Number(process.env.DB_PORT),
 });
 
 // RUTA DE REGISTRO
@@ -242,6 +243,7 @@ app.post('/api/regen-lives', async (req, res) => {
 });
 
 
-app.listen(3000, () => {
-  console.log('✅ Backend corriendo en http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`✅ Backend corriendo en http://localhost:${PORT}`);
 });
