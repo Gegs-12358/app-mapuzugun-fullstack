@@ -1,0 +1,85 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-title class="ion-text-center">Unidad 1: Saludos</ion-title>
+    <ion-buttons slot="start">
+      <ion-button>
+        🔥 {{ streak }}
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button>
+        ⭐ {{ xp }}
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <!-- Barra de progreso -->
+  <ion-progress-bar [value]="progreso" color="tertiary"></ion-progress-bar>
+</ion-header>
+
+<ion-content class="ion-padding" style="background-color: #F5EBE1;">
+
+  <div *ngIf="loading" class="ion-text-center ion-margin-top">Cargando...</div>
+
+  <!-- PANTALLA DE LECCIÓN TERMINADA -->
+  <ion-card *ngIf="leccionTerminada" class="ion-margin-top"
+    style="border-radius: 20px; border: 3px solid #1F3A60; text-align: center; padding: 20px;">
+    <h2 style="color: #1F3A60; font-weight: bold;">¡Lección Completada!</h2>
+    <p style="font-size: 40px; margin: 20px 0;">🎉</p>
+    <p>Has ganado {{ xp - 120 }} XP en esta lección.</p>
+    <ion-button expand="block" (click)="reiniciarLeccion()" style="--background: #1F3A60; margin-top: 20px;">
+      VOLVER A INTENTAR
+    </ion-button>
+  </ion-card>
+
+  <!-- PANTALLA DE PREGUNTA -->
+  <ion-card *ngIf="!loading && !leccionTerminada && ejercicioActual" class="ion-margin-top"
+    style="border-radius: 20px; border: 3px solid #1F3A60;">
+    <ion-card-header>
+      <!-- Mostramos la pregunta actual -->
+      <ion-card-title class="ion-text-center" style="color: #1F3A60;">{{ ejercicioActual.question }}</ion-card-title>
+      <p class="ion-text-center" style="font-size: 12px; color: gray;">Pregunta {{ currentIndex + 1 }} de {{
+        ejercicios.length }}</p>
+    </ion-card-header>
+
+    <ion-card-content class="ion-text-center">
+
+      <!-- Nota Cultural -->
+      <div [ngClass]="{
+        'bg-beige': !isAnswered,
+        'bg-green': isAnswered && isCorrect,
+        'bg-red': isAnswered && !isCorrect
+      }" class="nota-cultural">
+        {{ isAnswered ? (isCorrect ? "¡Correcto! Muy bien." : "¡Casi! La respuesta correcta era " +
+        ejercicioActual.correct_answer) : "Nota cultural: Los saludos son una muestra de respeto." }}
+      </div>
+
+      <!-- Botón de Audio -->
+      <ion-button fill="clear" (click)="playAudio()" style="margin: 20px auto; display: block;">
+        <div
+          style="background-color: #C47B66; border-radius: 50%; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; font-size: 40px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+          🔊
+        </div>
+      </ion-button>
+
+      <!-- Opciones -->
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <ion-button *ngFor="let option of ejercicioActual.options" expand="block" fill="outline" [ngClass]="{
+            'btn-selected': !isAnswered && selectedOption === option,
+            'btn-correct': isAnswered && option === ejercicioActual.correct_answer,
+            'btn-incorrect': isAnswered && option === selectedOption && !isCorrect
+          }" (click)="selectOption(option)"
+          style="border-radius: 12px; --border-color: #A9BCCB; --color: #1F3A60; text-transform: none;">
+          {{ option }}
+        </ion-button>
+      </div>
+    </ion-card-content>
+
+    <div style="padding: 20px; border-top: 2px solid #f0f0f0;">
+      <!-- Botón que cambia entre COMPROBAR y CONTINUAR -->
+      <ion-button expand="block" (click)="isAnswered ? nextExercise() : checkAnswer()"
+        [disabled]="!selectedOption && !isAnswered" style="--background: #1F3A60; height: 50px; font-weight: bold;">
+        {{ isAnswered ? (currentIndex === ejercicios.length - 1 ? 'FINALIZAR' : 'CONTINUAR') : 'COMPROBAR' }}
+      </ion-button>
+    </div>
+  </ion-card>
+</ion-content>

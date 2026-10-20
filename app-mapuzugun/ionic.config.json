@@ -1,0 +1,7 @@
+{
+  "name": "app-mapuzugun",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

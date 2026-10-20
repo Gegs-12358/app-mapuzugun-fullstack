@@ -1,0 +1,28 @@
+.nota-cultural {
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-bottom: 20px;
+  transition: all 0.3s;
+}
+.bg-beige { background-color: #F5EBE1; color: #555; }
+.bg-green { background-color: #e8f5e9; color: #2e7d32; }
+.bg-red { background-color: #ffebee; color: #c62828; }
+
+.btn-selected {
+  --border-color: #C47B66 !important;
+  --background: #fdf0eb;
+}
+
+.btn-correct {
+  --border-color: #4CAF50 !important;
+  --background: #e8f5e9;
+  --color: #4CAF50 !important;
+}
+
+.btn-incorrect {
+  --border-color: #F44336 !important;
+  --background: #ffebee;
+  --color: #F44336 !important;
+}

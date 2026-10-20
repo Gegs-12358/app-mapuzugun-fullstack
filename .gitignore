@@ -1,0 +1,11 @@
+# Dependencias
+node_modules/
+**/node_modules/
+
+# Caché de Angular
+.angular/
+**/.angular/
+
+# Variables de entorno y sistema
+.env
+.DS_Store
