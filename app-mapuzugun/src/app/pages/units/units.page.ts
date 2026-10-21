@@ -8,6 +8,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { logOutOutline, checkmark, lockClosed } from 'ionicons/icons';
+import { AVATARES, imagenAvatar } from '../../avatars';
 
 @Component({
   selector: 'app-units',
@@ -21,24 +22,35 @@ import { logOutOutline, checkmark, lockClosed } from 'ionicons/icons';
 })
 export class UnitsPage implements OnInit {
   unidades: any[] = [];
-  progreso: any[] = [];
+  etapas: any[] = [];            // { unit_id, stage, ejercicios, title, completed, score }
+  unidadAbierta: number | null = null;
   loading = true;
   username = '';
+
+  avatares = AVATARES;
+  avatarId = 'puma';
+  selectorAbierto = false;
 
   constructor(private http: HttpClient, private router: Router) {
     addIcons({ logOutOutline, checkmark, lockClosed });
   }
 
+  get avatarImg(): string {
+    return imagenAvatar(this.avatarId);
+  }
+
   ngOnInit() {
     const userStr = localStorage.getItem('mapu_user');
     if (userStr) {
-      this.username = JSON.parse(userStr).username;
+      const user = JSON.parse(userStr);
+      this.username = user.username;
+      this.avatarId = user.avatar || 'puma';
     }
 
-    this.http.get<any[]>('http://localhost:3000/api/units').subscribe({
+    this.http.get<any[]>('/api/units').subscribe({
       next: (data) => {
         this.unidades = data;
-        this.cargarProgreso();
+        this.cargarEtapas();
       },
       error: (err) => {
         console.error('Error al cargar unidades:', err);
@@ -47,37 +59,62 @@ export class UnitsPage implements OnInit {
     });
   }
 
-  cargarProgreso() {
-    if (!this.username) {
-      this.loading = false;
-      return;
-    }
-    this.http.get<any[]>(`http://localhost:3000/api/progress/${this.username}`).subscribe({
+  // Se ejecuta cada vez que se vuelve a esta pantalla (por ejemplo, al terminar una lección)
+  ionViewWillEnter() {
+    if (!this.loading) this.cargarEtapas();
+  }
+
+  cargarEtapas() {
+    this.http.get<any[]>('/api/stages').subscribe({
       next: (data) => {
-        this.progreso = data;
+        this.etapas = data;
         this.loading = false;
+        const actual = this.unidades.find(u => this.esActual(u.id));
+        if (actual) this.unidadAbierta = actual.id;
       },
       error: (err) => {
-        console.error('Error al cargar progreso:', err);
+        console.error('Error al cargar etapas:', err);
         this.loading = false;
       }
     });
   }
 
+  // --- Etapas ---
+  etapasDe(unitId: number): any[] {
+    return this.etapas.filter(e => e.unit_id === unitId);
+  }
+
+  etapasCompletadas(unitId: number): number {
+    return this.etapasDe(unitId).filter(e => e.completed).length;
+  }
+
+  estadoEtapa(unitId: number, stage: number): string {
+    const etapa = this.etapasDe(unitId).find(e => e.stage === stage);
+    if (etapa && etapa.completed) return 'completada';
+    if (!this.estaDesbloqueada(unitId)) return 'bloqueada';
+
+    const anterior = this.etapasDe(unitId).find(e => e.stage === stage - 1);
+    if (anterior && !anterior.completed) return 'bloqueada';
+    return 'actual';
+  }
+
+  // --- Unidades ---
   estaCompletada(unitId: number): boolean {
-    return this.progreso.some(p => p.unit_id === unitId && p.completed);
+    const etapas = this.etapasDe(unitId);
+    return etapas.length > 0 && etapas.every(e => e.completed);
   }
 
   estaDesbloqueada(unitId: number): boolean {
-    if (unitId === 1) return true;
-    return this.estaCompletada(unitId - 1);
+    const i = this.unidades.findIndex(u => u.id === unitId);
+    if (i < 0) return false;
+    if (i === 0) return true;
+    return this.estaCompletada(this.unidades[i - 1].id);
   }
 
   esActual(unitId: number): boolean {
     return this.estaDesbloqueada(unitId) && !this.estaCompletada(unitId);
   }
 
-  // 👇 ESTA ERA LA FUNCIÓN QUE FALTABA
   estadoUnidad(unitId: number): string {
     if (this.estaCompletada(unitId)) return 'completada';
     if (!this.estaDesbloqueada(unitId)) return 'bloqueada';
@@ -85,18 +122,43 @@ export class UnitsPage implements OnInit {
   }
 
   get completadas(): number {
-    return this.progreso.filter(p => p.completed).length;
+    return this.unidades.filter(u => this.estaCompletada(u.id)).length;
   }
 
   get totalUnidades(): number {
     return this.unidades.length;
   }
 
+  // --- Navegación ---
   irAUnidad(id: number) {
-    if (this.estaDesbloqueada(id)) {
-      // Navegación hacia la Etapa 1 de la unidad
-      this.router.navigateByUrl(`/home/${id}/1`);
+    if (!this.estaDesbloqueada(id)) return;
+    this.unidadAbierta = this.unidadAbierta === id ? null : id;
+  }
+
+  irAEtapa(unitId: number, stage: number) {
+    if (this.estadoEtapa(unitId, stage) === 'bloqueada') return;
+    this.router.navigateByUrl(`/home/${unitId}/${stage}`);
+  }
+
+  // --- Avatar ---
+  cambiarAvatar(id: string) {
+    if (id === this.avatarId) {
+      this.selectorAbierto = false;
+      return;
     }
+    this.http.put<any>('/api/avatar', { avatar: id }).subscribe({
+      next: (res) => {
+        this.avatarId = res.avatar;
+        this.selectorAbierto = false;
+        const userStr = localStorage.getItem('mapu_user');
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          user.avatar = res.avatar;
+          localStorage.setItem('mapu_user', JSON.stringify(user));
+        }
+      },
+      error: (err) => console.error('Error al cambiar el avatar:', err)
+    });
   }
 
   cerrarSesion() {

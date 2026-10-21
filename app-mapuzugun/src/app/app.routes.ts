@@ -8,14 +8,18 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    loadComponent: () => import('./pages/login/login.page').then( m => m.LoginPage)
+    loadComponent: () => import('./pages/login/login.page').then(m => m.LoginPage)
   },
   {
     path: 'units',
-    loadComponent: () => import('./pages/units/units.page').then( m => m.UnitsPage)
+    loadComponent: () => import('./pages/units/units.page').then(m => m.UnitsPage)
   },
   {
     path: 'home/:unitId/:stage',
-    loadComponent: () => import('./home/home.page').then( m => m.HomePage) // 👈 Lazy loading
+    loadComponent: () => import('./home/home.page').then(m => m.HomePage) // 👈 Lazy loading
+  },
+  {
+    path: 'register',
+    loadComponent: () => import('./pages/register/register.page').then(m => m.RegisterPage)
   }
 ];

@@ -188,3 +188,119 @@
 .color-unit-3 + .node-title { border-bottom-color: #36802D; }
 .color-unit-4 + .node-title { border-bottom-color: #F4B41A; }
 .color-unit-5 + .node-title { border-bottom-color: #4A148C; }
+
+/* === ETAPAS (SUBTEMÁTICAS) === */
+.stage-count {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #1F3A60;
+  opacity: 0.8;
+  text-align: center;
+}
+
+.stage-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.stage-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 150px;
+  padding: 10px 16px;
+  border: 2px solid #C47B66;
+  border-radius: 20px;
+  background: #F5EBE1;
+  color: #1F3A60;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+
+  &.stage-actual {
+    background: #C47B66;
+    color: #fff;
+  }
+
+  &.stage-completada {
+    background: #1F3A60;
+    border-color: #1F3A60;
+    color: #fff;
+  }
+
+  &.stage-bloqueada {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+/* === AVATAR === */
+.avatar-btn {
+  --padding-start: 4px;
+  --padding-end: 8px;
+  text-transform: none;
+}
+
+.avatar-mini {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-right: 6px;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6);
+}
+
+.avatar-name {
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.avatar-panel {
+  margin: 0 0 12px;
+  padding: 10px 12px 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 12px rgba(31, 58, 96, 0.18);
+  text-align: center;
+
+  p {
+    margin: 0 0 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1F3A60;
+  }
+}
+
+.avatar-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+
+  button {
+    padding: 3px;
+    border: 3px solid transparent;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+
+    img {
+      display: block;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+    }
+
+    &.selected {
+      border-color: #C47B66;
+    }
+  }
+}

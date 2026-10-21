@@ -1,10 +1,11 @@
 <ion-header class="ion-no-border" style="box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
   <ion-toolbar color="primary">
-    <ion-title style="font-weight: 800; letter-spacing: 1px;">Küme Rüpü</ion-title>
-    
+    <ion-title style="font-weight: 800; letter-spacing: 1px;">Kimanke</ion-title>
+
     <ion-buttons slot="start">
-      <ion-button>
-        <span style="font-size: 13px; font-weight: bold; color: white;">Hola, {{ username }}</span>
+      <ion-button class="avatar-btn" (click)="selectorAbierto = !selectorAbierto" aria-label="Cambiar avatar">
+        <img class="avatar-mini" [src]="avatarImg" alt="" width="32" height="32">
+        <span class="avatar-name">{{ username }}</span>
       </ion-button>
     </ion-buttons>
 
@@ -17,7 +18,20 @@
 </ion-header>
 
 <ion-content class="ion-padding map-content">
-  
+
+  <div class="avatar-panel" *ngIf="selectorAbierto">
+    <p>Elige tu animal</p>
+    <div class="avatar-row">
+      <button type="button"
+              *ngFor="let a of avatares"
+              [class.selected]="a.id === avatarId"
+              [attr.aria-label]="a.nombre"
+              (click)="cambiarAvatar(a.id)">
+        <img [src]="a.img" [alt]="a.nombre" width="56" height="56">
+      </button>
+    </div>
+  </div>
+
   <div *ngIf="loading" class="ion-text-center ion-margin-top" style="color: #1F3A60; font-weight: bold;">
     Cargando el camino...
   </div>
@@ -31,33 +45,43 @@
   </div>
 
   <div class="path-container" *ngIf="!loading">
-    <div 
-      *ngFor="let unidad of unidades; let i = index" 
-      class="path-node-container"
+    <div *ngFor="let unidad of unidades; let i = index" class="path-node-container"
       [ngClass]="{'left-align': i % 2 !== 0, 'right-align': i % 2 === 0}">
-      
+
       <div class="path-line" *ngIf="i !== 0"></div>
-      
+
       <!-- Estrella con estado dinámico -->
-      <div class="path-node" 
-           [ngClass]="[
+      <div class="path-node" [ngClass]="[
              'color-unit-' + ((i % 5) + 1),
              'state-' + estadoUnidad(unidad.id)
-           ]"
-           (click)="irAUnidad(unidad.id)">
+           ]" (click)="irAUnidad(unidad.id)">
         <div class="star-shape"></div>
-        
+
         <!-- Número (si no está completada) -->
         <span class="node-number" *ngIf="!estaCompletada(unidad.id)">{{ unidad.id }}</span>
-        
+
         <!-- Checkmark (si está completada) -->
         <ion-icon *ngIf="estaCompletada(unidad.id)" name="checkmark" class="node-icon-check"></ion-icon>
-        
+
         <!-- Candado (si está bloqueada) -->
         <ion-icon *ngIf="!estaDesbloqueada(unidad.id)" name="lock-closed" class="node-icon-lock"></ion-icon>
       </div>
-      
+
       <p class="node-title">{{ unidad.title }}</p>
+      <p class="stage-count" *ngIf="estaDesbloqueada(unidad.id)">
+        {{ etapasCompletadas(unidad.id) }} de {{ etapasDe(unidad.id).length }} etapas
+      </p>
+
+      <!-- Etapas (subtemáticas) -->
+      <div class="stage-list" *ngIf="unidadAbierta === unidad.id && estaDesbloqueada(unidad.id)">
+        <button type="button" class="stage-chip" *ngFor="let e of etapasDe(unidad.id)"
+          [ngClass]="'stage-' + estadoEtapa(unidad.id, e.stage)"
+          [disabled]="estadoEtapa(unidad.id, e.stage) === 'bloqueada'" (click)="irAEtapa(unidad.id, e.stage)">
+          <ion-icon *ngIf="e.completed" name="checkmark"></ion-icon>
+          <ion-icon *ngIf="estadoEtapa(unidad.id, e.stage) === 'bloqueada'" name="lock-closed"></ion-icon>
+          <span>{{ e.title || ('Etapa ' + e.stage) }}</span>
+        </button>
+      </div>
     </div>
   </div>
 

@@ -2,11 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute, RouterLink } from '@angular/router'; 
-import { 
-  IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, 
-  IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, 
-  IonProgressBar, IonBackButton, IonInput 
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import {
+  IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
+  IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent,
+  IonProgressBar, IonBackButton, IonInput
 } from '@ionic/angular/standalone';
 
 @Component({
@@ -16,8 +16,8 @@ import {
   standalone: true,
   imports: [
     CommonModule, FormsModule, RouterLink,
-    IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, 
-    IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, 
+    IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
+    IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent,
     IonProgressBar, IonBackButton, IonInput
   ]
 })
@@ -25,7 +25,7 @@ export class HomePage implements OnInit {
   ejercicios: any[] = [];
   currentIndex = 0;
   loading = true;
-  
+
   // Variables del juego
   xp = 120;
   streak = 3;
@@ -33,16 +33,19 @@ export class HomePage implements OnInit {
   gems = 500;
   username = '';
   nextLifeInMinutes = 0;
-  
+
   // Variables de estado
   selectedOption: string | null = null;
-  writtenAnswer = ''; 
+  writtenAnswer = '';
   isAnswered = false;
   isCorrect = false;
   leccionTerminada = false;
   gameOver = false;
   unitId: string | null = null;
+  stage: string | null = null;
   notaCultural: string = "";
+  aciertos = 0;
+  xpGanado = 0;
 
   // Variables para el juego de emparejamiento (Match)
   matchLeftColumn: any[] = [];
@@ -52,7 +55,7 @@ export class HomePage implements OnInit {
   matchedLeft: string[] = [];
   matchedRight: string[] = [];
 
-  constructor(private http: HttpClient, private route: ActivatedRoute) {}
+  constructor(private http: HttpClient, private route: ActivatedRoute) { }
 
   get ejercicioActual() {
     return this.ejercicios[this.currentIndex];
@@ -65,11 +68,11 @@ export class HomePage implements OnInit {
 
   ngOnInit() {
     const userStr = localStorage.getItem('mapu_user');
-    
+
     if (userStr) {
       const user = JSON.parse(userStr);
       this.username = user.username;
-      
+
       // 1. Mostramos los datos del localStorage rápido para que no parpadee
       this.xp = user.xp;
       this.streak = user.streak;
@@ -77,13 +80,13 @@ export class HomePage implements OnInit {
       this.gems = user.gems !== undefined ? user.gems : 500;
 
       // 2. Consultamos la base de datos para tener los datos reales
-      this.http.get(`http://localhost:3000/api/user/${this.username}`).subscribe({
+      this.http.get(`/api/user/${this.username}`).subscribe({
         next: (userData: any) => {
           this.xp = userData.xp;
           this.streak = userData.streak;
           this.lives = userData.lives;
           this.gems = userData.gems;
-          
+
           // Calcular minutos para la próxima vida
           if (this.lives < 5 && userData.last_life_regen) {
             const lastRegen = new Date(userData.last_life_regen).getTime();
@@ -108,6 +111,7 @@ export class HomePage implements OnInit {
     }
 
     this.unitId = this.route.snapshot.paramMap.get('unitId');
+    this.stage = this.route.snapshot.paramMap.get('stage');
 
     // NOTAS CULTURALES (8 unidades)
     if (this.unitId === '1') {
@@ -130,17 +134,17 @@ export class HomePage implements OnInit {
 
     // Cargar Ejercicios
     if (this.unitId) {
-      this.http.get<any[]>(`http://localhost:3000/api/exercises?unitId=${this.unitId}`).subscribe({
+      this.http.get<any[]>(`/api/exercises?unitId=${this.unitId}&stage=${this.stage}`).subscribe({
         next: (data) => {
           this.ejercicios = this.shuffleArray(data).map(ejercicio => {
             if (typeof ejercicio.options === 'string') {
-              try { ejercicio.options = JSON.parse(ejercicio.options); } catch(e){}
+              try { ejercicio.options = JSON.parse(ejercicio.options); } catch (e) { }
             }
 
             // Detectar si es match
             if (Array.isArray(ejercicio.options) && ejercicio.options.length > 0) {
               if (ejercicio.options[0].mapuche !== undefined) {
-                ejercicio.type = 'match'; 
+                ejercicio.type = 'match';
               } else {
                 ejercicio.options = this.shuffleArray([...ejercicio.options]);
               }
@@ -202,13 +206,15 @@ export class HomePage implements OnInit {
       if (this.selectedLeft.mapuche === this.selectedRight.mapuche) {
         this.matchedLeft.push(this.selectedLeft.mapuche);
         this.matchedRight.push(this.selectedRight.spanish);
-        
+
         if (this.matchedLeft.length === this.ejercicioActual.options.length) {
           this.isAnswered = true;
           this.isCorrect = true;
+          this.aciertos++;
           this.xp += 20;
           this.playCorrectSound();
         }
+
       } else {
         this.playWrongSound();
       }
@@ -222,20 +228,21 @@ export class HomePage implements OnInit {
     if (this.isAnswered) return;
 
     if (this.ejercicioActual.type === 'write') {
-      if (!this.writtenAnswer.trim()) return; 
+      if (!this.writtenAnswer.trim()) return;
       this.isCorrect = this.writtenAnswer.trim().toLowerCase() === this.ejercicioActual.correct_answer.trim().toLowerCase();
     } else if (this.ejercicioActual.type === 'multiple_choice') {
       if (!this.selectedOption) return;
       this.isCorrect = this.selectedOption === this.ejercicioActual.correct_answer;
     } else if (this.ejercicioActual.type === 'match') {
-       return; 
+      return;
     }
-    
+
     this.isAnswered = true;
-    
+
     if (this.isCorrect) {
       this.playCorrectSound();
       this.xp += 20;
+      this.aciertos++;
     } else {
       this.playWrongSound();
       this.restarVida();
@@ -253,12 +260,12 @@ export class HomePage implements OnInit {
       this.gameOver = true;
       this.nextLifeInMinutes = 10;
     }
-    
-    this.http.post('http://localhost:3000/api/lose-life', { username: this.username }).subscribe({
+
+    this.http.post('/api/lose-life', { username: this.username }).subscribe({
       next: (res: any) => {
         this.lives = res.lives;
         this.gems = res.gems;
-        
+
         const userStr = localStorage.getItem('mapu_user');
         if (userStr) {
           const user = JSON.parse(userStr);
@@ -273,62 +280,53 @@ export class HomePage implements OnInit {
 
   nextExercise() {
     if (this.lives <= 0) {
-      this.gameOver = true; 
+      this.terminarLeccion();
       return;
     }
-    
+
     if (this.currentIndex === this.ejercicios.length - 1) {
       this.leccionTerminada = true;
-      this.guardarProgreso();
-      this.guardarProgresoUnidad();
+      this.terminarLeccion();
       return;
     }
 
     this.currentIndex++;
     this.selectedOption = null;
-    this.writtenAnswer = ''; 
+    this.writtenAnswer = '';
     this.isAnswered = false;
     this.isCorrect = false;
-    this.initMatchGame(); 
+    this.initMatchGame();
   }
 
-  guardarProgreso() {
-    this.http.post('http://localhost:3000/api/update-xp', {
-      username: this.username,
-      xp: this.xp
+  terminarLeccion() {
+    if (!this.unitId) return;
+
+    this.http.post('/api/lessons/complete', {
+      unitId: parseInt(this.unitId, 10),
+      stage: parseInt(this.stage ?? '1', 10),
+      correct: this.aciertos
     }).subscribe({
-      next: (res) => {
-        console.log('Progreso guardado:', res);
+      next: (res: any) => {
+        this.xp = res.xp;
+        this.xpGanado = res.xpGanado;
         const userStr = localStorage.getItem('mapu_user');
         if (userStr) {
           const user = JSON.parse(userStr);
-          user.xp = this.xp;
+          user.xp = res.xp;
           localStorage.setItem('mapu_user', JSON.stringify(user));
         }
       },
-      error: (err) => console.error('Error al guardar progreso:', err)
+      error: (err) => console.error('Error al guardar la lección:', err)
     });
-  }
 
-  guardarProgresoUnidad() {
-    if (!this.unitId) return;
-    
-    this.http.post('http://localhost:3000/api/progress', {
-      username: this.username,
-      unitId: parseInt(this.unitId),
-      score: this.xp
-    }).subscribe({
-      next: (res) => console.log('Progreso de unidad guardado:', res),
-      error: (err) => console.error('Error al guardar progreso de unidad:', err)
-    });
   }
 
   comprarVidas() {
-    this.http.post('http://localhost:3000/api/buy-lives', { username: this.username }).subscribe({
+    this.http.post('/api/buy-lives', { username: this.username }).subscribe({
       next: (res: any) => {
         this.lives = res.lives;
         this.gems = res.gems;
-        this.gameOver = false; 
+        this.gameOver = false;
 
         const userStr = localStorage.getItem('mapu_user');
         if (userStr) {
@@ -345,12 +343,12 @@ export class HomePage implements OnInit {
   }
 
   ganarVidaPracticando() {
-    this.http.post('http://localhost:3000/api/earn-life', { username: this.username }).subscribe({
+    this.http.post('/api/earn-life', { username: this.username }).subscribe({
       next: (res: any) => {
         this.lives = res.lives;
         this.gems = res.gems;
         this.gameOver = false;
-        
+
         const userStr = localStorage.getItem('mapu_user');
         if (userStr) {
           const user = JSON.parse(userStr);
@@ -358,7 +356,7 @@ export class HomePage implements OnInit {
           user.gems = this.gems;
           localStorage.setItem('mapu_user', JSON.stringify(user));
         }
-        
+
         this.reiniciarLeccion();
       },
       error: (err) => alert(err.error.error || 'Error al ganar vida')
@@ -367,8 +365,8 @@ export class HomePage implements OnInit {
 
   regenerarVidasPorTiempo() {
     if (!this.username) return;
-    
-    this.http.post('http://localhost:3000/api/regen-lives', { username: this.username }).subscribe({
+
+    this.http.post('/api/regen-lives', { username: this.username }).subscribe({
       next: (res: any) => {
         if (res.regened > 0) {
           this.lives = res.lives;
@@ -397,6 +395,7 @@ export class HomePage implements OnInit {
     });
 
     this.currentIndex = 0;
+    this.aciertos = 0;
     this.leccionTerminada = false;
     this.gameOver = false;
     this.selectedOption = null;

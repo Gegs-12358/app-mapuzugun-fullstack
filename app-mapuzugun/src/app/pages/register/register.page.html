@@ -1,0 +1,112 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-title class="ion-text-center" style="font-weight: 800;">Kimanke</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="map-background">
+
+  <div class="login-wrapper">
+
+    <div class="textile-band"></div>
+
+    <div class="login-hero">
+      <h1 class="login-greeting">Crea tu cuenta</h1>
+      <p class="login-tagline">Paso {{ paso }} de 2</p>
+    </div>
+
+    <ion-card class="login-card">
+
+      <!-- PASO 1: ELEGIR ANIMAL -->
+      <ng-container *ngIf="paso === 1">
+        <ion-card-header>
+          <ion-card-title>Elige tu animal</ion-card-title>
+          <ion-card-subtitle>Te acompañará mientras aprendes</ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content>
+          <div class="avatar-grid">
+            <button type="button"
+                    class="avatar-card"
+                    *ngFor="let a of avatares"
+                    [class.selected]="avatar === a.id"
+                    [attr.aria-pressed]="avatar === a.id"
+                    (click)="elegir(a.id)">
+              <img [src]="a.img" [alt]="a.nombre">
+              <span>{{ a.nombre }}</span>
+            </button>
+          </div>
+
+          <div class="login-error" role="alert" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+          <ion-button expand="block" class="btn-principal" (click)="continuar()">
+            CONTINUAR
+          </ion-button>
+        </ion-card-content>
+      </ng-container>
+
+      <!-- PASO 2: USUARIO Y CONTRASEÑA -->
+      <ng-container *ngIf="paso === 2">
+        <ion-card-header>
+          <ion-card-title>Tus datos</ion-card-title>
+          <ion-card-subtitle>Es gratis y toma un minuto</ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content>
+
+          <div class="avatar-elegido" *ngIf="avatarElegido">
+            <img [src]="avatarElegido.img" [alt]="avatarElegido.nombre">
+            <span>Tu animal: <strong>{{ avatarElegido.nombre }}</strong></span>
+            <button type="button" class="toggle-pass" (click)="volver()">Cambiar</button>
+          </div>
+
+          <form (ngSubmit)="onSubmit()">
+
+            <ion-item lines="none" class="campo">
+              <ion-input
+                name="username"
+                label="Usuario"
+                labelPlacement="floating"
+                autocomplete="username"
+                [(ngModel)]="username">
+              </ion-input>
+            </ion-item>
+            <p class="campo-ayuda">Entre 3 y 50 caracteres.</p>
+
+            <ion-item lines="none" class="campo">
+              <ion-input
+                name="password"
+                label="Contraseña"
+                labelPlacement="floating"
+                [type]="showPassword ? 'text' : 'password'"
+                autocomplete="new-password"
+                [(ngModel)]="password">
+              </ion-input>
+              <button slot="end" type="button" class="toggle-pass" (click)="showPassword = !showPassword">
+                {{ showPassword ? 'Ocultar' : 'Mostrar' }}
+              </button>
+            </ion-item>
+            <p class="campo-ayuda">Al menos 8 caracteres.</p>
+
+            <div class="login-error" role="alert" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+            <ion-button expand="block" type="submit" class="btn-principal" [disabled]="loading">
+              <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+              <span *ngIf="!loading">CREAR CUENTA</span>
+            </ion-button>
+
+          </form>
+        </ion-card-content>
+      </ng-container>
+
+    </ion-card>
+
+    <div class="ion-text-center">
+      <ion-button fill="clear" class="btn-cambio" routerLink="/login">
+        ¿Ya tienes cuenta? Inicia sesión
+      </ion-button>
+    </div>
+
+  </div>
+
+</ion-content>

@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // <-- IMPORTANTE para los inputs
+import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
-  IonHeader, IonToolbar, IonTitle, IonContent, IonCard,
-  IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent,
-  IonItem, IonInput, IonButton, IonSpinner, IonText
+  IonHeader, IonToolbar, IonTitle, IonContent,
+  IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,
+  IonItem, IonInput, IonButton, IonSpinner
 } from '@ionic/angular/standalone';
 
 @Component({
@@ -15,25 +15,20 @@ import {
   styleUrls: ['./login.page.scss'],
   standalone: true,
   imports: [
-    CommonModule, FormsModule,
-    IonHeader, IonToolbar, IonTitle, IonContent, IonCard,
-    IonCardHeader, IonCardSubtitle, IonCardTitle, IonCardContent,
-    IonItem, IonInput, IonButton, IonSpinner, IonText
+    CommonModule, FormsModule, RouterLink,
+    IonHeader, IonToolbar, IonTitle, IonContent,
+    IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,
+    IonItem, IonInput, IonButton, IonSpinner
   ]
 })
 export class LoginPage {
   username = '';
   password = '';
-  isLoginMode = true; // true = Login, false = Registro
+  showPassword = false;
   loading = false;
   errorMsg = '';
 
-  constructor(private http: HttpClient, private router: Router) { }
-
-  toggleMode() {
-    this.isLoginMode = !this.isLoginMode;
-    this.errorMsg = '';
-  }
+  constructor(private http: HttpClient, private router: Router) {}
 
   onSubmit() {
     if (!this.username || !this.password) {
@@ -44,10 +39,10 @@ export class LoginPage {
     this.loading = true;
     this.errorMsg = '';
 
-    const endpoint = this.isLoginMode ? '/api/login' : '/api/register';
-    const body = { username: this.username, password: this.password };
-
-    this.http.post(`http://localhost:3000${endpoint}`, body).subscribe({
+    this.http.post('/api/login', {
+      username: this.username.trim(),
+      password: this.password
+    }).subscribe({
       next: (res: any) => {
         const { token, ...user } = res;
         localStorage.setItem('mapu_token', token);
@@ -57,7 +52,7 @@ export class LoginPage {
       },
       error: (err) => {
         this.loading = false;
-        this.errorMsg = err.error.error || 'Error de conexión';
+        this.errorMsg = err.error?.error || 'Error de conexión';
       }
     });
   }
