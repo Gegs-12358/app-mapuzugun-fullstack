@@ -248,3 +248,25 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - Reemplazar las notas culturales fijas por notas por etapa validadas.
 - Prueba en celular (APK), cambio de `appId` (`io.ionic.starter`) y despliegue con HTTPS.
 
+### Actualización 23 de octubre de 2026 (estilo visual y repositorio)
+
+**Hecho**
+- Nuevo estilo visual: fondos 3D tierno para intro, login/registro, mapa y lección (`src/assets/bg/`), tarjetas translúcidas ("vidrio"), textos más grandes y colores más suaves. Los fondos se aplican con `--background` en cada `ion-content` (no con `::part`).
+- Portada de la intro (`src/assets/img/portada.webp`) con los cuatro compañeros, el volcán y una araucaria.
+- Avatares rehechos en 3D tierno (puma, cóndor joven, bandurria, monito del monte), ajustados a rasgos reales de cada especie, a 320×320 px (~40 KB cada uno).
+- Al terminar una lección, el compañero que la persona eligió muestra el dato cultural en una burbuja, con la etiqueta "Contenido en revisión". Siempre es el mismo compañero elegido, para no asignar saberes o roles a cada animal.
+- Repositorio: se subieron los cambios a GitHub. `seed.sql` (lecciones) y el Excel de la encuesta quedaron en `.gitignore`; el PDF del diccionario dejó de rastrearse (sigue en commits antiguos). Imágenes comprimidas de ~13 MB a ~400 KB.
+
+**Problemas y lecciones**
+- Una regla global `body, p, span { color: ... }` pintaba de marrón todo texto de `p` y `span`, aunque estuviera dentro de un contenedor claro sobre azul. Ahora solo `body` y `ion-card-content` definen color.
+- `ion-card` tenía `background: #FFFFFF !important` en `global.scss`, lo que impedía las tarjetas translúcidas. Se quitó.
+- La contraseña de una cuenta de prueba se guardó en texto plano con un `UPDATE`, y el login falló: la base guarda hashes bcrypt, así que hay que generar el hash con `bcrypt` y guardarlo.
+- Al comprimir imágenes se ejecutó `npm init` dentro de la raíz del proyecto y se subieron `package.json`, `package-lock.json` y `comprimir.js`. Se quitaron en un commit de limpieza. Para estos trabajos conviene usar una carpeta temporal fuera del repositorio.
+
+**Pendiente / decisiones abiertas**
+- Con la comunidad: logo (el actual es provisorio), nombre de la app, grafemario/variantes, nombres de los compañeros y de Kütral/Kimün/Llanka/Newen.
+- Revisión de hablantes de las notas culturales y del texto de la pantalla "sin Newen" (explicación de Newen/Mongen).
+- Licencia del código y del contenido; permiso de redistribución del diccionario de Augusta (hoy fuera del seguimiento, pero presente en el historial).
+- Créditos de "Acerca de": indicar que los fondos y avatares son ilustraciones generadas con IA.
+-
+
