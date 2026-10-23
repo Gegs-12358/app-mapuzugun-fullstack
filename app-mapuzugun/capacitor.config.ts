@@ -1,11 +1,11 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',   // CAMBIAR antes de publicar en una tienda (ver nota)
+  appId: 'cl.kimanke.app',
   appName: 'Kimanke',
-  webDir: 'www',
+  webDir: 'www/browser',
   server: {
-    androidScheme: 'https'     // coincide con https://localhost en CORS_ORIGIN
+    androidScheme: 'https'
   }
 };
 

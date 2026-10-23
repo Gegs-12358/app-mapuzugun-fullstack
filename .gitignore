@@ -13,3 +13,7 @@ seed.sql
 *.xlsx
 
 *.pdf
+
+app-mapuzugun/android/
+
+app-mapuzugun/www/
