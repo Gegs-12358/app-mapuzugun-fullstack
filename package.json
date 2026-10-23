@@ -1,0 +1,24 @@
+{
+  "name": "mapuche",
+  "version": "1.0.0",
+  "description": "Aplicación gratuita para aprender y practicar mapuzugun con lecciones cortas, a tu ritmo.",
+  "main": "comprimir.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gegs-12358/app-mapuzugun-fullstack.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Gegs-12358/app-mapuzugun-fullstack/issues"
+  },
+  "homepage": "https://github.com/Gegs-12358/app-mapuzugun-fullstack#readme",
+  "dependencies": {
+    "sharp": "^0.35.5"
+  }
+}

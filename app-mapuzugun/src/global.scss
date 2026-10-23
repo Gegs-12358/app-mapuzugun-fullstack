@@ -1,4 +1,6 @@
 /* Fuentes con carácter artesanal */
+@import url('https://fonts.googleapis.com/css2?family=Bitter:wght@400;600;700;800&family=Lora:wght@400;500;600&display=swap');
+
 /* Estilos base de Ionic: necesarios para que las páginas y las transiciones funcionen */
 @import "@ionic/angular/css/core.css";
 @import "@ionic/angular/css/normalize.css";
@@ -10,57 +12,68 @@
 @import "@ionic/angular/css/text-alignment.css";
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/float-elements.css";
-@import url('https://fonts.googleapis.com/css2?family=Bitter:wght@400;600;700;800&family=Lora:wght@400;500;600&display=swap');
 
-/* Paleta Mapuche auténtica */
+/* Paleta de Kimanke */
 :root {
-  --mapu-azul: #23406B;        /* Índigo profundo - cielo nocturno */
-  --mapu-rojo: #A64B2A;        /* Rojo tierra - sangre/energía */
-  --mapu-ocre: #D4A017;        /* Ocre dorado - sol/maíz */
-  --mapu-crema: #F4EBD8;       /* Lana natural - base */
-  --mapu-verde: #4A7C59;       /* Verde foye - naturaleza */
-  --mapu-marron: #2B1D14;      /* Tierra oscura - texto */
-  --mapu-gris: #8B7355;        /* Piedra - secundario */
-  
-  /* Override del tema Ionic */
-  --ion-color-primary: #23406B;
+  --mapu-azul: #1F3A60;
+  --mapu-rojo: #A64B2A;
+  --mapu-terracota: #C47B66;
+  --mapu-terracota-oscuro: #7A4A3C;
+  --mapu-ocre: #D4A017;
+  --mapu-dorado: #E8B94A;
+  --mapu-crema: #F5EBE1;
+  --mapu-verde: #4A7C59;
+  --mapu-marron: #2B1D14;
+  --mapu-gris: #8B7355;
+
+  --ion-color-primary: #1F3A60;
   --ion-color-secondary: #A64B2A;
   --ion-color-tertiary: #D4A017;
-  --ion-background-color: #F4EBD8;
+  --ion-background-color: #F5EBE1;
   --ion-text-color: #2B1D14;
   --ion-font-family: 'Lora', Georgia, serif;
 }
 
-/* Tipografía */
+/* Tipografía: p y span heredan el color de su contenedor */
 body, p, span, ion-label, ion-card-content {
   font-family: 'Lora', Georgia, serif;
+}
+
+body {
+  color: var(--mapu-marron);
+}
+
+ion-card-content {
   color: var(--mapu-marron);
 }
 
 h1, h2, h3, h4, h5, h6,
-ion-title, ion-card-title, 
+ion-title, ion-card-title,
 ion-button, .node-title, .nota-cultural {
   font-family: 'Bitter', 'Courier New', monospace;
   letter-spacing: 0.3px;
 }
 
-/* Fondo global con el mapa cultural */
-.map-background {
-  --background: linear-gradient(rgba(244, 235, 216, 0.85), rgba(244, 235, 216, 0.85)), 
-                url('assets/img/mapa_cultural.jpg') no-repeat center center / cover !important;
-}
-
-/* Tarjetas con borde sutil de tierra */
+/* Tarjetas: sin fondo forzado, para poder hacerlas translúcidas */
 ion-card {
   box-shadow: 0 6px 18px rgba(43, 29, 20, 0.12) !important;
   border-radius: 18px !important;
-  background: #FFFFFF !important;
   border: 1px solid rgba(139, 115, 85, 0.2) !important;
 }
 
-/* Botones con tipografía artesanal */
+/* Botones */
 ion-button {
   text-transform: none !important;
   letter-spacing: 0.5px;
   font-weight: 600 !important;
+}
+
+.companero img,
+.avatar-card img,
+.avatar-elegido img,
+.avatar-row button img,
+.avatar-mini {
+  background: #F5EBE1 !important;
+  box-shadow: 0 2px 6px rgba(31, 58, 96, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.8);
 }

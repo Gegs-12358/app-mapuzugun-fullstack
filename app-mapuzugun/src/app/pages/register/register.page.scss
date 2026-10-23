@@ -1,3 +1,7 @@
+ion-content {
+  --background: url('/assets/bg/login.webp') center / cover no-repeat;
+}
+
 .login-wrapper {
   min-height: 100%;
   display: flex;
@@ -27,37 +31,45 @@
 
 .login-greeting {
   margin: 0;
-  font-size: 30px;
+  font-size: 34px;
   font-weight: 800;
-  color: #1F3A60;
+  color: #F5EBE1;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
 }
 
 .login-tagline {
-  margin: 6px 0 0;
-  font-size: 14px;
-  color: #3b4a5e;
+  margin: 8px 0 0;
+  font-size: 16px;
+  color: #F5EBE1;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 }
 
+/* Tarjeta de vidrio */
 .login-card {
   width: 100%;
   margin: 0;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 6px 18px rgba(31, 58, 96, 0.18);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 8px 26px rgba(31, 58, 96, 0.25);
 
   ion-card-title {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 800;
     color: #1F3A60;
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.7);
   }
 
   ion-card-subtitle {
     margin-top: 4px;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 700;
     letter-spacing: 0;
     text-transform: none;
-    color: #C47B66;
+    color: #7A4A3C;
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.7);
   }
 }
 
@@ -73,27 +85,37 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 2px;
   padding: 10px 6px 8px;
-  border: 2px solid #A9BCCB;
+  border: 2px solid rgba(31, 58, 96, 0.25);
   border-radius: 16px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.40);
   color: #1F3A60;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s;
 
   img {
+    box-sizing: border-box;
     width: 92px;
     height: 92px;
+    padding: 6px;
+    margin-bottom: 4px;
     border-radius: 50%;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    background: #F5EBE1;
+    object-fit: contain;
+  }
+
+  small {
+    font-size: 13px;
+    font-weight: 400;
+    color: #3F4F63;
   }
 
   &.selected {
     border-color: #C47B66;
-    background: #fdf0eb;
+    background: rgba(255, 240, 235, 0.65);
     box-shadow: 0 0 0 3px rgba(196, 123, 102, 0.35);
   }
 }
@@ -103,13 +125,17 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 16px;
-  font-size: 14px;
+  font-size: 15px;
   color: #1F3A60;
 
   img {
+    box-sizing: border-box;
     width: 44px;
     height: 44px;
+    padding: 3px;
     border-radius: 50%;
+    background: #F5EBE1;
+    object-fit: contain;
   }
 
   .toggle-pass {
@@ -119,14 +145,17 @@
 
 // --- Formulario ---
 .campo {
-  --background: #F5EBE1;
-  --border-radius: 12px;
-  --padding-start: 15px;
+  --background: rgba(255, 255, 255, 0.50);
+  --border-radius: 14px;
+  --padding-start: 16px;
+  --min-height: 58px;
   margin-bottom: 14px;
-  border-radius: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
 
   ion-input {
     --color: #1F3A60;
+    font-size: 17px;
     font-weight: 600;
   }
 }
@@ -135,16 +164,16 @@
   padding: 8px;
   border: 0;
   background: none;
-  color: #C47B66;
-  font-size: 12px;
+  color: #7A4A3C;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
 }
 
 .campo-ayuda {
   margin: -8px 4px 12px;
-  font-size: 12px;
-  color: #6b7a8f;
+  font-size: 14px;
+  color: #3F4F63;
 }
 
 .login-error {
@@ -153,22 +182,25 @@
   border-radius: 10px;
   background: #fdecea;
   color: #b3261e;
-  font-size: 13px;
+  font-size: 14px;
   text-align: center;
 }
 
 .btn-principal {
-  --background: #1F3A60;
-  --color: #fff;
-  --border-radius: 12px;
-  height: 50px;
+  --background: linear-gradient(135deg, #2A4C7C, #1F3A60);
+  --color: #F5EBE1;
+  --border-radius: 14px;
+  --box-shadow: 0 6px 14px rgba(31, 58, 96, 0.35);
+  height: 54px;
   margin-top: 8px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.5px;
 }
 
 .btn-cambio {
-  --color: #C47B66;
+  --color: #1F3A60;
   margin-top: 12px;
+  font-size: 15px;
   font-weight: 700;
 }

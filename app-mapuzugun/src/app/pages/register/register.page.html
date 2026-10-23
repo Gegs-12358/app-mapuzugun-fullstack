@@ -26,14 +26,11 @@
 
         <ion-card-content>
           <div class="avatar-grid">
-            <button type="button"
-                    class="avatar-card"
-                    *ngFor="let a of avatares"
-                    [class.selected]="avatar === a.id"
-                    [attr.aria-pressed]="avatar === a.id"
-                    (click)="elegir(a.id)">
-              <img [src]="a.img" [alt]="a.nombre">
+            <button type="button" class="avatar-card" *ngFor="let a of avatares" [class.selected]="avatar === a.id"
+              [attr.aria-pressed]="avatar === a.id" (click)="elegir(a.id)">
+              <img [src]="a.img" [alt]="a.animal" width="92" height="92">
               <span>{{ a.nombre }}</span>
+              <small>{{ a.animal }}</small>
             </button>
           </div>
 
@@ -63,24 +60,15 @@
           <form (ngSubmit)="onSubmit()">
 
             <ion-item lines="none" class="campo">
-              <ion-input
-                name="username"
-                label="Usuario"
-                labelPlacement="floating"
-                autocomplete="username"
+              <ion-input name="username" label="Usuario" labelPlacement="floating" autocomplete="username"
                 [(ngModel)]="username">
               </ion-input>
             </ion-item>
             <p class="campo-ayuda">Entre 3 y 50 caracteres.</p>
 
             <ion-item lines="none" class="campo">
-              <ion-input
-                name="password"
-                label="Contraseña"
-                labelPlacement="floating"
-                [type]="showPassword ? 'text' : 'password'"
-                autocomplete="new-password"
-                [(ngModel)]="password">
+              <ion-input name="password" label="Contraseña" labelPlacement="floating"
+                [type]="showPassword ? 'text' : 'password'" autocomplete="new-password" [(ngModel)]="password">
               </ion-input>
               <button slot="end" type="button" class="toggle-pass" (click)="showPassword = !showPassword">
                 {{ showPassword ? 'Ocultar' : 'Mostrar' }}

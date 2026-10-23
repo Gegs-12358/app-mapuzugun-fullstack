@@ -1,0 +1,38 @@
+<ion-content class="intro-content">
+
+  <div class="pantalla" *ngIf="mostrar && paso === 1">
+    <button type="button" class="enlace omitir" (click)="yaTengoCuenta()">Omitir</button>
+
+    <img class="intro-ilustracion flota" src="assets/img/portada.webp"
+     alt="Los cuatro compañeros de Kimanke frente a un volcán y una araucaria">
+    <h1 class="flota">Mari mari</h1>
+    <p class="intro-texto flota">
+      Bienvenido a <strong>Kimanke</strong>. Aquí practicarás mapuzugun con lecciones cortas, a tu ritmo y sin costo.
+    </p>
+    <p class="intro-texto flota retraso">Cuatro compañeros te acompañarán en el camino.</p>
+
+    <div class="puntos"><span class="activo"></span><span></span></div>
+    <ion-button expand="block" class="btn-intro" (click)="siguiente()">SIGUIENTE</ion-button>
+  </div>
+
+  <div class="pantalla" *ngIf="mostrar && paso === 2">
+    <h2>Conoce a tus compañeros</h2>
+
+    <div class="companeros">
+      <div class="companero" *ngFor="let c of companeros">
+        <img [src]="c.img" [alt]="c.animal" width="96" height="96">
+        <strong>{{ c.nombre }}</strong>
+        <small>{{ c.animal }}</small>
+      </div>
+    </div>
+
+    <p class="intro-texto">Elegirás a uno de ellos al crear tu cuenta.</p>
+
+    <div class="puntos"><span></span><span class="activo"></span></div>
+    <ion-button expand="block" class="btn-intro" (click)="crearCuenta()">CREAR MI CUENTA</ion-button>
+    <button type="button" class="enlace" (click)="yaTengoCuenta()">Ya tengo cuenta</button>
+
+    <p class="nota">Los nombres de los compañeros son inventados para Kimanke; no son palabras del mapuzugun.</p>
+  </div>
+
+</ion-content>

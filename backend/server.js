@@ -2,6 +2,11 @@ require('dotenv').config();
 const express = require('express');
 const { Pool } = require('pg');
 const AVATARES = ['puma', 'aguila', 'bandurria', 'monito'];
+// Contenido: en producción solo se entrega lo aprobado por hablantes.
+// Para desarrollo, pon CONTENIDO_BORRADOR=true en el .env.
+const VER_BORRADORES = process.env.CONTENIDO_BORRADOR === 'true';
+const soloAprobado = (alias = '') =>
+  VER_BORRADORES ? 'TRUE' : `${alias ? alias + '.' : ''}estado = 'aprobado'`;
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -109,9 +114,9 @@ app.post('/api/register', limiteRegistro, async (req, res) => {
 
     const newUser = await pool.query(
       `INSERT INTO users (username, password, avatar, xp, streak, lives, gems)
-       VALUES ($1, $2, $3, 120, 3, 5, 500)
+       VALUES ($1, $2, $3, 0, 0, 5, $4)
        RETURNING id, username, avatar, xp, streak, lives, gems`,
-      [username, hashedPassword, avatar]
+      [username, hashedPassword, avatar, GEMAS_INICIALES]
     );
 
     const user = newUser.rows[0];
@@ -195,7 +200,9 @@ app.get('/api/exercises', async (req, res) => {
   }
 
   try {
-    let query = 'SELECT * FROM exercises WHERE unit_id = $1';
+    let query = `SELECT id, unit_id, stage, type, question, correct_answer, options,
+                        audio_url, cultural_note, estado
+                 FROM exercises WHERE unit_id = $1 AND ${soloAprobado()}`;
     const params = [unitId];
     if (stage !== null) {
       query += ' AND stage = $2';
@@ -222,6 +229,7 @@ app.get('/api/stages', async (req, res) => {
        LEFT JOIN stages s ON s.unit_id = e.unit_id AND s.stage = e.stage
        LEFT JOIN user_progress p
               ON p.unit_id = e.unit_id AND p.stage = e.stage AND p.username = $1
+       WHERE ${soloAprobado('e')}
        GROUP BY e.unit_id, e.stage, s.title, p.completed, p.score
        ORDER BY e.unit_id, e.stage`,
       [req.user.username]
@@ -238,7 +246,13 @@ app.get('/api/stages', async (req, res) => {
 app.get('/api/user/:username', async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, username, avatar, xp, streak, lives, gems, last_life_regen FROM users WHERE id = $1',
+      `SELECT id, username, avatar, xp, lives, gems, last_life_regen,
+        CASE
+          WHEN last_played::date >= (CURRENT_TIMESTAMP AT TIME ZONE 'America/Santiago')::date - 1
+            THEN streak
+          ELSE 0
+        END AS streak
+        FROM users WHERE id = $1`,
       [req.user.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
@@ -264,7 +278,7 @@ app.post('/api/lose-life', async (req, res) => {
 });
 
 app.post('/api/buy-lives', async (req, res) => {
-  const costoGemas = 100;
+  const costoGemas = COSTO_RECARGA;
   try {
     // Una sola consulta atómica: descuenta solo si alcanzan las gemas
     const result = await pool.query(
@@ -283,6 +297,9 @@ app.post('/api/buy-lives', async (req, res) => {
 
 const XP_POR_ACIERTO = 20;
 const XP_POR_REPASO = 5;
+const GEMAS_INICIALES = 40;
+const COSTO_RECARGA = 30;
+const GEMAS_POR_ACIERTO = 2; // solo la primera vez que se completa una etapa
 
 app.post('/api/lessons/complete', async (req, res) => {
   const { unitId, stage, correct } = req.body;
@@ -293,7 +310,8 @@ app.post('/api/lessons/complete', async (req, res) => {
   const client = await pool.connect();
   try {
     const totalRes = await client.query(
-      'SELECT COUNT(*)::int AS total FROM exercises WHERE unit_id = $1 AND stage = $2',
+      `SELECT COUNT(*)::int AS total FROM exercises
+       WHERE unit_id = $1 AND stage = $2 AND ${soloAprobado()}`,
       [unitId, stage]
     );
     const total = totalRes.rows[0].total;
@@ -326,14 +344,28 @@ app.post('/api/lessons/complete', async (req, res) => {
     }
 
     const xpGanado = aciertos * (primeraVez ? XP_POR_ACIERTO : XP_POR_REPASO);
+    const gemasGanadas = primeraVez ? aciertos * GEMAS_POR_ACIERTO : 0;
 
     const user = await client.query(
-      'UPDATE users SET xp = xp + $1 WHERE id = $2 RETURNING id, username, xp, streak, lives, gems',
-      [xpGanado, req.user.id]
+      `UPDATE users
+       SET xp = xp + $1,
+           gems = gems + $3,
+           streak = CASE
+             WHEN last_played::date = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Santiago')::date
+               THEN GREATEST(streak, 1)
+             WHEN last_played::date = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Santiago')::date - 1
+               THEN streak + 1
+             ELSE 1
+           END,
+           last_played = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Santiago')::date
+       WHERE id = $2
+       RETURNING id, username, xp, streak, lives, gems`,
+      [xpGanado, req.user.id, gemasGanadas]
     );
 
     await client.query('COMMIT');
-    res.json({ ...user.rows[0], xpGanado, primeraVez, aciertos, total });
+    res.json({ ...user.rows[0], xpGanado, gemasGanadas, primeraVez, aciertos, total });
+
   } catch (err) {
     await client.query('ROLLBACK').catch(() => { });
     console.error(err);

@@ -9,3 +9,7 @@ node_modules/
 # Variables de entorno y sistema
 .env
 .DS_Store
+seed.sql
+*.xlsx
+
+*.pdf

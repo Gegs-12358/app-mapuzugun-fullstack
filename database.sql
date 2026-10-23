@@ -7,14 +7,14 @@ CREATE TABLE IF NOT EXISTS users (
   id              SERIAL PRIMARY KEY,
   username        VARCHAR(50) UNIQUE NOT NULL,
   password        VARCHAR(255),                 -- hash bcrypt
-  xp              INT DEFAULT 120,
-  streak          INT DEFAULT 3,
-  last_played     DATE DEFAULT CURRENT_DATE,
+  xp              INT DEFAULT 0,
+  streak          INT DEFAULT 0,
+  last_played     DATE,                         -- último día practicado (hora de Chile)
   lives           INT DEFAULT 5,
-  gems            INT DEFAULT 500,
-  last_life_regen TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  gems            INT DEFAULT 40,
+  last_life_regen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   avatar          VARCHAR(20) NOT NULL DEFAULT 'puma'
-                  CHECK (avatar IN ('puma', 'aguila', 'bandurria', 'monito')),
+                  CHECK (avatar IN ('puma', 'aguila', 'bandurria', 'monito'))
 );
 
 CREATE TABLE IF NOT EXISTS units (
@@ -31,7 +31,11 @@ CREATE TABLE IF NOT EXISTS exercises (
   correct_answer VARCHAR(100) NOT NULL,
   options        JSONB NOT NULL,
   audio_url      VARCHAR(255),
-  cultural_note  TEXT
+  cultural_note  TEXT,
+  estado         TEXT NOT NULL DEFAULT 'borrador'
+                 CHECK (estado IN ('borrador', 'aprobado')),
+  revisado_por   TEXT,                          -- quién revisó (solo con su consentimiento)
+  revisado_en    DATE
 );
 
 CREATE INDEX IF NOT EXISTS idx_exercises_unit ON exercises(unit_id);

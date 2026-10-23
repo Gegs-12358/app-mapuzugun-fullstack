@@ -3,29 +3,31 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/units" text=""></ion-back-button>
     </ion-buttons>
-    
-    <ion-title class="ion-text-center" style="font-weight: 800;">Lección</ion-title>
-    
-    <!-- SIMBOLOGÍA MAPUCHE -->
-    <ion-buttons slot="end">
-      <ion-button style="font-size: 11px; text-transform: none;">
-        🔥 Kütral: {{ streak }}
-      </ion-button>
-      <ion-button style="font-size: 11px; text-transform: none;">
-        🏵️ Kimün: {{ xp }}
-      </ion-button>
-      <ion-button style="font-size: 11px; text-transform: none;">
-        🟢 Llanka: {{ gems }}
-      </ion-button>
-      <ion-button style="font-size: 11px; text-transform: none; color: #ff4961;">
-        🌿 Newen: {{ lives }}
-      </ion-button>
-    </ion-buttons>
+
+    <ion-title style="font-weight: 800;">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <img [src]="avatarImg" alt="" width="30" height="30"
+          style="box-sizing: border-box; width: 30px; height: 30px; padding: 2px; border-radius: 50%; background: #F5EBE1; object-fit: contain;">
+        <span>Lección</span>
+      </div>
+    </ion-title>
   </ion-toolbar>
+
+  <!-- SIMBOLOGÍA MAPUCHE -->
+  <ion-toolbar color="primary" style="--min-height: 32px;">
+    <div
+      style="display: flex; justify-content: space-around; align-items: center; font-size: 12px; font-weight: 700; white-space: nowrap; padding: 0 8px 4px; color: #F5EBE1;">
+      <span>🔥 Kütral: {{ streak }}</span>
+      <span>🏵️ Kimün: {{ xp }}</span>
+      <span>🟢 Llanka: {{ gems }}</span>
+      <span style="color: #FF9A85;">🌿 Newen: {{ lives }}</span>
+    </div>
+  </ion-toolbar>
+
   <ion-progress-bar [value]="progreso" color="tertiary"></ion-progress-bar>
 </ion-header>
 
-<ion-content class="ion-padding map-background">
+<ion-content>
 
   <div *ngIf="loading" class="ion-text-center ion-margin-top" style="color: #1F3A60; font-weight: bold;">
     Cargando...
@@ -36,7 +38,7 @@
     style="border: 3px solid #F44336; text-align: center; padding: 20px;">
     <h2 style="color: #F44336; font-weight: 900;">¡Te has quedado sin Newen!</h2>
     <p style="font-size: 40px; margin: 20px 0;">🍂</p>
-    
+
     <p style="color: #666; font-size: 0.9em; margin-bottom: 15px;">
       Tu <strong>Newen</strong> (fuerza vital) se ha agotado.
     </p>
@@ -44,7 +46,8 @@
     <!-- Nota educativa sobre Mongen -->
     <div style="background-color: #F5EBE1; padding: 10px; border-radius: 10px; margin-bottom: 15px;">
       <p style="color: #1F3A60; font-size: 0.8em; margin: 0; font-style: italic;">
-        💡 Recuerda: tu <strong>Mongen</strong> (vida) sigue intacto. El Newen es la energía que te permite vivirla, y puedes recuperarlo.
+        💡 Recuerda: tu <strong>Mongen</strong> (vida) sigue intacto. El Newen es la energía que te permite vivirla, y
+        puedes recuperarlo.
       </p>
     </div>
 
@@ -54,23 +57,23 @@
     </p>
 
     <!-- OPCIÓN 1: Practicar (gratis) -->
-    <ion-button expand="block" (click)="ganarVidaPracticando()" 
+    <ion-button expand="block" (click)="ganarVidaPracticando()"
       style="--background: #36802D; margin-top: 10px; font-weight: bold;">
       📚 PRACTICAR PARA GANAR +1 NEWEN
     </ion-button>
 
     <!-- OPCIÓN 2: Comprar con gemas -->
-    <ion-button expand="block" (click)="comprarVidas()" 
+    <ion-button expand="block" (click)="comprarVidas()"
       style="--background: #C47B66; margin-top: 10px; font-weight: bold;">
-      🟢 COMPRAR 5 NEWEN (100 LLANKAS)
+      🟢 COMPRAR 5 NEWEN (30 LLANKAS)
     </ion-button>
 
     <!-- OPCIÓN 3: Volver al menú -->
-    <ion-button expand="block" routerLink="/units" routerDirection="back" fill="clear" 
+    <ion-button expand="block" routerLink="/units" routerDirection="back" fill="clear"
       style="--color: #1F3A60; margin-top: 10px; font-weight: bold;">
       ⏰ VOLVER AL MENÚ
     </ion-button>
-    
+
     <p style="color: #888; font-size: 0.8em; margin-top: 15px; font-style: italic;">
       💡 El Newen se regenera 1 punto cada 10 minutos (máximo 5)
     </p>
@@ -81,9 +84,23 @@
     style="border: 3px solid #1F3A60; text-align: center; padding: 20px;">
     <h2 style="color: #1F3A60; font-weight: 900;">¡Lección Completada!</h2>
     <p style="font-size: 40px; margin: 20px 0;">🎉</p>
-    <p style="font-size: 1.1em; color: #333;">Has ganado {{ xp - 120 }} puntos de <strong>Kimün</strong>.</p>
-    
-    <ion-button expand="block" routerLink="/units" routerDirection="back" style="--background: #C47B66; margin-top: 20px; font-weight: bold;">
+    <p style="font-size: 1.1em; color: #333;">Has ganado {{ xpGanado }} puntos de <strong>Kimün</strong>.</p>
+    <p *ngIf="gemasGanadas > 0" style="font-size: 1.1em; color: #333;">
+      Y <strong>{{ gemasGanadas }} Llankas</strong> para recargar Newen.
+    </p>
+
+    <div *ngIf="notaCultural" class="dato">
+      <img [src]="avatarImg" alt="Tu compañero" class="dato-avatar">
+      <div class="dato-burbuja">
+        <p class="dato-titulo">SABÍAS QUE…</p>
+        <p class="dato-texto">{{ notaCultural }}</p>
+        <!-- Quitar este aviso cuando un hablante valide las notas -->
+        <p class="dato-aviso">⚠️ Contenido en revisión</p>
+      </div>
+    </div>
+
+    <ion-button expand="block" routerLink="/units" routerDirection="back"
+      style="--background: #C47B66; margin-top: 20px; font-weight: bold;">
       VOLVER AL MENÚ
     </ion-button>
   </ion-card>
@@ -91,9 +108,10 @@
   <!-- PANTALLA DE PREGUNTA -->
   <ion-card *ngIf="!loading && !leccionTerminada && !gameOver && ejercicioActual" class="ion-margin-top"
     style="border: 3px solid #1F3A60; overflow: hidden;">
-    
+
     <ion-card-header>
-      <p *ngIf="ejercicioActual.isReview" style="color: #C47B66; font-size: 12px; font-weight: bold; text-align: center; margin-bottom: 5px;">
+      <p *ngIf="ejercicioActual.isReview"
+        style="color: #C47B66; font-size: 12px; font-weight: bold; text-align: center; margin-bottom: 5px;">
         🔄 Pregunta de repaso
       </p>
       <ion-card-title class="ion-text-center" style="color: #1F3A60; font-weight: 800;">
@@ -102,36 +120,31 @@
       <p class="ion-text-center" style="font-size: 12px; color: gray; font-weight: bold;">
         Pregunta {{ currentIndex + 1 }} de {{ ejercicios.length }}
       </p>
+      <p *ngIf="ejercicioActual.estado !== 'aprobado'" class="ion-text-center"
+        style="margin: 4px 0 0; font-size: 11px; font-weight: 700; color: #8a5a00;">
+        ⚠️ Contenido en revisión
+      </p>
     </ion-card-header>
 
     <ion-card-content class="ion-text-center">
 
-      <!-- NOTA CULTURAL: Antes de responder es general, después es específica -->
-      <div [ngClass]="{
-        'bg-beige': !isAnswered,
-        'bg-green': isAnswered && isCorrect,
-        'bg-red': isAnswered && !isCorrect
-      }" class="nota-cultural">
-        
-        <!-- ANTES DE RESPONDER: Solo mostramos la nota general de la unidad -->
-        <span *ngIf="!isAnswered">
-          {{ notaCultural }}
-        </span>
-
-        <!-- DESPUÉS DE RESPONDER: Mostramos el feedback y el dato específico -->
-        <div *ngIf="isAnswered">
-          <p style="font-weight: bold; margin-bottom: 6px; font-size: 1.05em;">
-            {{ isCorrect ? '¡Correcto! Muy bien.' : '¡Casi! La respuesta correcta era: ' + ejercicioActual.correct_answer }}
-          </p>
-          <p style="font-size: 0.9em; opacity: 0.9; font-style: italic; line-height: 1.4;">
-            {{ ejercicioActual?.cultural_note }}
-          </p>
-        </div>
+      <!-- FEEDBACK: solo aparece después de responder -->
+      <div *ngIf="isAnswered" [ngClass]="{ 'bg-green': isCorrect, 'bg-red': !isCorrect }" class="nota-cultural">
+        <p style="font-weight: bold; margin-bottom: 6px; font-size: 1.05em;">
+          {{ isCorrect ? '¡Correcto! Muy bien.' : '¡Casi! La respuesta correcta era: ' + ejercicioActual.correct_answer
+          }}
+        </p>
+        <p *ngIf="ejercicioActual?.cultural_note"
+          style="font-size: 0.9em; opacity: 0.9; font-style: italic; line-height: 1.4;">
+          {{ ejercicioActual.cultural_note }}
+        </p>
       </div>
 
       <!-- BOTÓN DE AUDIO (Oculto en modo Match y si no hay URL) -->
-      <ion-button *ngIf="ejercicioActual.type !== 'match' && ejercicioActual.audio_url" fill="clear" (click)="playAudio()" style="margin: 20px auto; display: block;">
-        <div style="background-color: #C47B66; border-radius: 50%; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; font-size: 40px; box-shadow: 0 6px 10px rgba(0,0,0,0.2);">
+      <ion-button *ngIf="ejercicioActual.type !== 'match' && ejercicioActual.audio_url" fill="clear"
+        (click)="playAudio()" style="margin: 20px auto; display: block;">
+        <div
+          style="background-color: #C47B66; border-radius: 50%; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; font-size: 40px; box-shadow: 0 6px 10px rgba(0,0,0,0.2);">
           🔊
         </div>
       </ion-button>
@@ -150,10 +163,17 @@
 
       <!-- MODO ESCRITURA -->
       <div *ngIf="ejercicioActual.type === 'write'" style="margin-top: 20px;">
-        <ion-input 
-          [(ngModel)]="writtenAnswer" 
-          [disabled]="isAnswered"
-          placeholder="Escribe tu respuesta aquí..."
+        <ion-input [(ngModel)]="writtenAnswer" [disabled]="isAnswered" placeholder="Escribe tu respuesta aquí..."
+          style="border: 2px solid #A9BCCB; border-radius: 12px; padding: 15px; font-size: 1.1em; color: #1F3A60; font-weight: bold; background-color: white;">
+        </ion-input>
+      </div>
+
+      <!-- NUEVO: MODO COMPLETAR LA FRASE (FILL BLANK) -->
+      <div *ngIf="ejercicioActual.type === 'fill_blank'" style="margin-top: 20px;">
+        <p style="font-size: 1.3em; color: #1F3A60; font-weight: bold; margin-bottom: 15px; line-height: 1.5;">
+          {{ ejercicioActual.question }}
+        </p>
+        <ion-input [(ngModel)]="writtenAnswer" [disabled]="isAnswered" placeholder="Escribe la palabra que falta..."
           style="border: 2px solid #A9BCCB; border-radius: 12px; padding: 15px; font-size: 1.1em; color: #1F3A60; font-weight: bold; background-color: white;">
         </ion-input>
       </div>
@@ -161,33 +181,29 @@
       <!-- MODO EMPAREJAMIENTO (MATCH) -->
       <div *ngIf="ejercicioActual.type === 'match'" style="margin-top: 20px;">
         <div style="display: flex; justify-content: space-between; gap: 15px;">
-          
+
           <!-- Columna Izquierda (Kimanke) -->
           <div style="flex: 1; display: flex; flex-direction: column; gap: 12px;">
-            <div *ngFor="let item of matchLeftColumn" 
-                 (click)="selectLeft(item)"
-                 [ngClass]="{
+            <div *ngFor="let item of matchLeftColumn" (click)="selectLeft(item)" [ngClass]="{
                    'match-completed': matchedLeft.includes(item.mapuche)
                  }"
-                 [style.background-color]="selectedLeft === item ? '#fdf0eb' : (matchedLeft.includes(item.mapuche) ? '#e8f5e9' : 'white')"
-                 [style.border-color]="selectedLeft === item ? '#C47B66' : (matchedLeft.includes(item.mapuche) ? '#4CAF50' : '#A9BCCB')"
-                 [style.color]="matchedLeft.includes(item.mapuche) ? '#4CAF50' : '#1F3A60'"
-                 style="padding: 15px 10px; border: 2px solid; border-radius: 12px; font-weight: bold; text-align: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.2s; user-select: none;">
+              [style.background-color]="selectedLeft === item ? '#fdf0eb' : (matchedLeft.includes(item.mapuche) ? '#e8f5e9' : 'white')"
+              [style.border-color]="selectedLeft === item ? '#C47B66' : (matchedLeft.includes(item.mapuche) ? '#4CAF50' : '#A9BCCB')"
+              [style.color]="matchedLeft.includes(item.mapuche) ? '#4CAF50' : '#1F3A60'"
+              style="padding: 15px 10px; border: 2px solid; border-radius: 12px; font-weight: bold; text-align: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.2s; user-select: none;">
               {{ item.mapuche }}
             </div>
           </div>
 
           <!-- Columna Derecha (Español) -->
           <div style="flex: 1; display: flex; flex-direction: column; gap: 12px;">
-            <div *ngFor="let item of matchRightColumn" 
-                 (click)="selectRight(item)"
-                 [ngClass]="{
+            <div *ngFor="let item of matchRightColumn" (click)="selectRight(item)" [ngClass]="{
                    'match-completed': matchedRight.includes(item.spanish)
                  }"
-                 [style.background-color]="selectedRight === item ? '#fdf0eb' : (matchedRight.includes(item.spanish) ? '#e8f5e9' : 'white')"
-                 [style.border-color]="selectedRight === item ? '#C47B66' : (matchedRight.includes(item.spanish) ? '#4CAF50' : '#A9BCCB')"
-                 [style.color]="matchedRight.includes(item.spanish) ? '#4CAF50' : '#1F3A60'"
-                 style="padding: 15px 10px; border: 2px solid; border-radius: 12px; font-weight: bold; text-align: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.2s; user-select: none;">
+              [style.background-color]="selectedRight === item ? '#fdf0eb' : (matchedRight.includes(item.spanish) ? '#e8f5e9' : 'white')"
+              [style.border-color]="selectedRight === item ? '#C47B66' : (matchedRight.includes(item.spanish) ? '#4CAF50' : '#A9BCCB')"
+              [style.color]="matchedRight.includes(item.spanish) ? '#4CAF50' : '#1F3A60'"
+              style="padding: 15px 10px; border: 2px solid; border-radius: 12px; font-weight: bold; text-align: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.2s; user-select: none;">
               {{ item.spanish }}
             </div>
           </div>
@@ -197,16 +213,17 @@
 
     </ion-card-content>
 
-    <div style="padding: 20px; border-top: 2px solid #f0f0f0; background-color: #fafafa;">
+    <div style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.5); background-color: rgba(255,255,255,0.25);">
       <!-- BOTÓN COMPROBAR (Se oculta en modo match hasta que se completen las parejas) -->
-      <ion-button *ngIf="ejercicioActual.type !== 'match' || isAnswered" 
-        expand="block" (click)="isAnswered ? nextExercise() : checkAnswer()"
-        [disabled]="(ejercicioActual.type === 'multiple_choice' && !selectedOption && !isAnswered) || (ejercicioActual.type === 'write' && !writtenAnswer && !isAnswered)"
+      <ion-button *ngIf="ejercicioActual.type !== 'match' || isAnswered" expand="block"
+        (click)="isAnswered ? nextExercise() : checkAnswer()"
+        [disabled]="(ejercicioActual.type === 'multiple_choice' && !selectedOption && !isAnswered) || ((ejercicioActual.type === 'write' || ejercicioActual.type === 'fill_blank') && !writtenAnswer && !isAnswered)"
         style="--background: #1F3A60; height: 50px; font-weight: 900; font-size: 1.1em; letter-spacing: 1px;">
         {{ isAnswered ? (currentIndex === ejercicios.length - 1 ? 'FINALIZAR' : 'CONTINUAR') : 'COMPROBAR' }}
       </ion-button>
-      
-      <p *ngIf="ejercicioActual.type === 'match' && !isAnswered" style="text-align: center; color: #888; font-size: 0.9em; margin-top: 10px; font-weight: bold;">
+
+      <p *ngIf="ejercicioActual.type === 'match' && !isAnswered"
+        style="text-align: center; color: #888; font-size: 0.9em; margin-top: 10px; font-weight: bold;">
         Une todas las parejas para continuar
       </p>
     </div>

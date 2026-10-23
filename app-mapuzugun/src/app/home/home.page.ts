@@ -8,6 +8,7 @@ import {
   IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent,
   IonProgressBar, IonBackButton, IonInput
 } from '@ionic/angular/standalone';
+import { imagenAvatar } from '../avatars';
 
 @Component({
   selector: 'app-home',
@@ -27,11 +28,12 @@ export class HomePage implements OnInit {
   loading = true;
 
   // Variables del juego
-  xp = 120;
-  streak = 3;
+  xp = 0;
+  streak = 0;
   lives = 5;
-  gems = 500;
+  gems = 0;
   username = '';
+  avatarId = 'puma';
   nextLifeInMinutes = 0;
 
   // Variables de estado
@@ -46,6 +48,7 @@ export class HomePage implements OnInit {
   notaCultural: string = "";
   aciertos = 0;
   xpGanado = 0;
+  gemasGanadas = 0;
 
   // Variables para el juego de emparejamiento (Match)
   matchLeftColumn: any[] = [];
@@ -66,24 +69,30 @@ export class HomePage implements OnInit {
     return this.currentIndex / this.ejercicios.length;
   }
 
+  get avatarImg(): string {
+    return imagenAvatar(this.avatarId);
+  }
+
   ngOnInit() {
     const userStr = localStorage.getItem('mapu_user');
 
     if (userStr) {
       const user = JSON.parse(userStr);
       this.username = user.username;
+      this.avatarId = user.avatar || 'puma';
 
       // 1. Mostramos los datos del localStorage rápido para que no parpadee
-      this.xp = user.xp;
-      this.streak = user.streak;
+      this.xp = user.xp ?? 0;
+      this.streak = user.streak ?? 0;
       this.lives = user.lives !== undefined ? user.lives : 5;
-      this.gems = user.gems !== undefined ? user.gems : 500;
+      this.gems = user.gems !== undefined ? user.gems : 0;
 
       // 2. Consultamos la base de datos para tener los datos reales
       this.http.get(`/api/user/${this.username}`).subscribe({
         next: (userData: any) => {
           this.xp = userData.xp;
           this.streak = userData.streak;
+          this.avatarId = userData.avatar || this.avatarId;
           this.lives = userData.lives;
           this.gems = userData.gems;
 
@@ -227,7 +236,7 @@ export class HomePage implements OnInit {
   checkAnswer() {
     if (this.isAnswered) return;
 
-    if (this.ejercicioActual.type === 'write') {
+    if (this.ejercicioActual.type === 'write' || this.ejercicioActual.type === 'fill_blank') {
       if (!this.writtenAnswer.trim()) return;
       this.isCorrect = this.writtenAnswer.trim().toLowerCase() === this.ejercicioActual.correct_answer.trim().toLowerCase();
     } else if (this.ejercicioActual.type === 'multiple_choice') {
@@ -261,7 +270,7 @@ export class HomePage implements OnInit {
       this.nextLifeInMinutes = 10;
     }
 
-    this.http.post('/api/lose-life', { username: this.username }).subscribe({
+    this.http.post('/api/lose-life', {}).subscribe({
       next: (res: any) => {
         this.lives = res.lives;
         this.gems = res.gems;
@@ -279,11 +288,6 @@ export class HomePage implements OnInit {
   }
 
   nextExercise() {
-    if (this.lives <= 0) {
-      this.terminarLeccion();
-      return;
-    }
-
     if (this.currentIndex === this.ejercicios.length - 1) {
       this.leccionTerminada = true;
       this.terminarLeccion();
@@ -308,21 +312,25 @@ export class HomePage implements OnInit {
     }).subscribe({
       next: (res: any) => {
         this.xp = res.xp;
+        this.streak = res.streak;
+        this.gems = res.gems;
         this.xpGanado = res.xpGanado;
+        this.gemasGanadas = res.gemasGanadas;
         const userStr = localStorage.getItem('mapu_user');
         if (userStr) {
           const user = JSON.parse(userStr);
           user.xp = res.xp;
+          user.streak = res.streak;
+          user.gems = res.gems;
           localStorage.setItem('mapu_user', JSON.stringify(user));
         }
       },
       error: (err) => console.error('Error al guardar la lección:', err)
     });
-
   }
 
   comprarVidas() {
-    this.http.post('/api/buy-lives', { username: this.username }).subscribe({
+    this.http.post('/api/buy-lives', {}).subscribe({
       next: (res: any) => {
         this.lives = res.lives;
         this.gems = res.gems;
@@ -343,7 +351,7 @@ export class HomePage implements OnInit {
   }
 
   ganarVidaPracticando() {
-    this.http.post('/api/earn-life', { username: this.username }).subscribe({
+    this.http.post('/api/earn-life', {}).subscribe({
       next: (res: any) => {
         this.lives = res.lives;
         this.gems = res.gems;
@@ -366,11 +374,10 @@ export class HomePage implements OnInit {
   regenerarVidasPorTiempo() {
     if (!this.username) return;
 
-    this.http.post('/api/regen-lives', { username: this.username }).subscribe({
+    this.http.post('/api/regen-lives', {}).subscribe({
       next: (res: any) => {
         if (res.regened > 0) {
           this.lives = res.lives;
-          // Recalcular el temporizador
           if (this.lives < 5) {
             this.nextLifeInMinutes = 10;
           }
@@ -422,8 +429,8 @@ export class HomePage implements OnInit {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
-    osc.frequency.exponentialRampToValueAtTime(1046.50, ctx.currentTime + 0.1); // C6
+    osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1046.50, ctx.currentTime + 0.1);
     gain.gain.setValueAtTime(0.2, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
     osc.connect(gain);
@@ -448,4 +455,5 @@ export class HomePage implements OnInit {
     osc.start();
     osc.stop(ctx.currentTime + 0.4);
   }
+  
 }

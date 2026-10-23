@@ -4,10 +4,10 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent,
-  IonIcon, IonButtons, IonButton
+  IonIcon, IonButtons, IonButton, 
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { logOutOutline, checkmark, lockClosed } from 'ionicons/icons';
+import { logOutOutline, checkmark, lockClosed, flame, informationCircleOutline } from 'ionicons/icons';
 import { AVATARES, imagenAvatar } from '../../avatars';
 
 @Component({
@@ -22,6 +22,7 @@ import { AVATARES, imagenAvatar } from '../../avatars';
 })
 export class UnitsPage implements OnInit {
   unidades: any[] = [];
+  unidadesTodas: any[] = [];
   etapas: any[] = [];            // { unit_id, stage, ejercicios, title, completed, score }
   unidadAbierta: number | null = null;
   loading = true;
@@ -31,8 +32,10 @@ export class UnitsPage implements OnInit {
   avatarId = 'puma';
   selectorAbierto = false;
 
+  racha = 0;
+
   constructor(private http: HttpClient, private router: Router) {
-    addIcons({ logOutOutline, checkmark, lockClosed });
+      addIcons({ logOutOutline, checkmark, lockClosed, flame, informationCircleOutline });
   }
 
   get avatarImg(): string {
@@ -47,9 +50,11 @@ export class UnitsPage implements OnInit {
       this.avatarId = user.avatar || 'puma';
     }
 
+    this.cargarRacha();
+
     this.http.get<any[]>('/api/units').subscribe({
       next: (data) => {
-        this.unidades = data;
+        this.unidadesTodas = data;
         this.cargarEtapas();
       },
       error: (err) => {
@@ -62,12 +67,23 @@ export class UnitsPage implements OnInit {
   // Se ejecuta cada vez que se vuelve a esta pantalla (por ejemplo, al terminar una lección)
   ionViewWillEnter() {
     if (!this.loading) this.cargarEtapas();
+    this.cargarRacha();
+  }
+
+  cargarRacha() {
+    if (!this.username) return;
+    this.http.get<any>(`/api/user/${encodeURIComponent(this.username)}`).subscribe({
+      next: (u) => this.racha = u.streak ?? 0,
+      error: (err) => console.error('Error al cargar la racha:', err)
+    });
   }
 
   cargarEtapas() {
     this.http.get<any[]>('/api/stages').subscribe({
-      next: (data) => {
+        next: (data) => {
         this.etapas = data;
+        // Solo se muestran las unidades que tienen etapas aprobadas
+        this.unidades = this.unidadesTodas.filter(u => this.etapasDe(u.id).length > 0);
         this.loading = false;
         const actual = this.unidades.find(u => this.esActual(u.id));
         if (actual) this.unidadAbierta = actual.id;
@@ -161,6 +177,10 @@ export class UnitsPage implements OnInit {
     });
   }
 
+  irAAcerca() {
+    this.router.navigateByUrl('/acerca');
+  }
+  
   cerrarSesion() {
     localStorage.removeItem('mapu_user');
     localStorage.removeItem('mapu_token');
