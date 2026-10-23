@@ -19,6 +19,8 @@ if (!process.env.JWT_SECRET) {
 
 const app = express();
 
+app.set('trust proxy', 1);   // necesario detrás del proxy de Render (para el límite de intentos)
+
 // ---------- CORS ----------
 // Orígenes permitidos, separados por coma en el .env
 const origenesPermitidos = (process.env.CORS_ORIGIN || '')
@@ -43,6 +45,7 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: Number(process.env.DB_PORT),
+  ssl: process.env.DB_SSL === 'true',   // Neon exige conexión cifrada
 });
 
 // ---------- LÍMITES DE INTENTOS ----------
