@@ -1,8 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const { Pool } = require('pg');
-const AVATARES = ['puma', 'aguila', 'bandurria', 'monito'];
-// Contenido: en producción solo se entrega lo aprobado por hablantes.
+const AVATARES = ['puma', 'aguila', 'bandurria', 'monito', 'pudu', 'ranita'];// Contenido: en producción solo se entrega lo aprobado por hablantes.
 // Para desarrollo, pon CONTENIDO_BORRADOR=true en el .env.
 const VER_BORRADORES = process.env.CONTENIDO_BORRADOR === 'true';
 const soloAprobado = (alias = '') =>
@@ -45,8 +44,7 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: Number(process.env.DB_PORT),
-  ssl: { rejectUnauthorized: false } // <-- Forzado para Neon
-});
+  ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false }});
 
 // ---------- LÍMITES DE INTENTOS ----------
 // Máximo 10 intentos fallidos de login cada 15 minutos por conexión
