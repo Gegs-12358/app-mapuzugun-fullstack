@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonBackButton
 } from '@ionic/angular/standalone';
+import { AVATARES } from '../../avatars';
 
 // --- Datos que el proyecto debe completar ---
 const CONTACTO = '';     // correo de contacto, por ejemplo 'hola@tudominio.cl'
@@ -22,4 +23,5 @@ export class AcercaPage {
   contacto = CONTACTO;
   grafemario = GRAFEMARIO;
   creditos = CREDITOS;
+  companeros = AVATARES;
 }

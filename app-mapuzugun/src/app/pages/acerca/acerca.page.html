@@ -1,9 +1,9 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar color="primary">
+  <ion-toolbar class="barra-kimanke">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/" text=""></ion-back-button>
     </ion-buttons>
-    <ion-title style="font-weight: 800;">Acerca de Kimanke</ion-title>
+    <ion-title>Acerca de Kimanke</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -11,7 +11,7 @@
   <article class="acerca">
 
     <section>
-      <h2>Qué es Kimanke</h2>
+      <h2><span class="icono">🌱</span>Qué es Kimanke</h2>
       <p>Kimanke es un proyecto personal, sin fines de lucro, para aprender y revitalizar el mapuzugun. Busca ser un
         apoyo para la enseñanza, no un reemplazo de la transmisión oral ni del rol de los kimeltuchefe.</p>
       <p>Se construye con la opinión y la cooperación de la comunidad: las ideas, las correcciones y las voces de
@@ -19,14 +19,14 @@
     </section>
 
     <section>
-      <h2>Cómo se cuida el contenido</h2>
+      <h2><span class="icono">🔍</span>Cómo se cuida el contenido</h2>
       <p>Las palabras, las notas culturales y los audios deben ser revisados por hablantes y kimeltuchefe antes de
         mostrarse como contenido aprobado.</p>
       <p>Hoy estamos en esa etapa: lo que ves es de prueba y puede tener errores. Si encuentras alguno, avísanos.</p>
     </section>
 
     <section>
-      <h2>Sobre la escritura y las variantes</h2>
+      <h2><span class="icono">✍️</span>Sobre la escritura y las variantes</h2>
       <p *ngIf="grafemario">Las lecciones usan el grafemario {{ grafemario }}.</p>
       <p *ngIf="!grafemario">Las lecciones usan una escritura provisional que todavía no ha sido confirmada con
         hablantes. Cuando se defina, se indicará aquí con su nombre.</p>
@@ -35,32 +35,40 @@
     </section>
 
     <section>
-      <h2>Tus datos</h2>
+      <h2><span class="icono">🔒</span>Tus datos</h2>
       <p>Guardamos solo lo necesario para que la app funcione: tu nombre de usuario, tu contraseña cifrada, el compañero
         que elegiste y tu progreso. No pedimos tu correo ni tu nombre real, y no se usan con fines comerciales.</p>
     </section>
 
     <section>
-      <h2>Los compañeros</h2>
+      <h2><span class="icono">🐾</span>Los compañeros</h2>
+      <div class="companeros-mini">
+        <div class="companero-mini" *ngFor="let c of companeros">
+          <img [src]="c.img" [alt]="c.animal" width="64" height="64">
+          <strong>{{ c.nombre }}</strong>
+          <small>{{ c.animal }}</small>
+        </div>
+      </div>
       <p>Pangipol, Manketor, Rakyfar, Teutimos, Pudimel y Rinodar son nombres inventados para Kimanke; no son palabras
         del mapuzugun. Sus ilustraciones representan al puma, el cóndor, la bandurria, el monito del monte, el pudú y la
         ranita de Darwin.</p>
     </section>
+
     <section>
-      <h2>Ilustraciones</h2>
+      <h2><span class="icono">🎨</span>Ilustraciones</h2>
       <p>Los fondos y los compañeros de Kimanke son ilustraciones generadas con herramientas de inteligencia artificial.
         Son imágenes provisionales: no representan obras de artistas de la comunidad y pueden cambiar si alguien quiere
         colaborar con su arte.</p>
     </section>
 
     <section>
-      <h2>Gratuidad</h2>
+      <h2><span class="icono">💛</span>Gratuidad</h2>
       <p>Kimanke es un proyecto personal, gratuito y sin publicidad. No tiene fines de lucro. Lo creó Gabriel González
         con la ayuda de las personas que han querido colaborar; el contenido sigue en revisión con hablantes.</p>
     </section>
 
     <section>
-      <h2>Créditos</h2>
+      <h2><span class="icono">👥</span>Créditos</h2>
       <p>Aquí aparecerán, con su permiso, las personas y comunidades que ayuden con audios, revisión y correcciones.</p>
       <ul class="creditos" *ngIf="creditos.length > 0">
         <li *ngFor="let c of creditos">
@@ -71,10 +79,13 @@
     </section>
 
     <section>
-      <h2>Cómo ayudar</h2>
+      <h2><span class="icono">🙌</span>Cómo ayudar</h2>
       <p>Si hablas mapuzugun y quieres revisar contenido o grabar tu voz, o si encontraste un error, escríbeme.</p>
-      <p><a href="mailto:ga.ed.gonzalezs@gmail.com">ga.ed.gonzalezs&#64;gmail.com</a></p>
-      <p><a href="https://wa.me/56998117750" target="_blank" rel="noopener">WhatsApp: +56 9 9811 7750</a></p>
+      <div class="contactos">
+        <a class="boton-contacto correo" href="mailto:ga.ed.gonzalezs@gmail.com">✉️ Escribir un correo</a>
+        <a class="boton-contacto whatsapp" href="https://wa.me/56998117750" target="_blank" rel="noopener">💬 WhatsApp</a>
+      </div>
+      <p class="dato-contacto">ga.ed.gonzalezs&#64;gmail.com · +56 9 9811 7750</p>
     </section>
 
   </article>

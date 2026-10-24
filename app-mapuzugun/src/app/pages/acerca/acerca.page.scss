@@ -1,5 +1,12 @@
 .acerca-content {
-  --background: #F5EBE1;
+  --background:
+    linear-gradient(rgba(245, 235, 225, 0.35), rgba(245, 235, 225, 0.35)),
+    url('/assets/bg/mapa.webp') center top / cover no-repeat;
+}
+
+/* Con el botón de volver, el título necesita un poco menos de tamaño */
+ion-toolbar.barra-kimanke ion-title {
+  font-size: 24px;
 }
 
 .acerca {
@@ -7,13 +14,43 @@
   margin: 0 auto;
   padding-bottom: 32px;
 
-  section { margin-bottom: 22px; }
+  /* Una tarjeta por sección; el color de acento va rotando */
+  section {
+    --acento: #C47B66;
+    margin-bottom: 16px;
+    padding: 16px 18px 12px;
+    border-radius: 18px;
+    background: rgba(245, 235, 225, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-left: 6px solid var(--acento);
+    box-shadow: 0 4px 14px rgba(31, 58, 96, 0.18);
+  }
+
+  section:nth-of-type(4n + 2) { --acento: #E8B94A; }
+  section:nth-of-type(4n + 3) { --acento: #5BB5B5; }
+  section:nth-of-type(4n + 4) { --acento: #1F3A60; }
 
   h2 {
-    margin: 0 0 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 10px;
     font-size: 18px;
     font-weight: 800;
     color: #1F3A60;
+  }
+
+  .icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--acento);
+    font-size: 18px;
+    box-shadow: 0 2px 6px rgba(31, 58, 96, 0.25);
   }
 
   p {
@@ -37,4 +74,67 @@
   }
 
   .vacio { font-style: italic; }
+}
+
+/* Compañeros */
+.companeros-mini {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px 8px;
+  margin: 4px 0 12px;
+}
+
+.companero-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: #1F3A60;
+
+  img {
+    box-sizing: border-box;
+    width: 68px;
+    height: 68px;
+    padding: 4px;
+    border-radius: 50%;
+    background: #F5EBE1;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 2px 6px rgba(31, 58, 96, 0.2);
+    object-fit: contain;
+  }
+
+  strong { margin-top: 4px; font-size: 14px; }
+  small { font-size: 12.5px; color: #3F4F63; }
+}
+
+/* Contacto */
+.contactos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 10px 0 8px;
+}
+
+.acerca a.boton-contacto {
+  flex: 1 1 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 16px;
+  border-radius: 14px;
+  color: #F5EBE1;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(31, 58, 96, 0.25);
+
+  &.correo { background: linear-gradient(135deg, #2A4C7C, #1F3A60); }
+  &.whatsapp { background: linear-gradient(135deg, #5A9470, #3E7552); }
+}
+
+.dato-contacto {
+  font-size: 13.5px !important;
+  text-align: center;
+  color: #3F4F63 !important;
 }
