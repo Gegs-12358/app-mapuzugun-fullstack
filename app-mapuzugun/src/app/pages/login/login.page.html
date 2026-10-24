@@ -1,5 +1,5 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar color="primary">
+  <ion-toolbar class="barra-kimanke">
     <ion-title class="ion-text-center" style="font-weight: 800;">Kimanke</ion-title>
   </ion-toolbar>
 </ion-header>
@@ -27,23 +27,14 @@
         <form (ngSubmit)="onSubmit()">
 
           <ion-item lines="none" class="campo">
-            <ion-input
-              name="username"
-              label="Usuario"
-              labelPlacement="floating"
-              autocomplete="username"
+            <ion-input name="username" label="Usuario" labelPlacement="floating" autocomplete="username"
               [(ngModel)]="username">
             </ion-input>
           </ion-item>
 
           <ion-item lines="none" class="campo">
-            <ion-input
-              name="password"
-              label="Contraseña"
-              labelPlacement="floating"
-              [type]="showPassword ? 'text' : 'password'"
-              autocomplete="current-password"
-              [(ngModel)]="password">
+            <ion-input name="password" label="Contraseña" labelPlacement="floating"
+              [type]="showPassword ? 'text' : 'password'" autocomplete="current-password" [(ngModel)]="password">
             </ion-input>
             <button slot="end" type="button" class="toggle-pass" (click)="showPassword = !showPassword">
               {{ showPassword ? 'Ocultar' : 'Mostrar' }}
@@ -71,9 +62,10 @@
     <p class="login-footer">
       Proyecto gratuito para practicar la lengua.<br>
       Contenido de prueba: aún en revisión con hablantes.
-      <a routerLink="/acerca" style="color: #1F3A60; font-weight: 700; text-decoration: underline;">Acerca de Kimanke</a>
+      <a routerLink="/acerca" style="color: #1F3A60; font-weight: 700; text-decoration: underline;">Acerca de
+        Kimanke</a>
     </p>
-    
+
 
   </div>
 
