@@ -192,6 +192,28 @@ app.put('/api/avatar', async (req, res) => {
   }
 });
 
+// Eliminar la cuenta y todo su progreso. Pide la contraseña para confirmar.
+// El progreso se borra solo, porque la tabla de progreso tiene ON DELETE CASCADE.
+app.delete('/api/account', limiteLogin, async (req, res) => {
+  const { password } = req.body || {};
+  if (!password) {
+    return res.status(400).json({ error: 'Debes escribir tu contraseña' });
+  }
+  try {
+    const found = await pool.query('SELECT password FROM users WHERE id = $1', [req.user.id]);
+    if (found.rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const valid = await bcrypt.compare(password, found.rows[0].password);
+    if (!valid) return res.status(403).json({ error: 'Contraseña incorrecta' });
+
+    await pool.query('DELETE FROM users WHERE id = $1', [req.user.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+});
+
 app.get('/api/exercises', async (req, res) => {
   const unitId = parseInt(req.query.unitId, 10);
   const stage = req.query.stage !== undefined ? parseInt(req.query.stage, 10) : null;
