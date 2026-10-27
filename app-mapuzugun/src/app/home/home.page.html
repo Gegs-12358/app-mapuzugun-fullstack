@@ -1,26 +1,24 @@
 <ion-header class="ion-no-border" style="box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
-  <ion-toolbar color="primary">
+  <ion-toolbar class="barra-kimanke">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/units" text=""></ion-back-button>
     </ion-buttons>
 
-    <ion-title style="font-weight: 800;">
-      <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-        <img [src]="avatarImg" alt="" width="30" height="30"
-          style="box-sizing: border-box; width: 30px; height: 30px; padding: 2px; border-radius: 50%; background: #F5EBE1; object-fit: contain;">
-        <span>Lección</span>
+    <ion-title>
+      <div class="titulo-leccion">
+        <img [src]="avatarImg" alt="" width="38" height="38">
+        <span class="titulo-principal">{{ tituloUnidad || ('Unidad ' + unitId) }}</span>
       </div>
     </ion-title>
   </ion-toolbar>
 
   <!-- SIMBOLOGÍA MAPUCHE -->
   <ion-toolbar color="primary" style="--min-height: 32px;">
-    <div
-      style="display: flex; justify-content: space-around; align-items: center; font-size: 12px; font-weight: 700; white-space: nowrap; padding: 0 8px 4px; color: #F5EBE1;">
+    <div class="estadisticas">
       <span>🔥 Kütral: {{ streak }}</span>
       <span>🏵️ Kimün: {{ xp }}</span>
       <span>🟢 Llanka: {{ gems }}</span>
-      <span style="color: #FF9A85;">🌿 Newen: {{ lives }}</span>
+      <span class="newen">🌿 Newen: {{ lives }}</span>
     </div>
   </ion-toolbar>
 
@@ -39,13 +37,13 @@
     <h2 style="color: #F44336; font-weight: 900;">¡Te has quedado sin Newen!</h2>
     <p style="font-size: 40px; margin: 20px 0;">🍂</p>
 
-    <p style="color: #666; font-size: 0.9em; margin-bottom: 15px;">
+    <p style="color: #444; font-size: 1em; margin-bottom: 15px;">
       Tu <strong>Newen</strong> (fuerza vital) se ha agotado.
     </p>
 
     <!-- Nota educativa sobre Mongen -->
     <div style="background-color: #F5EBE1; padding: 10px; border-radius: 10px; margin-bottom: 15px;">
-      <p style="color: #1F3A60; font-size: 0.8em; margin: 0; font-style: italic;">
+      <p style="color: #1F3A60; font-size: 0.95em; margin: 0; font-style: italic;">
         💡 Recuerda: tu <strong>Mongen</strong> (vida) sigue intacto. El Newen es la energía que te permite vivirla, y
         puedes recuperarlo.
       </p>
@@ -74,7 +72,7 @@
       ⏰ VOLVER AL MENÚ
     </ion-button>
 
-    <p style="color: #888; font-size: 0.8em; margin-top: 15px; font-style: italic;">
+    <p style="color: #555; font-size: 0.95em; margin-top: 15px; font-style: italic;">
       💡 El Newen se regenera 1 punto cada 10 minutos (máximo 5)
     </p>
   </ion-card>
@@ -105,23 +103,49 @@
     </ion-button>
   </ion-card>
 
+    <!-- PORTADA DE LA ETAPA -->
+  <ion-card *ngIf="!loading && !gameOver && !leccionTerminada && mostrarPortada && ejercicios.length > 0"
+    class="ion-margin-top portada-etapa">
+    <ion-card-content>
+      <p class="portada-unidad">Unidad {{ unitId }}{{ tituloUnidad ? ' · ' + tituloUnidad : '' }}</p>
+      <h1 class="portada-numero">Etapa {{ stage }}</h1>
+      <p class="portada-preguntas">
+        {{ ejercicios.length === 1 ? '1 pregunta' : ejercicios.length + ' preguntas' }}
+      </p>
+
+      <div class="dato">
+        <img [src]="avatarImg" alt="Tu compañero" class="dato-avatar">
+        <div class="dato-burbuja">
+          <p class="dato-titulo">¡MARI MARI!</p>
+          <p class="dato-texto">
+            {{ tituloUnidad ? 'En esta unidad practicaremos «' + tituloUnidad + '».' : 'En esta etapa practicaremos paso a paso.' }}
+            ¡Vamos de a poco!
+          </p>
+          <p class="dato-aviso">⚠️ Contenido en revisión</p>
+        </div>
+      </div>
+
+      <ion-button expand="block" class="btn-comenzar" (click)="comenzar()">COMENZAR</ion-button>
+    </ion-card-content>
+  </ion-card>
+
   <!-- PANTALLA DE PREGUNTA -->
-  <ion-card *ngIf="!loading && !leccionTerminada && !gameOver && ejercicioActual" class="ion-margin-top"
+  <ion-card *ngIf="!loading && !leccionTerminada && !gameOver && ejercicioActual && !mostrarPortada" class="ion-margin-top"
     style="border: 3px solid #1F3A60; overflow: hidden;">
 
     <ion-card-header>
       <p *ngIf="ejercicioActual.isReview"
-        style="color: #C47B66; font-size: 12px; font-weight: bold; text-align: center; margin-bottom: 5px;">
+        style="color: #A85E4A; font-size: 14px; font-weight: bold; text-align: center; margin-bottom: 5px;">
         🔄 Pregunta de repaso
       </p>
       <ion-card-title class="ion-text-center" style="color: #1F3A60; font-weight: 800;">
         {{ ejercicioActual.question }}
       </ion-card-title>
-      <p class="ion-text-center" style="font-size: 12px; color: gray; font-weight: bold;">
-        Pregunta {{ currentIndex + 1 }} de {{ ejercicios.length }}
+      <p class="ion-text-center" style="font-size: 14px; color: #3F4F63; font-weight: 700;">
+        Etapa {{ stage }} · Pregunta {{ currentIndex + 1 }} de {{ ejercicios.length }}
       </p>
       <p *ngIf="ejercicioActual.estado !== 'aprobado'" class="ion-text-center"
-        style="margin: 4px 0 0; font-size: 11px; font-weight: 700; color: #8a5a00;">
+        style="margin: 4px 0 0; font-size: 14px; font-weight: 700; color: #7A4A00;">
         ⚠️ Contenido en revisión
       </p>
     </ion-card-header>
@@ -130,12 +154,12 @@
 
       <!-- FEEDBACK: solo aparece después de responder -->
       <div *ngIf="isAnswered" [ngClass]="{ 'bg-green': isCorrect, 'bg-red': !isCorrect }" class="nota-cultural">
-        <p style="font-weight: bold; margin-bottom: 6px; font-size: 1.05em;">
+        <p style="font-weight: bold; margin-bottom: 6px; font-size: 1.15em;">
           {{ isCorrect ? '¡Correcto! Muy bien.' : '¡Casi! La respuesta correcta era: ' + ejercicioActual.correct_answer
           }}
         </p>
         <p *ngIf="ejercicioActual?.cultural_note"
-          style="font-size: 0.9em; opacity: 0.9; font-style: italic; line-height: 1.4;">
+          style="font-size: 1em; opacity: 1; font-style: italic; line-height: 1.4;">
           {{ ejercicioActual.cultural_note }}
         </p>
       </div>
@@ -164,7 +188,7 @@
       <!-- MODO ESCRITURA -->
       <div *ngIf="ejercicioActual.type === 'write'" style="margin-top: 20px;">
         <ion-input [(ngModel)]="writtenAnswer" [disabled]="isAnswered" placeholder="Escribe tu respuesta aquí..."
-          style="border: 2px solid #A9BCCB; border-radius: 12px; padding: 15px; font-size: 1.1em; color: #1F3A60; font-weight: bold; background-color: white;">
+          style="border: 2px solid #A9BCCB; border-radius: 12px; padding: 15px; font-size: 1.25em; color: #1F3A60; font-weight: bold; background-color: white;">
         </ion-input>
       </div>
 
@@ -174,7 +198,7 @@
           {{ ejercicioActual.question }}
         </p>
         <ion-input [(ngModel)]="writtenAnswer" [disabled]="isAnswered" placeholder="Escribe la palabra que falta..."
-          style="border: 2px solid #A9BCCB; border-radius: 12px; padding: 15px; font-size: 1.1em; color: #1F3A60; font-weight: bold; background-color: white;">
+          style="border: 2px solid #A9BCCB; border-radius: 12px; padding: 15px; font-size: 1.25em; color: #1F3A60; font-weight: bold; background-color: white;">
         </ion-input>
       </div>
 
@@ -223,7 +247,7 @@
       </ion-button>
 
       <p *ngIf="ejercicioActual.type === 'match' && !isAnswered"
-        style="text-align: center; color: #888; font-size: 0.9em; margin-top: 10px; font-weight: bold;">
+        style="text-align: center; color: #4F5D6E; font-size: 1em; margin-top: 10px; font-weight: bold;">
         Une todas las parejas para continuar
       </p>
     </div>

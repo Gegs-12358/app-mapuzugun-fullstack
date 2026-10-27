@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent,
-  IonIcon, IonButtons, IonButton, 
+  IonIcon, IonButtons, IonButton, AlertController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { logOutOutline, checkmark, lockClosed, flame, informationCircleOutline } from 'ionicons/icons';
@@ -34,8 +34,8 @@ export class UnitsPage implements OnInit {
 
   racha = 0;
 
-  constructor(private http: HttpClient, private router: Router) {
-      addIcons({ logOutOutline, checkmark, lockClosed, flame, informationCircleOutline });
+  constructor(private http: HttpClient, private router: Router, private alertCtrl: AlertController) {
+    addIcons({ logOutOutline, checkmark, lockClosed, flame, informationCircleOutline });
   }
 
   get avatarImg(): string {
@@ -80,7 +80,7 @@ export class UnitsPage implements OnInit {
 
   cargarEtapas() {
     this.http.get<any[]>('/api/stages').subscribe({
-        next: (data) => {
+      next: (data) => {
         this.etapas = data;
         // Solo se muestran las unidades que tienen etapas aprobadas
         this.unidades = this.unidadesTodas.filter(u => this.etapasDe(u.id).length > 0);
@@ -151,9 +151,11 @@ export class UnitsPage implements OnInit {
     this.unidadAbierta = this.unidadAbierta === id ? null : id;
   }
 
-  irAEtapa(unitId: number, stage: number) {
+  irAEtapa(unitId: number, stage: number, tituloUnidad?: string, tituloEtapa?: string) {
     if (this.estadoEtapa(unitId, stage) === 'bloqueada') return;
-    this.router.navigateByUrl(`/home/${unitId}/${stage}`);
+    this.router.navigateByUrl(`/home/${unitId}/${stage}`, {
+      state: { tituloUnidad, tituloEtapa }
+    });
   }
 
   // --- Avatar ---
@@ -180,10 +182,44 @@ export class UnitsPage implements OnInit {
   irAAcerca() {
     this.router.navigateByUrl('/acerca');
   }
-  
+
   cerrarSesion() {
     localStorage.removeItem('mapu_user');
     localStorage.removeItem('mapu_token');
     this.router.navigateByUrl('/login', { replaceUrl: true });
   }
+    async eliminarCuenta() {
+    const alerta = await this.alertCtrl.create({
+      header: 'Eliminar mi cuenta',
+      message: 'Se borrarán tu usuario y todo tu progreso. Esto no se puede deshacer. Para confirmar, escribe tu contraseña.',
+      inputs: [{ name: 'password', type: 'password', placeholder: 'Tu contraseña' }],
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Eliminar',
+          role: 'destructive',
+          handler: (data) => {
+            if (!data.password) {
+              alerta.message = 'Escribe tu contraseña para confirmar.';
+              return false;
+            }
+            this.http.delete('/api/account', { body: { password: data.password } }).subscribe({
+              next: () => {
+                alerta.dismiss();
+                this.cerrarSesion();
+              },
+              error: (err) => {
+                alerta.message = err.status === 403
+                  ? 'Contraseña incorrecta. Inténtalo de nuevo.'
+                  : 'No se pudo eliminar la cuenta. Inténtalo más tarde.';
+              }
+            });
+            return false; // mantiene el aviso abierto hasta tener respuesta
+          }
+        }
+      ]
+    });
+    await alerta.present();
+  }
+  
 }

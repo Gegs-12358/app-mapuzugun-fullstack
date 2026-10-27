@@ -133,3 +133,139 @@ ion-card ion-button {
 @media (prefers-reduced-motion: reduce) {
   .dato-avatar { animation: none; }
 }
+
+/* Título de la lección: dónde estás y cuánto llevas */
+/* Título de la lección */
+.titulo-leccion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  img {
+    box-sizing: border-box;
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    padding: 3px;
+    border-radius: 50%;
+    background: #F5EBE1;
+    object-fit: contain;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.titulo-principal {
+  display: inline-block;
+  max-width: 215px;
+  padding: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 20px;
+  font-weight: 800;
+  text-shadow:
+    -1.5px 0 #12263F, 1.5px 0 #12263F, 0 -1.5px #12263F, 0 1.5px #12263F,
+    0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+.titulo-textos {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.15;
+}
+
+.titulo-principal {
+  font-size: 19px;
+  font-weight: 800;
+  text-shadow:
+    -2px 0 #12263F, 2px 0 #12263F, 0 -2px #12263F, 0 2px #12263F,
+    -1.5px -1.5px #12263F, 1.5px -1.5px #12263F,
+    -1.5px 1.5px #12263F, 1.5px 1.5px #12263F;
+}
+
+.titulo-secundario {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-shadow:
+    -1.5px 0 #12263F, 1.5px 0 #12263F, 0 -1.5px #12263F, 0 1.5px #12263F;
+}
+
+/* Estadísticas en cuadrícula, con letra legible */
+.estadisticas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px 12px;
+  padding: 4px 16px 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #F5EBE1;
+  white-space: nowrap;
+
+  span { text-align: center; }
+  .newen { color: #FF9A85; }
+}
+
+/* Opciones de respuesta y títulos más grandes */
+ion-card ion-button {
+  font-size: 17px;
+  --padding-top: 14px;
+  --padding-bottom: 14px;
+  min-height: 52px;
+}
+
+ion-card-title,
+ion-card h2 {
+  font-size: 22px;
+  line-height: 1.25;
+}
+
+/* Portada de la etapa */
+.portada-etapa {
+  text-align: center;
+
+  ion-card-content {
+    padding: 22px 18px 20px;
+  }
+}
+
+.portada-unidad {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #7A4A3C;
+}
+
+.portada-numero {
+  margin: 6px 0 4px;
+  font-size: 52px;
+  font-weight: 800;
+  line-height: 1.05;
+  color: #1F3A60;
+  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.6);
+}
+
+.portada-preguntas {
+  display: inline-block;
+  margin: 0 0 6px;
+  padding: 5px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.65);
+  font-size: 15px;
+  font-weight: 700;
+  color: #1F3A60;
+}
+
+ion-card ion-button.btn-comenzar {
+  --background: #E8B94A;
+  --color: #1F3A60;
+  --border-radius: 14px;
+  --box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+  height: 54px;
+  margin-top: 18px;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}

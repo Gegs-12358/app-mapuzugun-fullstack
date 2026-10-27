@@ -107,6 +107,26 @@ ion-toolbar.barra-kimanke ion-title {
     0 4px 10px rgba(0, 0, 0, 0.45);
 }
 
+/* Botones dentro de la barra: pastilla oscura para que se lean sobre las franjas */
+ion-toolbar.barra-kimanke ion-buttons ion-button {
+  --background: rgba(18, 38, 63, 0.62);
+  --background-hover: rgba(18, 38, 63, 0.75);
+  --background-activated: rgba(18, 38, 63, 0.8);
+  --color: #F5EBE1;
+  --border-radius: 20px;
+  margin: 0 3px;
+}
+
+ion-toolbar.barra-kimanke ion-back-button {
+  --background: rgba(18, 38, 63, 0.62);
+  --background-hover: rgba(18, 38, 63, 0.75);
+  --color: #F5EBE1;
+  --border-radius: 20px;
+  --padding-start: 8px;
+  --padding-end: 8px;
+  margin: 0 3px;
+}
+
 /* ===== Pantallas de acceso (login y registro) =====
    Lo común vive aquí. Cada página solo ajusta lo suyo. */
 .login-wrapper {
@@ -259,4 +279,15 @@ ion-toolbar.barra-kimanke ion-title {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+/* Refuerzo: pastilla oscura aplicada directamente a la parte interna del botón */
+ion-toolbar.barra-kimanke ion-buttons ion-button::part(native) {
+  background: rgba(18, 38, 63, 0.68);
+  color: #F5EBE1;
+  border-radius: 20px;
+}
+
+ion-toolbar.barra-kimanke ion-buttons ion-button ion-icon {
+  color: #F5EBE1;
 }

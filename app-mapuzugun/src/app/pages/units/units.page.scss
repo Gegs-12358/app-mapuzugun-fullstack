@@ -349,3 +349,16 @@
     }
   }
 }
+
+.btn-eliminar {
+  display: block;
+  margin: 12px auto 0;
+  padding: 8px 14px;
+  border: 1px solid rgba(179, 38, 30, 0.5);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.55);
+  color: #B3261E;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}

@@ -45,6 +45,9 @@ export class HomePage implements OnInit {
   gameOver = false;
   unitId: string | null = null;
   stage: string | null = null;
+  tituloUnidad = '';
+  mostrarPortada = true;
+  tituloEtapa = '';
   notaCultural: string = "";
   aciertos = 0;
   xpGanado = 0;
@@ -58,6 +61,9 @@ export class HomePage implements OnInit {
   matchedLeft: string[] = [];
   matchedRight: string[] = [];
 
+  comenzar() {
+    this.mostrarPortada = false;
+  }
   constructor(private http: HttpClient, private route: ActivatedRoute) { }
 
   get ejercicioActual() {
@@ -121,6 +127,9 @@ export class HomePage implements OnInit {
 
     this.unitId = this.route.snapshot.paramMap.get('unitId');
     this.stage = this.route.snapshot.paramMap.get('stage');
+    const estado = history.state ?? {};
+    this.tituloUnidad = estado.tituloUnidad ?? '';
+    this.tituloEtapa = estado.tituloEtapa ?? '';
 
     // NOTAS CULTURALES (8 unidades)
     if (this.unitId === '1') {
@@ -173,8 +182,9 @@ export class HomePage implements OnInit {
 
   initMatchGame() {
     if (this.ejercicioActual && this.ejercicioActual.type === 'match') {
-      this.matchLeftColumn = this.shuffleArray([...this.ejercicioActual.options]);
-      this.matchRightColumn = this.shuffleArray([...this.ejercicioActual.options]);
+      const { izq, der } = this.mezclarSinCoincidencias(this.ejercicioActual.options);
+      this.matchLeftColumn = izq;
+      this.matchRightColumn = der;
       this.selectedLeft = null;
       this.selectedRight = null;
       this.matchedLeft = [];
@@ -412,6 +422,26 @@ export class HomePage implements OnInit {
     this.initMatchGame();
   }
 
+  // Mezcla las dos columnas del emparejado y evita que una palabra quede en la
+  // misma fila que su pareja, porque así el ejercicio se resolvería mirando de lado.
+  mezclarSinCoincidencias(items: any[]): { izq: any[]; der: any[] } {
+    const izq = this.shuffleArray([...items]);
+    let der = this.shuffleArray([...items]);
+
+    const hayCoincidencia = () => izq.some((x, i) => x.mapuche === der[i].mapuche);
+
+    if (items.length > 1) {
+      for (let intento = 0; intento < 50 && hayCoincidencia(); intento++) {
+        der = this.shuffleArray([...items]);
+      }
+      // Respaldo muy improbable: desplazar una fila
+      if (hayCoincidencia()) {
+        der = izq.map((_, i) => izq[(i + 1) % izq.length]);
+      }
+    }
+    return { izq, der };
+  }
+
   shuffleArray(array: any[]) {
     const newArray = [...array];
     for (let i = newArray.length - 1; i > 0; i--) {
@@ -455,5 +485,5 @@ export class HomePage implements OnInit {
     osc.start();
     osc.stop(ctx.currentTime + 0.4);
   }
-  
+
 }
