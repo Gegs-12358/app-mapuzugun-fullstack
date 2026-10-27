@@ -1,5 +1,18 @@
-/* Fuentes con carácter artesanal */
-@import url('https://fonts.googleapis.com/css2?family=Bitter:wght@400;600;700;800&family=Lora:wght@400;500;600&display=swap');
+/* Fuentes alojadas en la app (licencia SIL OFL): no se piden a Google */
+@import "@fontsource/bitter/latin-400.css";
+@import "@fontsource/bitter/latin-600.css";
+@import "@fontsource/bitter/latin-700.css";
+@import "@fontsource/bitter/latin-800.css";
+@import "@fontsource/bitter/latin-ext-400.css";
+@import "@fontsource/bitter/latin-ext-600.css";
+@import "@fontsource/bitter/latin-ext-700.css";
+@import "@fontsource/bitter/latin-ext-800.css";
+@import "@fontsource/lora/latin-400.css";
+@import "@fontsource/lora/latin-500.css";
+@import "@fontsource/lora/latin-600.css";
+@import "@fontsource/lora/latin-ext-400.css";
+@import "@fontsource/lora/latin-ext-500.css";
+@import "@fontsource/lora/latin-ext-600.css";
 
 /* Estilos base de Ionic: necesarios para que las páginas y las transiciones funcionen */
 @import "@ionic/angular/css/core.css";
