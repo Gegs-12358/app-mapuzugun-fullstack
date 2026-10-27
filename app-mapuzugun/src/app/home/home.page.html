@@ -22,7 +22,7 @@
     </div>
   </ion-toolbar>
 
-  <ion-progress-bar [value]="progreso" color="tertiary"></ion-progress-bar>
+  <ion-progress-bar [value]="progreso" color="tertiary" aria-label="Progreso de la etapa"></ion-progress-bar>
 </ion-header>
 
 <ion-content>
@@ -62,7 +62,7 @@
 
     <!-- OPCIÓN 2: Comprar con gemas -->
     <ion-button expand="block" (click)="comprarVidas()"
-      style="--background: #C47B66; margin-top: 10px; font-weight: bold;">
+      style="--background: #9C5340; margin-top: 10px; font-weight: bold;">
       🟢 COMPRAR 5 NEWEN (30 LLANKAS)
     </ion-button>
 
@@ -103,7 +103,7 @@
     </ion-button>
   </ion-card>
 
-    <!-- PORTADA DE LA ETAPA -->
+  <!-- PORTADA DE LA ETAPA -->
   <ion-card *ngIf="!loading && !gameOver && !leccionTerminada && mostrarPortada && ejercicios.length > 0"
     class="ion-margin-top portada-etapa">
     <ion-card-content>
@@ -118,7 +118,8 @@
         <div class="dato-burbuja">
           <p class="dato-titulo">¡MARI MARI!</p>
           <p class="dato-texto">
-            {{ tituloUnidad ? 'En esta unidad practicaremos «' + tituloUnidad + '».' : 'En esta etapa practicaremos paso a paso.' }}
+            {{ tituloUnidad ? 'En esta unidad practicaremos «' + tituloUnidad + '».' : 'En esta etapa practicaremos paso
+            a paso.' }}
             ¡Vamos de a poco!
           </p>
           <p class="dato-aviso">⚠️ Contenido en revisión</p>
@@ -130,8 +131,8 @@
   </ion-card>
 
   <!-- PANTALLA DE PREGUNTA -->
-  <ion-card *ngIf="!loading && !leccionTerminada && !gameOver && ejercicioActual && !mostrarPortada" class="ion-margin-top"
-    style="border: 3px solid #1F3A60; overflow: hidden;">
+  <ion-card *ngIf="!loading && !leccionTerminada && !gameOver && ejercicioActual && !mostrarPortada"
+    class="ion-margin-top" style="border: 3px solid #1F3A60; overflow: hidden;">
 
     <ion-card-header>
       <p *ngIf="ejercicioActual.isReview"
