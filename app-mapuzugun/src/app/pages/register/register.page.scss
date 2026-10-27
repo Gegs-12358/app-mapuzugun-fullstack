@@ -71,3 +71,17 @@ ion-content {
     margin-left: auto;
   }
 }
+
+.aviso-consentimiento {
+  margin: 4px 4px 6px;
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: center;
+  color: #1F3A60;
+
+  a {
+    color: #7A4A3C;
+    font-weight: 700;
+    text-decoration: underline;
+  }
+}
