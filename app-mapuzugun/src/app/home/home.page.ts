@@ -6,7 +6,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
   IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent,
-  IonProgressBar, IonBackButton, IonInput
+  IonProgressBar, IonBackButton, IonInput, AlertController
 } from '@ionic/angular/standalone';
 import { imagenAvatar } from '../avatars';
 
@@ -64,7 +64,16 @@ export class HomePage implements OnInit {
   comenzar() {
     this.mostrarPortada = false;
   }
-  constructor(private http: HttpClient, private route: ActivatedRoute) { }
+  constructor(
+    private http: HttpClient,
+    private route: ActivatedRoute,
+    private alertCtrl: AlertController
+  ) { }
+
+  private async avisar(mensaje: string) {
+    const alerta = await this.alertCtrl.create({ message: mensaje, buttons: ['OK'] });
+    await alerta.present();
+  }
 
   get ejercicioActual() {
     return this.ejercicios[this.currentIndex];
@@ -355,7 +364,7 @@ export class HomePage implements OnInit {
         }
       },
       error: (err) => {
-        alert(err.error.error || 'Error al comprar vidas');
+        this.avisar(err.error?.error || 'Error al comprar vidas');
       }
     });
   }
@@ -377,7 +386,7 @@ export class HomePage implements OnInit {
 
         this.reiniciarLeccion();
       },
-      error: (err) => alert(err.error.error || 'Error al ganar vida')
+      error: (err) => this.avisar(err.error?.error || 'Error al ganar vida')
     });
   }
 

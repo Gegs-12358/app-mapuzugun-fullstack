@@ -14,8 +14,13 @@ CREATE TABLE IF NOT EXISTS users (
   gems            INT DEFAULT 40,
   last_life_regen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   avatar          VARCHAR(20) NOT NULL DEFAULT 'puma'
-                  CHECK (avatar IN ('puma', 'aguila', 'bandurria', 'monito'))
+                  CHECK (avatar IN ('puma', 'aguila', 'bandurria', 'monito', 'pudu', 'ranita'))
 );
+
+-- Si tu base ya existía con la lista antigua de avatares, actualízala así:
+--   ALTER TABLE users DROP CONSTRAINT users_avatar_check;
+--   ALTER TABLE users ADD CONSTRAINT users_avatar_check
+--     CHECK (avatar IN ('puma', 'aguila', 'bandurria', 'monito', 'pudu', 'ranita'));
 
 CREATE TABLE IF NOT EXISTS units (
   id    SERIAL PRIMARY KEY,
