@@ -205,8 +205,45 @@ ion-card ion-button {
   color: #FFF4DA;
   white-space: nowrap;
 
-  span { text-align: center; }
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 30px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
   .newen { color: #FF9A85; }
+}
+
+/* Lo que significa la palabra tocada en la barra */
+.info-recurso {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 12px 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(255, 244, 218, 0.95);
+  color: #2A1640;
+  animation: aparecer 0.2s ease-out;
+
+  p { margin: 0; font-size: 14px; line-height: 1.35; white-space: normal; }
+  strong { color: #A61E2C; }
+}
+
+.ganado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 1.1em;
+  color: #333;
 }
 
 /* Opciones de respuesta y títulos más grandes */

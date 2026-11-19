@@ -12,6 +12,8 @@ import { AVATARES, imagenAvatar } from '../avatars';
 import { CompaneroComponent } from '../companero/companero.component';
 import { EstadoCompanero, FRASES, PiezaConfeti, crearConfeti, fraseAlAzar } from '../companero';
 import { enlaceReporte } from '../version';
+import { IconoRecursoComponent } from '../icono-recurso/icono-recurso.component';
+import { IdRecurso, Recurso, recurso } from '../recursos';
 import { LETRAS_ESPECIALES, nombreGrafemario, normalizarRespuesta } from '../escritura';
 
 @Component({
@@ -23,7 +25,7 @@ import { LETRAS_ESPECIALES, nombreGrafemario, normalizarRespuesta } from '../esc
     CommonModule, FormsModule, RouterLink,
     IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
     IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent,
-    IonProgressBar, IonBackButton, IonInput, IonFooter, CompaneroComponent
+    IonProgressBar, IonBackButton, IonInput, IonFooter, CompaneroComponent, IconoRecursoComponent
   ]
 })
 export class HomePage implements OnInit {
@@ -60,6 +62,16 @@ export class HomePage implements OnInit {
   gemasGanadas = 0;
 
   letrasEspeciales = LETRAS_ESPECIALES;
+
+  // Explicación de Kütral, Kimün, Llanka o Newen al tocarlos en la barra
+  recursoInfo: Recurso | null = null;
+  private temporizadorInfo: any = null;
+
+  explicar(id: IdRecurso) {
+    clearTimeout(this.temporizadorInfo);
+    this.recursoInfo = this.recursoInfo?.id === id ? null : recurso(id);
+    if (this.recursoInfo) this.temporizadorInfo = setTimeout(() => this.recursoInfo = null, 6000);
+  }
 
   // Compañero que acompaña y reacciona durante la lección
   estadoCompanero: EstadoCompanero = 'quieto';

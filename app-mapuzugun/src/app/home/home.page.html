@@ -15,10 +15,18 @@
   <!-- SIMBOLOGÍA MAPUCHE -->
   <ion-toolbar class="barra-estadisticas">
     <div class="estadisticas">
-      <span>🔥 Kütral: {{ streak }}</span>
-      <span>🏵️ Kimün: {{ xp }}</span>
-      <span>🟢 Llanka: {{ gems }}</span>
-      <span class="newen">🌿 Newen: {{ lives }}</span>
+      <button type="button" (click)="explicar('kutral')" [attr.aria-label]="'Kütral: ' + streak + '. Qué significa'">
+        <app-icono-recurso nombre="kutral"></app-icono-recurso>Kütral: {{ streak }}</button>
+      <button type="button" (click)="explicar('kimun')" [attr.aria-label]="'Kimün: ' + xp + '. Qué significa'">
+        <app-icono-recurso nombre="kimun"></app-icono-recurso>Kimün: {{ xp }}</button>
+      <button type="button" (click)="explicar('llanka')" [attr.aria-label]="'Llanka: ' + gems + '. Qué significa'">
+        <app-icono-recurso nombre="llanka"></app-icono-recurso>Llanka: {{ gems }}</button>
+      <button type="button" class="newen" (click)="explicar('newen')" [attr.aria-label]="'Newen: ' + lives + '. Qué significa'">
+        <app-icono-recurso nombre="newen"></app-icono-recurso>Newen: {{ lives }}</button>
+    </div>
+    <div *ngIf="recursoInfo" class="info-recurso" role="status" (click)="recursoInfo = null">
+      <app-icono-recurso [nombre]="recursoInfo.id" [tamano]="26"></app-icono-recurso>
+      <p><strong>{{ recursoInfo.palabra }}</strong> significa «{{ recursoInfo.significado }}». {{ recursoInfo.uso }}</p>
     </div>
   </ion-toolbar>
 
@@ -75,7 +83,7 @@
     <!-- OPCIÓN 2: Comprar con gemas -->
     <ion-button expand="block" (click)="comprarVidas()"
       style="--background: #1D4FBF; margin-top: 10px; font-weight: bold;">
-      🟢 COMPRAR 5 NEWEN (30 LLANKAS)
+      <app-icono-recurso nombre="llanka" [tamano]="20"></app-icono-recurso>&nbsp;COMPRAR 5 NEWEN (30 LLANKAS)
     </ion-button>
 
     <!-- OPCIÓN 3: Volver al menú -->
@@ -103,8 +111,9 @@
         role="img" [attr.aria-label]="nombreCompanero + ' celebra contigo'"></app-companero>
       <p class="celebracion-frase">¡Lo hicimos juntos!</p>
     </div>
-    <p style="font-size: 1.1em; color: #333;">Has ganado {{ xpGanado }} puntos de <strong>Kimün</strong>.</p>
-    <p *ngIf="gemasGanadas > 0" style="font-size: 1.1em; color: #333;">
+    <p class="ganado"><app-icono-recurso nombre="kimun" [tamano]="24"></app-icono-recurso>
+      Has ganado {{ xpGanado }} puntos de <strong>Kimün</strong> (conocimiento).</p>
+    <p *ngIf="gemasGanadas > 0" class="ganado"><app-icono-recurso nombre="llanka" [tamano]="24"></app-icono-recurso>
       Y <strong>{{ gemasGanadas }} Llankas</strong> para recargar Newen.
     </p>
 
@@ -183,7 +192,7 @@
       <!-- COMPAÑERO + RESPUESTA: arriba, para no tener que bajar a buscarla -->
       <div class="companero-arriba">
         <button type="button" class="companero-btn" (click)="tocarCompanero()"
-          [attr.aria-label]="'Tocar a ' + nombreCompanero">
+          [attr.aria-label]="'Saludar a ' + nombreCompanero">
           <app-companero [avatarId]="avatarId" [estado]="estadoCompanero" [tamano]="76"></app-companero>
         </button>
         <div class="companero-burbuja" role="status" aria-live="polite"

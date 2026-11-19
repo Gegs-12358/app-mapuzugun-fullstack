@@ -95,14 +95,14 @@
       <ng-container *ngIf="paso === 3 && avatarElegido">
         <ion-card-content class="presentacion">
           <button type="button" class="presentacion-companero" (click)="saludar()"
-            [attr.aria-label]="'Tocar a ' + avatarElegido.nombre">
+            [attr.aria-label]="'Saludar a ' + avatarElegido.nombre">
             <app-companero [avatarId]="avatarElegido.id" [estado]="estadoCompanero" [tamano]="170"></app-companero>
           </button>
           <div class="presentacion-burbuja" role="status" aria-live="polite">
             <p class="presentacion-hola">¡Mari mari, {{ nombreUsuario }}!</p>
             <p>{{ avatarElegido.presentacion }}</p>
             <p>Te voy a acompañar en cada lección: celebraré tus aciertos y te daré ánimo cuando cueste.
-              ¡Tócame cuando quieras!</p>
+              Si quieres que te salude, presiona mi imagen.</p>
           </div>
           <ion-button expand="block" class="btn-principal" (click)="empezar()">¡VAMOS!</ion-button>
         </ion-card-content>

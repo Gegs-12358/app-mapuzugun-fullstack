@@ -59,7 +59,7 @@
     </div>
 
     <div class="racha" [class.racha-activa]="racha > 0">
-      <ion-icon name="flame"></ion-icon>
+      <app-icono-recurso nombre="kutral" [tamano]="22"></app-icono-recurso>
       <span *ngIf="racha > 0">{{ racha }} {{ racha === 1 ? 'día' : 'días' }} de racha</span>
       <span *ngIf="racha === 0">Practica hoy para empezar tu racha</span>
     </div>
