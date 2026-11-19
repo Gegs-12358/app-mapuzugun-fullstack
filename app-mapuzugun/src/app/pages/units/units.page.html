@@ -38,13 +38,19 @@
     Cargando el camino...
   </div>
 
-  <div *ngIf="!loading && unidades.length === 0" class="ion-text-center ion-margin-top" style="padding: 24px;">
+  <div *ngIf="!loading && errorCarga" class="ion-text-center ion-margin-top" style="padding: 24px;" role="alert">
+    <p style="font-weight: 800; font-size: 1.1em; color: #1F3A60;">No pudimos conectar con el servidor</p>
+    <p style="color: #1F3A60;">Revisa tu conexión a internet e inténtalo de nuevo.</p>
+    <ion-button (click)="reintentar()" style="--background: #1F3A60; font-weight: bold;">Reintentar</ion-button>
+  </div>
+
+  <div *ngIf="!loading && !errorCarga && unidades.length === 0" class="ion-text-center ion-margin-top" style="padding: 24px;">
     <p style="font-weight: 800; font-size: 1.1em; color: #1F3A60;">Estamos preparando las lecciones</p>
     <p style="color: #1F3A60;">Cada lección se revisa con hablantes de mapuzugun antes de publicarse. Vuelve pronto.</p>
   </div>
 
   <!-- CONTADOR DE PROGRESO + RACHA -->
-  <div *ngIf="!loading && unidades.length > 0" class="progress-summary">
+  <div *ngIf="!loading && !errorCarga && unidades.length > 0" class="progress-summary">
     <p>Has completado <strong>{{ completadas }}</strong> de <strong>{{ totalUnidades }}</strong> unidades</p>
     <div class="progress-bar-container">
       <div class="progress-bar-fill" [style.width.%]="(completadas / totalUnidades) * 100"></div>
@@ -57,7 +63,7 @@
     </div>
   </div>
 
-  <div class="path-container" *ngIf="!loading">
+  <div class="path-container" *ngIf="!loading && !errorCarga">
     <div *ngFor="let unidad of unidades; let i = index" class="path-node-container"
       [ngClass]="{'left-align': i % 2 !== 0, 'right-align': i % 2 === 0}">
 
