@@ -8,7 +8,9 @@ import {
   IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent,
   IonProgressBar, IonBackButton, IonInput, AlertController
 } from '@ionic/angular/standalone';
-import { imagenAvatar } from '../avatars';
+import { AVATARES, imagenAvatar } from '../avatars';
+import { CompaneroComponent } from '../companero/companero.component';
+import { EstadoCompanero, FRASES, PiezaConfeti, crearConfeti, fraseAlAzar } from '../companero';
 import { LETRAS_ESPECIALES, nombreGrafemario, normalizarRespuesta } from '../escritura';
 
 @Component({
@@ -20,7 +22,7 @@ import { LETRAS_ESPECIALES, nombreGrafemario, normalizarRespuesta } from '../esc
     CommonModule, FormsModule, RouterLink,
     IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
     IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent,
-    IonProgressBar, IonBackButton, IonInput
+    IonProgressBar, IonBackButton, IonInput, CompaneroComponent
   ]
 })
 export class HomePage implements OnInit {
@@ -58,6 +60,13 @@ export class HomePage implements OnInit {
 
   letrasEspeciales = LETRAS_ESPECIALES;
 
+  // Compañero que acompaña y reacciona durante la lección
+  estadoCompanero: EstadoCompanero = 'quieto';
+  fraseCompanero = '';
+  tonoFrase: '' | 'feliz' | 'animando' = '';
+  confeti: PiezaConfeti[] = [];
+  private temporizadorCompanero: any = null;
+
   // Variables para el juego de emparejamiento (Match)
   matchLeftColumn: any[] = [];
   matchRightColumn: any[] = [];
@@ -68,6 +77,8 @@ export class HomePage implements OnInit {
 
   comenzar() {
     this.mostrarPortada = false;
+    this.fraseCompanero = fraseAlAzar(FRASES.inicio);
+    this.tonoFrase = '';
   }
   constructor(
     private http: HttpClient,
@@ -97,6 +108,29 @@ export class HomePage implements OnInit {
   insertarLetra(letra: string) {
     if (this.isAnswered) return;
     this.writtenAnswer = (this.writtenAnswer ?? '') + letra;
+  }
+
+  get nombreCompanero(): string {
+    return AVATARES.find(a => a.id === this.avatarId)?.nombre ?? 'Tu compañero';
+  }
+
+  // Cambia la animación del compañero. Se pasa por 'quieto' un instante para que
+  // la animación se repita aunque sea la misma de antes.
+  reaccionar(estado: EstadoCompanero, frases?: string[]) {
+    clearTimeout(this.temporizadorCompanero);
+    this.estadoCompanero = 'quieto';
+    if (frases) {
+      this.fraseCompanero = fraseAlAzar(frases, this.fraseCompanero);
+      this.tonoFrase = estado === 'feliz' || estado === 'animando' ? estado : '';
+    }
+    setTimeout(() => {
+      this.estadoCompanero = estado;
+      this.temporizadorCompanero = setTimeout(() => this.estadoCompanero = 'quieto', 1400);
+    }, 30);
+  }
+
+  tocarCompanero() {
+    this.reaccionar('saltito', FRASES.toque);
   }
 
   get avatarImg(): string {
@@ -254,10 +288,12 @@ export class HomePage implements OnInit {
           this.aciertos++;
           this.xp += 20;
           this.playCorrectSound();
+          this.reaccionar('feliz', FRASES.feliz);
         }
 
       } else {
         this.playWrongSound();
+        this.reaccionar('animando');
       }
       this.selectedLeft = null;
       this.selectedRight = null;
@@ -282,10 +318,12 @@ export class HomePage implements OnInit {
 
     if (this.isCorrect) {
       this.playCorrectSound();
+      this.reaccionar('feliz', FRASES.feliz);
       this.xp += 20;
       this.aciertos++;
     } else {
       this.playWrongSound();
+      this.reaccionar('animando', FRASES.animando);
       this.restarVida();
       const yaEstaEnRepaso = this.ejercicios.slice(this.currentIndex + 1).some(e => e.id === this.ejercicioActual.id);
       if (!yaEstaEnRepaso) {
@@ -322,11 +360,15 @@ export class HomePage implements OnInit {
   nextExercise() {
     if (this.currentIndex === this.ejercicios.length - 1) {
       this.leccionTerminada = true;
+      this.confeti = crearConfeti();
       this.terminarLeccion();
       return;
     }
 
     this.currentIndex++;
+    this.fraseCompanero = '';
+    this.tonoFrase = '';
+    this.estadoCompanero = 'quieto';
     this.selectedOption = null;
     this.writtenAnswer = '';
     this.isAnswered = false;

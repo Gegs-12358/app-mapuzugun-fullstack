@@ -1,0 +1,15 @@
+<div class="comp-vivo" [class.libre]="tienePoses" [ngClass]="'est-' + estado"
+  [style.width.px]="tamano" [style.height.px]="tamano">
+
+  <span *ngIf="tienePoses" class="sombra" aria-hidden="true"></span>
+
+  <div class="cuerpo">
+    <ng-container *ngIf="tienePoses; else imagenUnica">
+      <img *ngFor="let p of poses" [src]="rutaPose(p)" [class.visible]="pose === p"
+        alt="" width="512" height="512" draggable="false">
+    </ng-container>
+    <ng-template #imagenUnica>
+      <img [src]="avatar.img" class="visible marco" alt="" draggable="false">
+    </ng-template>
+  </div>
+</div>
