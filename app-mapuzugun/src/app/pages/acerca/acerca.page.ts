@@ -5,6 +5,7 @@ import {
 } from '@ionic/angular/standalone';
 import { AVATARES } from '../../avatars';
 import { GRAFEMARIO_APP, nombreGrafemario } from '../../escritura';
+import { ACUERDO } from '../../acuerdo';
 
 // --- Datos que el proyecto debe completar ---
 const CONTACTO = '';     // correo de contacto, por ejemplo 'hola@tudominio.cl'
@@ -24,4 +25,5 @@ export class AcercaPage {
   grafemario = nombreGrafemario(GRAFEMARIO_APP);
   creditos = CREDITOS;
   companeros = AVATARES;
+  acuerdo = ACUERDO;
 }

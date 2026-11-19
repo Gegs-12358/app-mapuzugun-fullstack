@@ -11,7 +11,7 @@
     </p>
     <p class="intro-texto flota retraso">Seis compañeros te acompañarán en el camino.</p>
 
-    <div class="puntos"><span class="activo"></span><span></span></div>
+    <div class="puntos" aria-hidden="true"><span class="activo"></span><span></span><span></span></div>
     <ion-button expand="block" class="btn-intro" (click)="siguiente()">SIGUIENTE</ion-button>
   </div>
 
@@ -28,11 +28,30 @@
 
     <p class="intro-texto">Elegirás a uno de ellos al crear tu cuenta.</p>
 
-    <div class="puntos"><span></span><span class="activo"></span></div>
+    <div class="puntos" aria-hidden="true"><span></span><span class="activo"></span><span></span></div>
     <ion-button expand="block" class="btn-intro" (click)="crearCuenta()">CREAR MI CUENTA</ion-button>
     <button type="button" class="enlace" (click)="yaTengoCuenta()">Ya tengo cuenta</button>
 
     <p class="nota">Los nombres de los compañeros son inventados para Kimanke; no son palabras del mapuzugun.</p>
+  </div>
+
+  <div class="pantalla pantalla-acuerdo" *ngIf="mostrar && paso === 3">
+    <h2>Nuestro acuerdo</h2>
+    <p class="intro-texto">Antes de empezar, esto es lo que Kimanke promete y lo que te pide.</p>
+
+    <ul class="acuerdo">
+      <li *ngFor="let p of acuerdo">
+        <span class="acuerdo-icono" aria-hidden="true">{{ p.icono }}</span>
+        <div>
+          <strong>{{ p.titulo }}</strong>
+          <p>{{ p.texto }}</p>
+        </div>
+      </li>
+    </ul>
+
+    <div class="puntos" aria-hidden="true"><span></span><span></span><span class="activo"></span></div>
+    <ion-button expand="block" class="btn-intro" (click)="aceptar()">ME COMPROMETO</ion-button>
+    <p class="nota">Puedes volver a leer este acuerdo cuando quieras en «Acerca de Kimanke».</p>
   </div>
 
 </ion-content>
