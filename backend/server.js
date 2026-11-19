@@ -181,9 +181,14 @@ app.post('/api/login', limiteLogin, async (req, res) => {
 
 app.get('/api/units', async (req, res) => {
   try {
-    // Solo unidades que tienen al menos un ejercicio visible
+    // Solo unidades que tienen al menos un ejercicio visible.
+    // La nota cultural se entrega solo si está aprobada (o en modo borrador).
     const result = await pool.query(
-      `SELECT u.* FROM units u
+      `SELECT u.id, u.title,
+              CASE WHEN ${VER_BORRADORES ? 'TRUE' : "u.nota_estado = 'aprobado'"}
+                   THEN u.nota_cultural END AS nota_cultural,
+              u.nota_estado
+       FROM units u
        WHERE EXISTS (SELECT 1 FROM exercises e WHERE e.unit_id = u.id AND ${soloAprobado('e')})
        ORDER BY u.id`
     );

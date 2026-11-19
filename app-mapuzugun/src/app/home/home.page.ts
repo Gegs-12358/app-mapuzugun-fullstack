@@ -48,7 +48,8 @@ export class HomePage implements OnInit {
   tituloUnidad = '';
   mostrarPortada = true;
   tituloEtapa = '';
-  notaCultural: string = "";
+  notaCultural = '';
+  notaEnRevision = true;
   aciertos = 0;
   xpGanado = 0;
   gemasGanadas = 0;
@@ -140,24 +141,16 @@ export class HomePage implements OnInit {
     this.tituloUnidad = estado.tituloUnidad ?? '';
     this.tituloEtapa = estado.tituloEtapa ?? '';
 
-    // NOTAS CULTURALES (8 unidades)
-    if (this.unitId === '1') {
-      this.notaCultural = "Küme Mongen: el 'buen vivir'. Mari mari no es solo un saludo; es el deseo de que la otra persona mantenga el equilibrio entre su cuerpo, su espíritu y la tierra.";
-    } else if (this.unitId === '2') {
-      this.notaCultural = "El nombre propio es identidad. Preguntar 'Iney pigeymi?' no es solo saber un nombre: es reconocer que la otra persona pertenece a un lof (comunidad).";
-    } else if (this.unitId === '3') {
-      this.notaCultural = "El sistema numérico mapuche es decimal: mari significa 10 y epu mari significa 20. Los colores tienen poder: el azul (kalfu) es cielo y agua; el rojo (kelü) es fuerza y sangre.";
-    } else if (this.unitId === '4') {
-      this.notaCultural = "El mapuzugun es aglutinante: de una raíz verbal como 'in' (comer) nacen decenas de palabras. Aprender un verbo es multiplicar tu vocabulario.";
-    } else if (this.unitId === '5') {
-      this.notaCultural = "La familia extensa (lof) es la base social. Los abuelos (Fücha y Kushe) son los guardianes del Kimün. El cuerpo (kalül) es tu primer territorio.";
-    } else if (this.unitId === '6') {
-      this.notaCultural = "El Ñamku anuncia buenas noticias; el Chonchón es el alma de un brujo que vuela de noche. El Kofke (pan) y el Ko (agua) nunca deben faltar en la mesa.";
-    } else if (this.unitId === '7') {
-      this.notaCultural = "El Foye (Canelo) es el eje del cosmos, el árbol que une el cielo con la tierra. El Kulen ('remedio del ají') cura heridas. El Antü (sol) y la Küyen (luna) rigen el tiempo.";
-    } else if (this.unitId === '8') {
-      this.notaCultural = "El cosmos tiene tres niveles: Wenu Mapu (arriba), Nag Mapu (aquí) y Minche Mapu (abajo). El Newen circula entre ellos. El Kimün se hereda de los antepasados.";
-    }
+    // La nota cultural viene de la base (tabla units) y solo llega si fue aprobada
+    // por hablantes, o si el servidor está en modo borrador.
+    this.http.get<any[]>('/api/units').subscribe({
+      next: (unidades) => {
+        const unidad = unidades.find(u => String(u.id) === this.unitId);
+        this.notaCultural = unidad?.nota_cultural ?? '';
+        this.notaEnRevision = unidad?.nota_estado !== 'aprobado';
+      },
+      error: (err) => console.error('Error al cargar la nota cultural:', err)
+    });
 
     // Cargar Ejercicios
     if (this.unitId) {
