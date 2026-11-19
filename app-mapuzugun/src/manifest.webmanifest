@@ -1,0 +1,17 @@
+{
+  "name": "Kimanke · Aprende mapuzugun",
+  "short_name": "Kimanke",
+  "description": "Aprende y practica mapuzugun con lecciones cortas.",
+  "lang": "es",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#5B2A86",
+  "theme_color": "#1D4FBF",
+  "icons": [
+    { "src": "assets/icon/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icon/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icon/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

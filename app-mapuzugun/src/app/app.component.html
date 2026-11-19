@@ -5,5 +5,13 @@
       Despertando el servidor… la primera carga puede tardar hasta un minuto.
     </div>
   }
+  @if (avisoIos) {
+    <div class="aviso-ios" role="dialog" aria-label="Agregar Kimanke a la pantalla de inicio">
+      <img src="assets/icon/apple-touch-icon.png" alt="" width="44" height="44">
+      <p>Para usar Kimanke como una app, toca <strong>Compartir</strong>&nbsp;<span class="icono-compartir" aria-hidden="true">⬆︎</span> y luego
+        <strong>«Agregar a inicio»</strong>.</p>
+      <button type="button" (click)="cerrarAvisoIos()" aria-label="Cerrar aviso">✕</button>
+    </div>
+  }
   <ion-router-outlet></ion-router-outlet>
 </ion-app>
