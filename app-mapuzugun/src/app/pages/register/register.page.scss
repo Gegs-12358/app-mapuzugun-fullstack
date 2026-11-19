@@ -144,3 +144,30 @@ ion-content {
 @media (prefers-reduced-motion: reduce) {
   .presentacion-burbuja { animation: none; }
 }
+
+/* ===== ¿Nombre disponible? ===== */
+.estado-nombre p { margin: 4px 4px 0; font-size: 14px; }
+
+.nombre-libre { color: #1E7D47; font-weight: 700; }
+.nombre-ocupado { color: #A61E2C; font-weight: 700; }
+
+.sugerencias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 4px 4px;
+
+  button {
+    padding: 8px 14px;
+    border: 2px solid #5B2A86;
+    border-radius: 999px;
+    background: #F1EAF9;
+    color: #5B2A86;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  button:active { background: #E1D3F2; }
+}
