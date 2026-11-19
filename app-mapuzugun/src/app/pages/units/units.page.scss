@@ -1,6 +1,6 @@
 .map-content {
   --background:
-    linear-gradient(rgba(245, 235, 225, 0.30), rgba(245, 235, 225, 0.30)),
+    linear-gradient(rgba(255, 244, 218, 0.30), rgba(255, 244, 218, 0.30)),
     url('/assets/bg/mapa.webp') center top / cover no-repeat;
 }
 
@@ -13,30 +13,30 @@
   padding: 15px 20px;
   border-radius: 16px;
   margin-bottom: 25px;
-  box-shadow: 0 4px 14px rgba(31, 58, 96, 0.2);
+  box-shadow: 0 4px 14px rgba(91, 42, 134, 0.2);
   text-align: center;
 
   p {
-    color: #1F3A60;
+    color: #5B2A86;
     font-size: 1rem;
     margin: 0 0 10px 0;
   }
 
   strong {
-    color: #7A4A3C;
+    color: #A61E2C;
     font-size: 1.25em;
   }
 }
 
 .progress-bar-container {
-  background-color: rgba(224, 213, 200, 0.9);
+  background-color: rgba(232, 222, 240, 0.9);
   height: 10px;
   border-radius: 10px;
   overflow: hidden;
 }
 
 .progress-bar-fill {
-  background: linear-gradient(90deg, #C47B66, #36802D);
+  background: linear-gradient(90deg, #C8303D, #1E7D47);
   height: 100%;
   border-radius: 10px;
   transition: width 0.5s ease;
@@ -51,14 +51,14 @@
   margin-top: 10px;
   font-size: 14px;
   font-weight: 700;
-  color: #3F4F63;
+  color: #4B4560;
 
   ion-icon {
     font-size: 20px;
   }
 
   &.racha-activa {
-    color: #7A4A3C;
+    color: #A61E2C;
   }
 }
 
@@ -95,7 +95,7 @@
   top: -35px;
   height: 55px;
   width: 4px;
-  background: repeating-linear-gradient(0deg, #C47B66, #C47B66 8px, transparent 8px, transparent 16px);
+  background: repeating-linear-gradient(0deg, #C8303D, #C8303D 8px, transparent 8px, transparent 16px);
   border-radius: 2px;
   z-index: 1;
 }
@@ -142,8 +142,8 @@
 
 /* === ESTADOS DE LAS UNIDADES === */
 .state-completada .star-shape {
-  background: linear-gradient(135deg, #7ED957, #36802D) !important;
-  filter: drop-shadow(0px 6px 0px rgba(54, 128, 45, 0.5)) drop-shadow(0px 0px 15px rgba(255, 215, 0, 0.6));
+  background: linear-gradient(135deg, #4CC07A, #1E7D47) !important;
+  filter: drop-shadow(0px 6px 0px rgba(30, 125, 71, 0.5)) drop-shadow(0px 0px 15px rgba(255, 215, 0, 0.6));
 }
 
 .node-icon-check {
@@ -194,7 +194,7 @@
 .node-title {
   margin-top: 10px;
   font-weight: 800;
-  color: #1F3A60;
+  color: #5B2A86;
   font-size: 0.95rem;
   text-align: center;
   background-color: rgba(255, 255, 255, 0.88);
@@ -202,21 +202,21 @@
   border-radius: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.18);
   z-index: 2;
-  border-bottom: 3px solid #A9BCCB;
+  border-bottom: 3px solid #C9B8E0;
   white-space: nowrap;
 }
 
-.color-unit-1 .star-shape { background: linear-gradient(135deg, #FF9A7B, #C47B66); }
-.color-unit-2 .star-shape { background: linear-gradient(135deg, #4A7DBF, #1F3A60); }
-.color-unit-3 .star-shape { background: linear-gradient(135deg, #7ED957, #36802D); }
-.color-unit-4 .star-shape { background: linear-gradient(135deg, #FFD54F, #F4B41A); }
-.color-unit-5 .star-shape { background: linear-gradient(135deg, #5BB5B5, #2F7F86); }
+.color-unit-1 .star-shape { background: linear-gradient(135deg, #F0606C, #C8303D); }
+.color-unit-2 .star-shape { background: linear-gradient(135deg, #8E5CC2, #5B2A86); }
+.color-unit-3 .star-shape { background: linear-gradient(135deg, #4CC07A, #1E7D47); }
+.color-unit-4 .star-shape { background: linear-gradient(135deg, #FFD166, #FFB703); }
+.color-unit-5 .star-shape { background: linear-gradient(135deg, #1D4FBF, #163E99); }
 
-.color-unit-1+.node-title { border-bottom-color: #C47B66; }
-.color-unit-2+.node-title { border-bottom-color: #1F3A60; }
-.color-unit-3+.node-title { border-bottom-color: #36802D; }
-.color-unit-4+.node-title { border-bottom-color: #F4B41A; }
-.color-unit-5+.node-title { border-bottom-color: #2F7F86; }
+.color-unit-1+.node-title { border-bottom-color: #C8303D; }
+.color-unit-2+.node-title { border-bottom-color: #5B2A86; }
+.color-unit-3+.node-title { border-bottom-color: #1E7D47; }
+.color-unit-4+.node-title { border-bottom-color: #FFB703; }
+.color-unit-5+.node-title { border-bottom-color: #163E99; }
 
 /* === ETAPAS (SUBTEMÁTICAS) === */
 .stage-count {
@@ -225,7 +225,7 @@
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.60);
   font-size: 13px;
-  color: #1F3A60;
+  color: #5B2A86;
   text-align: center;
 }
 
@@ -244,24 +244,24 @@
   gap: 6px;
   min-width: 160px;
   padding: 11px 18px;
-  border: 2px solid #C47B66;
+  border: 2px solid #C8303D;
   border-radius: 20px;
-  background: rgba(245, 235, 225, 0.82);
-  color: #1F3A60;
+  background: rgba(255, 244, 218, 0.82);
+  color: #5B2A86;
   font-weight: 700;
   font-size: 14px;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
 
   &.stage-actual {
-    background: #7A4A3C;
-    border-color: #7A4A3C;
+    background: #A61E2C;
+    border-color: #A61E2C;
     color: #fff;
   }
 
   &.stage-completada {
-    background: #1F3A60;
-    border-color: #1F3A60;
+    background: #5B2A86;
+    border-color: #5B2A86;
     color: #fff;
   }
 
@@ -285,7 +285,7 @@
   padding: 3px;
   margin-right: 6px;
   border-radius: 50%;
-  background: #F5EBE1;
+  background: #FFF4DA;
   object-fit: contain;
 }
 
@@ -307,14 +307,14 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 4px 14px rgba(31, 58, 96, 0.2);
+  box-shadow: 0 4px 14px rgba(91, 42, 134, 0.2);
   text-align: center;
 
   p {
     margin: 0 0 8px;
     font-size: 14px;
     font-weight: 700;
-    color: #1F3A60;
+    color: #5B2A86;
   }
 }
 
@@ -339,13 +339,13 @@
       height: 56px;
       padding: 4px;
       border-radius: 50%;
-      background: #F5EBE1;
-      box-shadow: 0 2px 6px rgba(31, 58, 96, 0.15);
+      background: #FFF4DA;
+      box-shadow: 0 2px 6px rgba(91, 42, 134, 0.15);
       object-fit: contain;
     }
 
     &.selected {
-      border-color: #C47B66;
+      border-color: #C8303D;
     }
   }
 }

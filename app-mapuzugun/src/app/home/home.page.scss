@@ -35,30 +35,31 @@ ion-card ion-button {
   font-style: italic;
   margin-bottom: 20px;
   transition: all 0.3s;
-  border-left: 4px solid #D4A017;
+  border-left: 4px solid #E09B00;
   text-align: left;
 }
 .bg-beige { background-color: #F4EBD8; color: #4A3B2A; }
-.bg-green { background-color: #E8F3E0; color: #2D5A28; border-left-color: #4A7C59; }
-.bg-red   { background-color: #F8E5E0; color: #8B2E2E; border-left-color: #A64B2A; }
+.bg-green { background-color: #E8F3E0; color: #14532D; border-left-color: #1E7D47; }
+.bg-red   { background-color: #F8E5E0; color: #8B2E2E; border-left-color: #C8303D; }
 
 /* ===== Estados de las opciones ===== */
 .btn-selected {
-  --border-color: #1F3A60 !important;
-  --background: #E8EEF5;
-  --color: #1F3A60 !important;
+  --border-color: #5B2A86 !important;
+  --border-width: 3px !important;
+  --background: #F1EAF9 !important;
+  --color: #5B2A86 !important;
 }
 
 .btn-correct {
-  --border-color: #3E8E41 !important;
-  --background: #E8F5E9;
-  --color: #2E7D32 !important;
+  --border-color: #1E7D47 !important;
+  --background: #E3F4EA !important;
+  --color: #14532D !important;
 }
 
 .btn-incorrect {
-  --border-color: #D9382C !important;
-  --background: #FFEBEE;
-  --color: #C62828 !important;
+  --border-color: #C8303D !important;
+  --background: #FDECEE !important;
+  --color: #A61E2C !important;
 }
 
 /* ===== Compañero que da el dato (al terminar la lección) ===== */
@@ -77,8 +78,8 @@ ion-card ion-button {
   height: 72px;
   padding: 4px;
   border-radius: 50%;
-  background: #F5EBE1;
-  box-shadow: 0 2px 6px rgba(31, 58, 96, 0.15);
+  background: #FFF4DA;
+  box-shadow: 0 2px 6px rgba(91, 42, 134, 0.15);
   object-fit: contain;
   animation: flotar-suave 4s ease-in-out infinite;
 }
@@ -86,10 +87,10 @@ ion-card ion-button {
 .dato-burbuja {
   position: relative;
   flex: 1;
-  padding: 12px 14px;
+  padding: 14px 16px;
   border-radius: 16px;
-  background: rgba(245, 235, 225, 0.88);
-  border-left: 4px solid #D9A441;
+  background: rgba(255, 244, 218, 0.88);
+  border-left: 4px solid #FFB703;
 
   /* piquito de la burbuja apuntando al avatar */
   &::before {
@@ -99,28 +100,28 @@ ion-card ion-button {
     bottom: 16px;
     border-top: 7px solid transparent;
     border-bottom: 7px solid transparent;
-    border-right: 8px solid #D9A441;
+    border-right: 8px solid #FFB703;
   }
 }
 
 .dato-titulo {
-  margin: 0 0 4px;
-  font-size: 12px;
+  margin: 0 0 6px;
+  font-size: 14px;
   font-weight: 800;
   letter-spacing: 0.5px;
-  color: #7A4A3C;
+  color: #A61E2C;
 }
 
 .dato-texto {
   margin: 0;
-  font-size: 0.95em;
-  line-height: 1.45;
-  color: #1F3A60;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #5B2A86;
 }
 
 .dato-aviso {
-  margin: 8px 0 0;
-  font-size: 11.5px;
+  margin: 10px 0 0;
+  font-size: 14px;
   font-weight: 700;
   color: #8a5a00;
 }
@@ -149,7 +150,7 @@ ion-card ion-button {
     height: 38px;
     padding: 3px;
     border-radius: 50%;
-    background: #F5EBE1;
+    background: #FFF4DA;
     object-fit: contain;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   }
@@ -165,7 +166,7 @@ ion-card ion-button {
   font-size: 20px;
   font-weight: 800;
   text-shadow:
-    -1.5px 0 #12263F, 1.5px 0 #12263F, 0 -1.5px #12263F, 0 1.5px #12263F,
+    -1.5px 0 #3B1A5E, 1.5px 0 #3B1A5E, 0 -1.5px #3B1A5E, 0 1.5px #3B1A5E,
     0 3px 8px rgba(0, 0, 0, 0.4);
 }
 
@@ -180,9 +181,9 @@ ion-card ion-button {
   font-size: 19px;
   font-weight: 800;
   text-shadow:
-    -2px 0 #12263F, 2px 0 #12263F, 0 -2px #12263F, 0 2px #12263F,
-    -1.5px -1.5px #12263F, 1.5px -1.5px #12263F,
-    -1.5px 1.5px #12263F, 1.5px 1.5px #12263F;
+    -2px 0 #3B1A5E, 2px 0 #3B1A5E, 0 -2px #3B1A5E, 0 2px #3B1A5E,
+    -1.5px -1.5px #3B1A5E, 1.5px -1.5px #3B1A5E,
+    -1.5px 1.5px #3B1A5E, 1.5px 1.5px #3B1A5E;
 }
 
 .titulo-secundario {
@@ -190,7 +191,7 @@ ion-card ion-button {
   font-weight: 700;
   letter-spacing: 0.3px;
   text-shadow:
-    -1.5px 0 #12263F, 1.5px 0 #12263F, 0 -1.5px #12263F, 0 1.5px #12263F;
+    -1.5px 0 #3B1A5E, 1.5px 0 #3B1A5E, 0 -1.5px #3B1A5E, 0 1.5px #3B1A5E;
 }
 
 /* Estadísticas en cuadrícula, con letra legible */
@@ -201,7 +202,7 @@ ion-card ion-button {
   padding: 4px 16px 8px;
   font-size: 14px;
   font-weight: 700;
-  color: #F5EBE1;
+  color: #FFF4DA;
   white-space: nowrap;
 
   span { text-align: center; }
@@ -235,7 +236,7 @@ ion-card h2 {
   margin: 0;
   font-size: 16px;
   font-weight: 700;
-  color: #7A4A3C;
+  color: #A61E2C;
 }
 
 .portada-numero {
@@ -243,7 +244,7 @@ ion-card h2 {
   font-size: 52px;
   font-weight: 800;
   line-height: 1.05;
-  color: #1F3A60;
+  color: #5B2A86;
   text-shadow: 0 2px 8px rgba(255, 255, 255, 0.6);
 }
 
@@ -255,12 +256,12 @@ ion-card h2 {
   background: rgba(255, 255, 255, 0.65);
   font-size: 15px;
   font-weight: 700;
-  color: #1F3A60;
+  color: #5B2A86;
 }
 
 ion-card ion-button.btn-comenzar {
-  --background: #E8B94A;
-  --color: #1F3A60;
+  --background: #FFB703;
+  --color: #5B2A86;
   --border-radius: 14px;
   --box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
   height: 54px;
@@ -280,11 +281,11 @@ ion-card ion-button.btn-comenzar {
 }
 
 .etiqueta {
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
-  background: #EEF2F6;
-  color: #1F3A60;
-  font-size: 13px;
+  background: #F1EAF9;
+  color: #5B2A86;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -300,15 +301,43 @@ ion-card ion-button.btn-comenzar {
   min-width: 48px;
   min-height: 48px;
   padding: 0 14px;
-  border: 2px solid #A9BCCB;
+  border: 2px solid #C9B8E0;
   border-radius: 12px;
   background: #fff;
-  color: #1F3A60;
+  color: #5B2A86;
   font-size: 1.4em;
   font-weight: 800;
   cursor: pointer;
 }
 
 .btn-letra:active {
-  background: #EEF2F6;
+  background: #F1EAF9;
+}
+
+/* ===== Botón principal de la pregunta =====
+   COMPROBAR: degradado lago → maqui. CONTINUAR / FINALIZAR: amarillo sol. */
+.btn-accion,
+ion-card ion-button.btn-accion {
+  --background: var(--mapu-degradado);
+  --color: #fff;
+  --border-radius: 14px;
+  --box-shadow: 0 6px 14px rgba(91, 42, 134, 0.3);
+  height: 52px;
+  font-size: 1.1em;
+  font-weight: 800 !important;
+  letter-spacing: 1px;
+}
+
+ion-card ion-button.btn-accion.btn-continuar {
+  --background: var(--mapu-sol);
+  --color: #2A1640;
+  --box-shadow: 0 6px 14px rgba(224, 155, 0, 0.35);
+}
+
+/* Desactivado (todavía no eligió respuesta): se ve, pero apagado */
+ion-card ion-button.btn-accion[disabled] {
+  --background: #DCCFEA;
+  --color: #5B2A86;
+  --box-shadow: none;
+  opacity: 1;
 }
