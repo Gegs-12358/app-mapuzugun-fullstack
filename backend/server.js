@@ -80,6 +80,42 @@ const limiteRegistro = rateLimit({
   message: { error: 'Demasiados registros desde esta conexión. Inténtalo más tarde.' }
 });
 
+// Consultas de nombre disponible mientras se escribe: máximo 60 cada 15 minutos
+const limiteDisponible = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 60,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: 'Demasiadas consultas. Espera unos minutos.' }
+});
+
+// ---------- NOMBRES DE USUARIO ----------
+// Se comparan sin distinguir mayúsculas: «Gabriel» y «gabriel» son el mismo nombre
+async function nombreOcupado(nombre) {
+  const r = await pool.query('SELECT 1 FROM users WHERE LOWER(username) = LOWER($1)', [nombre]);
+  return r.rows.length > 0;
+}
+
+// Hasta 3 nombres parecidos que estén libres, a partir del que escribió la persona
+async function sugerirNombres(nombre, avatar) {
+  const base = nombre.replace(/\s+/g, '').slice(0, 40) || 'kimanke';
+  const azar = () => Math.floor(10 + Math.random() * 990);
+  const candidatos = [...new Set([
+    AVATARES.includes(avatar) ? `${base}_${avatar}` : `${base}_kimanke`,
+    `${base}${azar()}`,
+    `${base}.${new Date().getFullYear()}`,
+    `${base}_kimanke`,
+    `${base}${azar()}`,
+  ])].filter(c => c.length >= 3 && c.length <= 50);
+
+  const ocupados = await pool.query(
+    'SELECT LOWER(username) AS u FROM users WHERE LOWER(username) = ANY($1)',
+    [candidatos.map(c => c.toLowerCase())]
+  );
+  const usados = new Set(ocupados.rows.map(r => r.u));
+  return candidatos.filter(c => !usados.has(c.toLowerCase())).slice(0, 3);
+}
+
 // ---------- AUTENTICACIÓN ----------
 function crearToken(user) {
   return jwt.sign(
@@ -122,9 +158,11 @@ app.post('/api/register', limiteRegistro, async (req, res) => {
   }
 
   try {
-    const userExists = await pool.query('SELECT 1 FROM users WHERE username = $1', [username]);
-    if (userExists.rows.length > 0) {
-      return res.status(400).json({ error: 'El nombre de usuario ya está en uso' });
+    if (await nombreOcupado(username)) {
+      return res.status(409).json({
+        error: 'El nombre de usuario ya está en uso',
+        sugerencias: await sugerirNombres(username, avatar)
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -141,8 +179,27 @@ app.post('/api/register', limiteRegistro, async (req, res) => {
   } catch (err) {
     // Dos registros simultáneos con el mismo nombre: gana uno, el otro choca con UNIQUE
     if (err.code === '23505') {
-      return res.status(400).json({ error: 'El nombre de usuario ya está en uso' });
+      return res.status(409).json({
+        error: 'El nombre de usuario ya está en uso',
+        sugerencias: await sugerirNombres(username, avatar).catch(() => [])
+      });
     }
+    console.error(err);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+});
+
+// ¿Está libre este nombre? Se usa mientras la persona escribe al crear su cuenta
+app.get('/api/usuario-disponible', limiteDisponible, async (req, res) => {
+  const nombre = typeof req.query.nombre === 'string' ? req.query.nombre.trim() : '';
+  const avatar = typeof req.query.avatar === 'string' ? req.query.avatar : '';
+  if (nombre.length < 3 || nombre.length > 50) {
+    return res.json({ disponible: false, sugerencias: [] });
+  }
+  try {
+    if (!(await nombreOcupado(nombre))) return res.json({ disponible: true, sugerencias: [] });
+    res.json({ disponible: false, sugerencias: await sugerirNombres(nombre, avatar) });
+  } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error en el servidor' });
   }
@@ -156,7 +213,11 @@ app.post('/api/login', limiteLogin, async (req, res) => {
   }
 
   try {
-    const result = await pool.query('SELECT * FROM users WHERE username = $1', [username.trim()]);
+    // Sin distinguir mayúsculas; si hubiera dos cuentas antiguas que solo difieren en eso, gana la exacta
+    const result = await pool.query(
+      'SELECT * FROM users WHERE LOWER(username) = LOWER($1) ORDER BY (username = $1) DESC LIMIT 1',
+      [username.trim()]
+    );
     const user = result.rows[0];
 
     // Mismo mensaje si falla el usuario o la contraseña

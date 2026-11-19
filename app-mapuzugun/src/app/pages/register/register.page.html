@@ -61,10 +61,21 @@
 
             <ion-item lines="none" class="campo">
               <ion-input name="username" label="Usuario" labelPlacement="floating" autocomplete="username"
-                [(ngModel)]="username">
+                [(ngModel)]="username" (ngModelChange)="nombreCambio($event)">
               </ion-input>
             </ion-item>
-            <p class="campo-ayuda">Entre 3 y 50 caracteres.</p>
+            <div class="estado-nombre" aria-live="polite">
+              <p *ngIf="estadoNombre === 'nada'" class="campo-ayuda">Entre 3 y 50 caracteres.</p>
+              <p *ngIf="estadoNombre === 'revisando'" class="campo-ayuda">Revisando si está libre…</p>
+              <p *ngIf="estadoNombre === 'libre'" class="nombre-libre">✓ ¡Está disponible!</p>
+              <ng-container *ngIf="estadoNombre === 'ocupado'">
+                <p class="nombre-ocupado">«{{ nombreRevisado }}» ya lo usa otra persona.
+                  {{ sugerencias.length ? 'Prueba con uno de estos:' : 'Prueba con otro nombre.' }}</p>
+                <div class="sugerencias" *ngIf="sugerencias.length">
+                  <button type="button" *ngFor="let s of sugerencias" (click)="usarSugerencia(s)">{{ s }}</button>
+                </div>
+              </ng-container>
+            </div>
 
             <ion-item lines="none" class="campo">
               <ion-input name="password" label="Contraseña" labelPlacement="floating"
@@ -82,7 +93,7 @@
               Al crear tu cuenta aceptas la <a routerLink="/acerca">política de privacidad</a>.
             </p>
 
-            <ion-button expand="block" type="submit" class="btn-principal" [disabled]="loading">
+            <ion-button expand="block" type="submit" class="btn-principal" [disabled]="loading || estadoNombre === 'ocupado'">
               <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
               <span *ngIf="!loading">CREAR CUENTA</span>
             </ion-button>

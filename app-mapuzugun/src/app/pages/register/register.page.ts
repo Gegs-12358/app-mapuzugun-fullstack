@@ -8,7 +8,7 @@ import {
   IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,
   IonItem, IonInput, IonButton, IonSpinner, Platform
 } from '@ionic/angular/standalone';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription, debounceTime, of, switchMap, catchError } from 'rxjs';
 import { AVATARES } from '../../avatars';
 import { CompaneroComponent, EstadoVisual } from '../../companero/companero.component';
 
@@ -30,6 +30,13 @@ export class RegisterPage implements OnDestroy {
   estadoCompanero: EstadoVisual = 'quieto';
   private temporizadores: any[] = [];
   private botonAtras?: Subscription;
+
+  // Revisión del nombre mientras se escribe
+  estadoNombre: 'nada' | 'revisando' | 'libre' | 'ocupado' = 'nada';
+  nombreRevisado = '';
+  sugerencias: string[] = [];
+  private nombres$ = new Subject<string>();
+  private revision?: Subscription;
   avatares = AVATARES;
   avatar: string | null = null;
   username = '';
@@ -45,11 +52,42 @@ export class RegisterPage implements OnDestroy {
       else if (this.paso === 3) this.empezar();
       else siguiente();
     });
+
+    // Espera a que la persona deje de escribir y revisa solo el último nombre
+    this.revision = this.nombres$.pipe(
+      debounceTime(500),
+      switchMap(nombre => nombre.length < 3 || nombre.length > 50
+        ? of(null)
+        : this.http.get<{ disponible: boolean; sugerencias: string[] }>('/api/usuario-disponible', {
+            params: { nombre, avatar: this.avatar ?? '' }
+          }).pipe(catchError(() => of(null))))
+    ).subscribe(res => {
+      if (!res) { this.estadoNombre = 'nada'; return; }
+      this.nombreRevisado = this.username.trim();
+      this.estadoNombre = res.disponible ? 'libre' : 'ocupado';
+      this.sugerencias = res.sugerencias ?? [];
+    });
+  }
+
+  nombreCambio(valor: string) {
+    const nombre = (valor ?? '').trim();
+    this.errorMsg = '';
+    this.estadoNombre = nombre.length >= 3 ? 'revisando' : 'nada';
+    this.nombres$.next(nombre);
+  }
+
+  usarSugerencia(nombre: string) {
+    this.username = nombre;
+    this.estadoNombre = 'libre';
+    this.nombreRevisado = nombre;
+    this.sugerencias = [];
+    this.nombres$.next(nombre);  // por si alguien lo tomó recién
   }
 
   ngOnDestroy() {
     this.temporizadores.forEach(t => clearTimeout(t));
     this.botonAtras?.unsubscribe();
+    this.revision?.unsubscribe();
   }
 
   // El compañero saluda: se pasa por 'quieto' para que la animación se repita
@@ -125,6 +163,12 @@ export class RegisterPage implements OnDestroy {
       error: (err) => {
         this.loading = false;
         this.errorMsg = err.error?.error || 'Error de conexión';
+        if (err.status === 409) {
+          this.estadoNombre = 'ocupado';
+          this.nombreRevisado = this.username.trim();
+          this.sugerencias = err.error?.sugerencias ?? [];
+          this.errorMsg = '';
+        }
       }
     });
   }
