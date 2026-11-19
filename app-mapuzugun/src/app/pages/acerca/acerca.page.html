@@ -19,6 +19,14 @@
     </section>
 
     <section>
+      <h2><span class="icono">🤝</span>Nuestro acuerdo</h2>
+      <p>Esto es lo que Kimanke promete y lo que pide a quien aprende. Lo aceptaste al empezar.</p>
+      <ul class="acuerdo-lista">
+        <li *ngFor="let p of acuerdo"><strong>{{ p.icono }} {{ p.titulo }}.</strong> {{ p.texto }}</li>
+      </ul>
+    </section>
+
+    <section>
       <h2><span class="icono">🔍</span>Cómo se cuida el contenido</h2>
       <p>Las palabras, las notas culturales y los audios deben ser revisados por hablantes y kimeltuchefe antes de
         mostrarse como contenido aprobado.</p>

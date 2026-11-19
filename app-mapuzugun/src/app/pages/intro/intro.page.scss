@@ -163,3 +163,50 @@
   border: 3px solid rgba(255, 244, 218, 0.85);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
 }
+/* ===== Nuestro acuerdo ===== */
+.pantalla-acuerdo {
+  justify-content: flex-start;
+  padding-top: 36px;
+}
+
+.acuerdo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin: 4px 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+
+  li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: rgba(255, 244, 218, 0.94);
+    box-shadow: 0 4px 12px rgba(42, 22, 64, 0.2);
+  }
+
+  strong {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #5B2A86;
+  }
+
+  p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.45;
+    color: #2A1640;
+  }
+}
+
+.acuerdo-icono {
+  flex: 0 0 auto;
+  font-size: 22px;
+  line-height: 1.2;
+}

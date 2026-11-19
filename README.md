@@ -11,6 +11,7 @@ Kimanke es un apoyo educativo sin fines comerciales. Nada de lo que enseña debe
 - Cada ejercicio nace como **borrador**. En producción, el servidor solo entrega los que están marcados como **aprobados**, con quién los revisó y cuándo.
 - Si no hay nada aprobado, la app lo dice ("Estamos preparando las lecciones") en vez de mostrar contenido sin revisar.
 - Este repositorio contiene el código y el esquema de la base de datos, no las lecciones.
+- Al empezar, cada persona acepta **Nuestro acuerdo** (`app-mapuzugun/src/app/acuerdo.ts`): la app es gratuita y sin publicidad, apoya pero no reemplaza la enseñanza con hablantes y kimeltuchefe, la lengua tiene variantes y el contenido está en revisión. Nació de la encuesta a la comunidad. Si se cambia el texto, se sube la versión y se vuelve a pedir.
 - La app no usa símbolos sagrados (como el kultrun y su cruz) sin autorización de la comunidad.
 - Los compañeros que acompañan a quien aprende tienen nombres inventados para el proyecto, y la app lo aclara: no son palabras del mapuzugun.
 

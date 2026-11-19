@@ -138,3 +138,15 @@ ion-toolbar.barra-kimanke ion-title {
   text-align: center;
   color: #4B4560 !important;
 }
+.acuerdo-lista {
+  margin: 8px 0 0;
+  padding-left: 0;
+  list-style: none;
+
+  li {
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  strong { color: #5B2A86; }
+}
