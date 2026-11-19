@@ -36,3 +36,46 @@
 @media (prefers-reduced-motion: reduce) {
   .punto { animation: none; }
 }
+
+/* Aviso en iPhone: agregar a la pantalla de inicio */
+.aviso-ios {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px 12px 14px;
+  border-radius: 16px;
+  background: #FFF4DA;
+  border: 2px solid #FFB703;
+  color: #2A1640;
+  box-shadow: 0 8px 20px rgba(42, 22, 64, 0.3);
+
+  img { flex: 0 0 44px; border-radius: 10px; }
+  p { margin: 0; font-size: 15px; line-height: 1.4; }
+  strong { color: #5B2A86; }
+
+  button {
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(91, 42, 134, 0.12);
+    color: #5B2A86;
+    font-size: 16px;
+    cursor: pointer;
+  }
+}
+
+.icono-compartir {
+  display: inline-block;
+  padding: 0 4px;
+  border: 1.5px solid #5B2A86;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.3;
+}

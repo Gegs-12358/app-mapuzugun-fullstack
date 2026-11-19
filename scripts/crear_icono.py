@@ -7,7 +7,8 @@ Uso (desde la raíz del repositorio, con Pillow instalado):
     python3 scripts/crear_icono.py
 
 Crea en app-mapuzugun/resources/ los archivos que usa capacitor-assets
-(icon-only, icon-foreground, icon-background) y actualiza el favicon.
+(icon-only, icon-foreground, icon-background), actualiza el favicon y crea
+los íconos de la versión web (pantalla de inicio de iPhone y Android).
 Después: cd app-mapuzugun && npx capacitor-assets generate --android
 """
 import os
@@ -15,7 +16,8 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 RAIZ = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'app-mapuzugun')
 RECURSOS = os.path.join(RAIZ, 'resources')
-FAVICON = os.path.join(RAIZ, 'src', 'assets', 'icon', 'favicon.png')
+ICONOS_WEB = os.path.join(RAIZ, 'src', 'assets', 'icon')
+FAVICON = os.path.join(ICONOS_WEB, 'favicon.png')
 FUENTE = os.path.join(RAIZ, 'node_modules', '@fontsource', 'nunito', 'files', 'nunito-latin-900-normal.woff')
 
 S = 1024
@@ -72,7 +74,15 @@ def main():
     favicon = Image.new('RGBA', (128, 128))
     favicon.paste(chico, (0, 0), mascara)
     favicon.save(FAVICON, optimize=True)
-    print('Listo: resources/icon-*.png y favicon actualizados.')
+
+    # Versión web: el sistema recorta las esquinas, así que van cuadrados y a sangre.
+    # «maskable» deja margen de seguridad para Android, que puede recortarlo en círculo.
+    visible = completo.crop((m, m, S - m, S - m)).convert('RGB')
+    for lado, nombre in [(180, 'apple-touch-icon.png'), (192, 'icon-192.png'), (512, 'icon-512.png')]:
+        visible.resize((lado, lado), Image.LANCZOS).save(os.path.join(ICONOS_WEB, nombre), optimize=True)
+    completo.convert('RGB').resize((512, 512), Image.LANCZOS).save(
+        os.path.join(ICONOS_WEB, 'icon-maskable-512.png'), optimize=True)
+    print('Listo: resources/icon-*.png, favicon e íconos web actualizados.')
 
 
 if __name__ == '__main__':

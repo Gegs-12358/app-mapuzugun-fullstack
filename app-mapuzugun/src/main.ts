@@ -11,7 +11,7 @@ import { AppComponent } from './app/app.component';
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    provideIonicAngular({ animated: false }),
+    provideIonicAngular({ animated: false, mode: 'md' }),  // mismo estilo en Android, iPhone y navegador
     provideRouter(routes, withPreloading(PreloadAllModules)),
     provideHttpClient(withInterceptors([authInterceptor]))
   ],

@@ -31,6 +31,7 @@
                 "input": "src/assets",
                 "output": "assets"
               },
+              "src/manifest.webmanifest",
               {
                 "glob": "**/*.svg",
                 "input": "node_modules/ionicons/dist/ionicons/svg",
