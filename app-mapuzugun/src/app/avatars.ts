@@ -14,7 +14,7 @@ export const AVATARES: Avatar[] = [
   { id: 'bandurria', nombre: 'Rakyfar',  animal: 'Bandurria',          img: 'assets/avatars/bandurria.png' },
   { id: 'monito',    nombre: 'Teutimos', animal: 'Monito del monte',   img: 'assets/avatars/monito.png' },
   { id: 'pudu',      nombre: 'Pudimel',  animal: 'Pudú',               img: 'assets/avatars/pudu.png', poses: true },
-  { id: 'ranita',    nombre: 'Rinodar',  animal: 'Ranita de Darwin',   img: 'assets/avatars/ranita.png' }
+  { id: 'ranita',    nombre: 'Rinodar',  animal: 'Ranita de Darwin',   img: 'assets/avatars/ranita.png', poses: true }
 ];
 
 export function imagenAvatar(id: string | null | undefined): string {
