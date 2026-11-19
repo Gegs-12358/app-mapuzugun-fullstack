@@ -65,7 +65,10 @@
               </ion-input>
             </ion-item>
             <div class="estado-nombre" aria-live="polite">
-              <p *ngIf="estadoNombre === 'nada'" class="campo-ayuda">Entre 3 y 50 caracteres.</p>
+              <p *ngIf="estadoNombre === 'nada'" class="campo-ayuda">Entre 3 y 50 caracteres. Usa un apodo, no tu correo
+                ni tu nombre completo: otras personas podrían verlo.</p>
+              <p *ngIf="estadoNombre === 'correo'" class="nombre-ocupado">Parece un correo. Usa un apodo: así cuidas tus
+                datos.</p>
               <p *ngIf="estadoNombre === 'revisando'" class="campo-ayuda">Revisando si está libre…</p>
               <p *ngIf="estadoNombre === 'libre'" class="nombre-libre">✓ ¡Está disponible!</p>
               <ng-container *ngIf="estadoNombre === 'ocupado'">
@@ -93,7 +96,7 @@
               Al crear tu cuenta aceptas la <a routerLink="/acerca">política de privacidad</a>.
             </p>
 
-            <ion-button expand="block" type="submit" class="btn-principal" [disabled]="loading || estadoNombre === 'ocupado'">
+            <ion-button expand="block" type="submit" class="btn-principal" [disabled]="loading || estadoNombre === 'ocupado' || estadoNombre === 'correo'">
               <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
               <span *ngIf="!loading">CREAR CUENTA</span>
             </ion-button>

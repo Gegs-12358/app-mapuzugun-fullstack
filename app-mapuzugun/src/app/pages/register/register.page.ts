@@ -32,7 +32,7 @@ export class RegisterPage implements OnDestroy {
   private botonAtras?: Subscription;
 
   // Revisión del nombre mientras se escribe
-  estadoNombre: 'nada' | 'revisando' | 'libre' | 'ocupado' = 'nada';
+  estadoNombre: 'nada' | 'revisando' | 'libre' | 'ocupado' | 'correo' = 'nada';
   nombreRevisado = '';
   sugerencias: string[] = [];
   private nombres$ = new Subject<string>();
@@ -62,7 +62,7 @@ export class RegisterPage implements OnDestroy {
             params: { nombre, avatar: this.avatar ?? '' }
           }).pipe(catchError(() => of(null))))
     ).subscribe(res => {
-      if (!res) { this.estadoNombre = 'nada'; return; }
+      if (!res) { if (this.estadoNombre !== 'correo') this.estadoNombre = 'nada'; return; }
       this.nombreRevisado = this.username.trim();
       this.estadoNombre = res.disponible ? 'libre' : 'ocupado';
       this.sugerencias = res.sugerencias ?? [];
@@ -72,6 +72,11 @@ export class RegisterPage implements OnDestroy {
   nombreCambio(valor: string) {
     const nombre = (valor ?? '').trim();
     this.errorMsg = '';
+    if (nombre.includes('@')) {
+      this.estadoNombre = 'correo';
+      this.nombres$.next('');  // cancela una revisión pendiente
+      return;
+    }
     this.estadoNombre = nombre.length >= 3 ? 'revisando' : 'nada';
     this.nombres$.next(nombre);
   }
@@ -133,6 +138,10 @@ export class RegisterPage implements OnDestroy {
     if (!this.avatar) {
       this.paso = 1;
       this.errorMsg = 'Elige un animal para continuar.';
+      return;
+    }
+    if (this.username.includes('@')) {
+      this.estadoNombre = 'correo';
       return;
     }
     if (this.username.trim().length < 3) {

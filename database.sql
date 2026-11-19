@@ -51,8 +51,9 @@ CREATE TABLE IF NOT EXISTS exercises (
   options        JSONB NOT NULL,
   audio_url      VARCHAR(255),
   cultural_note  TEXT,
+  -- borrador: en revisión · aprobado: validado por hablantes · retirado: con errores, nunca se muestra
   estado         TEXT NOT NULL DEFAULT 'borrador'
-                 CHECK (estado IN ('borrador', 'aprobado')),
+                 CHECK (estado IN ('borrador', 'aprobado', 'retirado')),
   revisado_por   TEXT,                          -- quién revisó (solo con su consentimiento)
   revisado_en    DATE,
   -- Alfabeto en que está escrito el ejercicio. La app usa el Unificado por defecto.
@@ -68,6 +69,11 @@ CREATE TABLE IF NOT EXISTS exercises (
 --   ALTER TABLE exercises ADD COLUMN IF NOT EXISTS grafemario TEXT NOT NULL DEFAULT 'unificado'
 --     CHECK (grafemario IN ('unificado', 'azumchefe', 'raguileo'));
 --   ALTER TABLE exercises ADD COLUMN IF NOT EXISTS variante TEXT;
+
+-- Si tu base ya existía sin el estado «retirado», cámbialo así:
+--   ALTER TABLE exercises DROP CONSTRAINT IF EXISTS exercises_estado_check;
+--   ALTER TABLE exercises ADD CONSTRAINT exercises_estado_check
+--     CHECK (estado IN ('borrador', 'aprobado', 'retirado'));
 
 CREATE INDEX IF NOT EXISTS idx_exercises_unit ON exercises(unit_id);
 

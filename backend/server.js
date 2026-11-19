@@ -15,8 +15,11 @@ const MINUTOS_POR_VIDA = 10;
 // Contenido: en producción solo se entrega lo aprobado por hablantes.
 // Para desarrollo, pon CONTENIDO_BORRADOR=true en el .env.
 const VER_BORRADORES = process.env.CONTENIDO_BORRADOR === 'true';
-const soloAprobado = (alias = '') =>
-  VER_BORRADORES ? 'TRUE' : `${alias ? alias + '.' : ''}estado = 'aprobado'`;
+// «retirado»: contenido con errores que se saca de circulación sin borrarlo (nunca se muestra)
+const soloAprobado = (alias = '') => {
+  const col = `${alias ? alias + '.' : ''}estado`;
+  return VER_BORRADORES ? `${col} <> 'retirado'` : `${col} = 'aprobado'`;
+};
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -156,6 +159,9 @@ app.post('/api/register', limiteRegistro, async (req, res) => {
   if (password.length < 8) {
     return res.status(400).json({ error: 'La contraseña debe tener al menos 8 caracteres' });
   }
+  if (username.includes('@')) {
+    return res.status(400).json({ error: 'Usa un apodo, no tu correo' });
+  }
 
   try {
     if (await nombreOcupado(username)) {
@@ -189,11 +195,17 @@ app.post('/api/register', limiteRegistro, async (req, res) => {
   }
 });
 
+// Para despertar el servidor y para un monitor externo que lo visite y no lo deje dormir.
+// No toca la base de datos.
+app.get('/api/salud', (req, res) => {
+  res.set('Cache-Control', 'no-store').json({ ok: true });
+});
+
 // ¿Está libre este nombre? Se usa mientras la persona escribe al crear su cuenta
 app.get('/api/usuario-disponible', limiteDisponible, async (req, res) => {
   const nombre = typeof req.query.nombre === 'string' ? req.query.nombre.trim() : '';
   const avatar = typeof req.query.avatar === 'string' ? req.query.avatar : '';
-  if (nombre.length < 3 || nombre.length > 50) {
+  if (nombre.length < 3 || nombre.length > 50 || nombre.includes('@')) {
     return res.json({ disponible: false, sugerencias: [] });
   }
   try {

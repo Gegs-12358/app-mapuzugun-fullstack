@@ -110,6 +110,7 @@
           <ion-icon *ngIf="e.completed" name="checkmark"></ion-icon>
           <ion-icon *ngIf="estadoEtapa(unidad.id, e.stage) === 'bloqueada'" name="lock-closed"></ion-icon>
           <span>{{ e.title || ('Etapa ' + e.stage) }}</span>
+          <span *ngIf="estadoEtapa(unidad.id, e.stage) === 'actual'" class="stage-jugar" aria-hidden="true">▶</span>
         </button>
       </div>
     </div>

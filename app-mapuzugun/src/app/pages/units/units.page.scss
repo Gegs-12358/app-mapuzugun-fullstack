@@ -256,8 +256,10 @@
 
   &.stage-actual {
     background: #A61E2C;
-    border-color: #A61E2C;
+    border-color: #FFB703;
     color: #fff;
+    font-weight: 800;
+    animation: latir 1.6s ease-in-out infinite;
   }
 
   &.stage-completada {
@@ -400,4 +402,26 @@
   border: 0;
   font-size: 11px;
   cursor: pointer;
+}
+
+/* La etapa que toca jugar late suavemente para invitar a tocarla */
+.stage-jugar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #FFB703;
+  color: #A61E2C;
+  font-size: 11px;
+}
+
+@keyframes latir {
+  0%, 100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(255, 183, 3, 0.55); }
+  50%      { transform: scale(1.06); box-shadow: 0 0 0 10px rgba(255, 183, 3, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage-chip.stage-actual { animation: none; box-shadow: 0 0 0 3px rgba(255, 183, 3, 0.6); }
 }

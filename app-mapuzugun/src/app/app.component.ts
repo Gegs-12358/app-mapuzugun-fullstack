@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { Capacitor } from '@capacitor/core';
 import { ServidorService } from './servidor.service';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -13,6 +14,13 @@ import { ServidorService } from './servidor.service';
 export class AppComponent {
   servidor = inject(ServidorService);
   avisoIos = debeMostrarAvisoIos();
+
+  constructor() {
+    // El servidor gratuito se duerme si nadie lo usa. Se despierta apenas se abre la app,
+    // mientras la persona lee la intro, así el registro o el mapa cargan más rápido.
+    // Va directo (sin el interceptor) para no mostrar el aviso de «despertando».
+    fetch(`${environment.apiUrl}/api/salud`, { cache: 'no-store' }).catch(() => {});
+  }
 
   cerrarAvisoIos() {
     this.avisoIos = false;
