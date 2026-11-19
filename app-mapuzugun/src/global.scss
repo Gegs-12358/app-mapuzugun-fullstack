@@ -1,18 +1,13 @@
-/* Fuentes alojadas en la app (licencia SIL OFL): no se piden a Google */
-@import "@fontsource/bitter/latin-400.css";
-@import "@fontsource/bitter/latin-600.css";
-@import "@fontsource/bitter/latin-700.css";
-@import "@fontsource/bitter/latin-800.css";
-@import "@fontsource/bitter/latin-ext-400.css";
-@import "@fontsource/bitter/latin-ext-600.css";
-@import "@fontsource/bitter/latin-ext-700.css";
-@import "@fontsource/bitter/latin-ext-800.css";
-@import "@fontsource/lora/latin-400.css";
-@import "@fontsource/lora/latin-500.css";
-@import "@fontsource/lora/latin-600.css";
-@import "@fontsource/lora/latin-ext-400.css";
-@import "@fontsource/lora/latin-ext-500.css";
-@import "@fontsource/lora/latin-ext-600.css";
+/* Fuente alojada en la app (licencia SIL OFL): no se pide a Google.
+   Nunito: redondeada y muy legible, incluye la ü del mapuzugun. */
+@import "@fontsource/nunito/latin-400.css";
+@import "@fontsource/nunito/latin-600.css";
+@import "@fontsource/nunito/latin-700.css";
+@import "@fontsource/nunito/latin-800.css";
+@import "@fontsource/nunito/latin-ext-400.css";
+@import "@fontsource/nunito/latin-ext-600.css";
+@import "@fontsource/nunito/latin-ext-700.css";
+@import "@fontsource/nunito/latin-ext-800.css";
 
 /* Estilos base de Ionic: necesarios para que las páginas y las transiciones funcionen */
 @import "@ionic/angular/css/core.css";
@@ -26,59 +21,67 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/float-elements.css";
 
-/* Paleta de Kimanke */
+/* Paleta de Kimanke: paisajes del sur.
+   Lago (azul), maqui (morado), copihue (rojo), sol (amarillo) y araucaria (verde).
+   Los tonos oscuros cumplen contraste AA con texto blanco. */
 :root {
-  --mapu-azul: #1F3A60;
-  --mapu-rojo: #A64B2A;
-  --mapu-terracota: #C47B66;
-  --mapu-terracota-oscuro: #7A4A3C;
-  --mapu-ocre: #D4A017;
-  --mapu-dorado: #E8B94A;
-  --mapu-crema: #F5EBE1;
-  --mapu-verde: #4A7C59;
-  --mapu-marron: #2B1D14;
-  --mapu-gris: #8B7355;
+  --mapu-lago: #1D4FBF;
+  --mapu-maqui: #5B2A86;
+  --mapu-maqui-oscuro: #3B1A5E;
+  --mapu-copihue: #C8303D;
+  --mapu-copihue-oscuro: #A61E2C;
+  --mapu-sol: #FFB703;
+  --mapu-araucaria: #1E7D47;
+  --mapu-crema: #FFF4DA;
+  --mapu-tinta: #2A1640;
+  --mapu-degradado: linear-gradient(90deg, #1D4FBF, #5B2A86);
 
-  --ion-color-primary: #1F3A60;
-  --ion-color-secondary: #A64B2A;
-  --ion-color-tertiary: #D4A017;
-  --ion-background-color: #F5EBE1;
-  --ion-text-color: #2B1D14;
-  --ion-font-family: 'Lora', Georgia, serif;
+  --ion-color-primary: #5B2A86;
+  --ion-color-primary-rgb: 91, 42, 134;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #502576;
+  --ion-color-primary-tint: #6B3F92;
+  --ion-color-secondary: #C8303D;
+  --ion-color-tertiary: #FFB703;
+  --ion-color-tertiary-rgb: 255, 183, 3;
+  --ion-background-color: #FFF4DA;
+  --ion-text-color: #2A1640;
+  --ion-font-family: 'Nunito', system-ui, sans-serif;
 }
 
 /* Tipografía: p y span heredan el color de su contenedor */
 body, p, span, ion-label, ion-card-content {
-  font-family: 'Lora', Georgia, serif;
+  font-family: 'Nunito', system-ui, sans-serif;
 }
 
 body {
-  color: var(--mapu-marron);
+  color: var(--mapu-tinta);
 }
 
 ion-card-content {
-  color: var(--mapu-marron);
+  color: var(--mapu-tinta);
 }
 
 h1, h2, h3, h4, h5, h6,
 ion-title, ion-card-title,
 ion-button, .node-title, .nota-cultural {
-  font-family: 'Bitter', Georgia, serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   letter-spacing: 0.3px;
 }
 
 /* Tarjetas: sin fondo forzado, para poder hacerlas translúcidas */
 ion-card {
-  box-shadow: 0 6px 18px rgba(43, 29, 20, 0.12) !important;
+  box-shadow: 0 6px 18px rgba(42, 22, 64, 0.12) !important;
   border-radius: 18px !important;
-  border: 1px solid rgba(139, 115, 85, 0.2) !important;
+  border: 1px solid rgba(91, 42, 134, 0.2) !important;
 }
 
 /* Botones */
 ion-button {
   text-transform: none !important;
   letter-spacing: 0.5px;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
 }
 
 /* Fotos redondas de los compañeros */
@@ -87,8 +90,8 @@ ion-button {
 .avatar-elegido img,
 .avatar-row button img,
 .avatar-mini {
-  background: #F5EBE1 !important;
-  box-shadow: 0 2px 6px rgba(31, 58, 96, 0.15);
+  background: #FFF4DA !important;
+  box-shadow: 0 2px 6px rgba(91, 42, 134, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.8);
 }
 
@@ -98,42 +101,46 @@ ion-toolbar.barra-kimanke {
     linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.16)),
     repeating-linear-gradient(
       90deg,
-      #C47B66 0 14px,
-      #E8B94A 14px 28px,
-      #5BB5B5 28px 42px,
-      #F5EBE1 42px 56px
+      #C8303D 0 14px,
+      #FFB703 14px 28px,
+      #FFFFFF 28px 34px,
+      #1D4FBF 34px 48px,
+      #5B2A86 48px 62px,
+      #FFFFFF 62px 68px,
+      #1E7D47 68px 82px,
+      #FFFFFF 82px 88px
     );
-  --color: #F5EBE1;
+  --color: #FFF4DA;
   --min-height: 60px;
 }
 
 ion-toolbar.barra-kimanke ion-title {
-  font-family: 'Bitter', Georgia, serif;
+  font-family: 'Nunito', system-ui, sans-serif;
   font-size: 30px;
   font-weight: 800;
   letter-spacing: 0.5px;
-  color: #F5EBE1;
+  color: #FFF4DA;
   text-shadow:
-    -3px 0 #12263F, 3px 0 #12263F, 0 -3px #12263F, 0 3px #12263F,
-    -2px -2px #12263F, 2px -2px #12263F,
-    -2px 2px #12263F, 2px 2px #12263F,
+    -3px 0 #3B1A5E, 3px 0 #3B1A5E, 0 -3px #3B1A5E, 0 3px #3B1A5E,
+    -2px -2px #3B1A5E, 2px -2px #3B1A5E,
+    -2px 2px #3B1A5E, 2px 2px #3B1A5E,
     0 4px 10px rgba(0, 0, 0, 0.45);
 }
 
 /* Botones dentro de la barra: pastilla oscura para que se lean sobre las franjas */
 ion-toolbar.barra-kimanke ion-buttons ion-button {
-  --background: rgba(18, 38, 63, 0.62);
-  --background-hover: rgba(18, 38, 63, 0.75);
-  --background-activated: rgba(18, 38, 63, 0.8);
-  --color: #F5EBE1;
+  --background: rgba(59, 26, 94, 0.62);
+  --background-hover: rgba(59, 26, 94, 0.75);
+  --background-activated: rgba(59, 26, 94, 0.8);
+  --color: #FFF4DA;
   --border-radius: 20px;
   margin: 0 3px;
 }
 
 ion-toolbar.barra-kimanke ion-back-button {
-  --background: rgba(18, 38, 63, 0.62);
-  --background-hover: rgba(18, 38, 63, 0.75);
-  --color: #F5EBE1;
+  --background: rgba(59, 26, 94, 0.62);
+  --background-hover: rgba(59, 26, 94, 0.75);
+  --color: #FFF4DA;
   --border-radius: 20px;
   --padding-start: 8px;
   --padding-end: 8px;
@@ -157,13 +164,13 @@ ion-toolbar.barra-kimanke ion-back-button {
   width: calc(100% + 32px);
   height: 22px;
   margin: 0 -16px 8px;
-  background-color: #1F3A60;
+  background-color: #5B2A86;
   background-image:
-    radial-gradient(circle at 11px 9.5px, #C47B66 4.5px, transparent 5px),
-    radial-gradient(circle at 33px 9.5px, #E8B94A 4.5px, transparent 5px),
-    radial-gradient(circle at 55px 9.5px, #5BB5B5 4.5px, transparent 5px),
-    radial-gradient(circle at 77px 9.5px, #F5EBE1 4.5px, transparent 5px),
-    linear-gradient(90deg, #C47B66, #E8B94A, #5BB5B5, #E8B94A, #C47B66);
+    radial-gradient(circle at 11px 9.5px, #C8303D 4.5px, transparent 5px),
+    radial-gradient(circle at 33px 9.5px, #FFB703 4.5px, transparent 5px),
+    radial-gradient(circle at 55px 9.5px, #1D4FBF 4.5px, transparent 5px),
+    radial-gradient(circle at 77px 9.5px, #4CC07A 4.5px, transparent 5px),
+    linear-gradient(90deg, #C8303D, #FFB703, #1D4FBF, #5B2A86, #1E7D47);
   background-size: 88px 19px, 88px 19px, 88px 19px, 88px 19px, 100% 3px;
   background-position: 0 0, 0 0, 0 0, 0 0, 0 100%;
   background-repeat: repeat-x, repeat-x, repeat-x, repeat-x, no-repeat;
@@ -178,14 +185,14 @@ ion-toolbar.barra-kimanke ion-back-button {
   margin: 0;
   font-size: 34px;
   font-weight: 800;
-  color: #F5EBE1;
+  color: #FFF4DA;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
 }
 
 .login-tagline {
   margin: 8px 0 0;
   font-size: 16px;
-  color: #F5EBE1;
+  color: #FFF4DA;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 }
 
@@ -198,12 +205,12 @@ ion-toolbar.barra-kimanke ion-back-button {
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, 0.45) !important;
-  box-shadow: 0 8px 26px rgba(31, 58, 96, 0.25);
+  box-shadow: 0 8px 26px rgba(91, 42, 134, 0.25);
 
   ion-card-title {
     font-size: 24px;
     font-weight: 800;
-    color: #1F3A60;
+    color: #5B2A86;
     text-shadow: 0 1px 3px rgba(255, 255, 255, 0.7);
   }
 
@@ -213,7 +220,7 @@ ion-toolbar.barra-kimanke ion-back-button {
     font-weight: 700;
     letter-spacing: 0;
     text-transform: none;
-    color: #7A4A3C;
+    color: #A61E2C;
     text-shadow: 0 1px 3px rgba(255, 255, 255, 0.7);
   }
 }
@@ -228,7 +235,7 @@ ion-toolbar.barra-kimanke ion-back-button {
   border: 1px solid rgba(255, 255, 255, 0.6);
 
   ion-input {
-    --color: #1F3A60;
+    --color: #5B2A86;
     font-size: 17px;
     font-weight: 600;
   }
@@ -238,7 +245,7 @@ ion-toolbar.barra-kimanke ion-back-button {
   padding: 8px;
   border: 0;
   background: none;
-  color: #7A4A3C;
+  color: #A61E2C;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -247,7 +254,7 @@ ion-toolbar.barra-kimanke ion-back-button {
 .campo-ayuda {
   margin: -8px 4px 12px;
   font-size: 14px;
-  color: #3F4F63;
+  color: #4B4560;
 }
 
 .login-error {
@@ -261,10 +268,10 @@ ion-toolbar.barra-kimanke ion-back-button {
 }
 
 .btn-principal {
-  --background: linear-gradient(135deg, #2A4C7C, #1F3A60);
-  --color: #F5EBE1;
+  --background: var(--mapu-degradado);
+  --color: #FFF4DA;
   --border-radius: 14px;
-  --box-shadow: 0 6px 14px rgba(31, 58, 96, 0.35);
+  --box-shadow: 0 6px 14px rgba(91, 42, 134, 0.35);
   height: 54px;
   margin-top: 8px;
   font-size: 16px;
@@ -277,7 +284,7 @@ ion-toolbar.barra-kimanke ion-back-button {
   --background: rgba(255, 255, 255, 0.35);
   --background-hover: rgba(255, 255, 255, 0.5);
   --background-activated: rgba(255, 255, 255, 0.55);
-  --color: #1F3A60;
+  --color: #5B2A86;
   --border-radius: 14px;
   --padding-top: 12px;
   --padding-bottom: 12px;
@@ -288,7 +295,7 @@ ion-toolbar.barra-kimanke ion-back-button {
   font-weight: 700;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 0 4px 12px rgba(31, 58, 96, 0.18);
+  box-shadow: 0 4px 12px rgba(91, 42, 134, 0.18);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
@@ -296,11 +303,23 @@ ion-toolbar.barra-kimanke ion-back-button {
 
 /* Refuerzo: pastilla oscura aplicada directamente a la parte interna del botón */
 ion-toolbar.barra-kimanke ion-buttons ion-button::part(native) {
-  background: rgba(18, 38, 63, 0.88);
-  color: #F5EBE1;
+  background: rgba(59, 26, 94, 0.88);
+  color: #FFF4DA;
   border-radius: 20px;
 }
 
 ion-toolbar.barra-kimanke ion-buttons ion-button ion-icon {
-  color: #F5EBE1;
+  color: #FFF4DA;
+}
+/* ===== Barra de estadísticas (Kütral, Kimün, Llanka, Newen) ===== */
+ion-toolbar.barra-estadisticas {
+  --background: var(--mapu-degradado);
+  --color: #fff;
+  --min-height: 32px;
+}
+
+/* Barra de progreso de la etapa */
+ion-progress-bar.progreso-etapa {
+  --background: rgba(255, 183, 3, 0.25);
+  --progress-background: var(--mapu-sol);
 }

@@ -16,10 +16,10 @@ ion-content {
   align-items: center;
   gap: 2px;
   padding: 10px 6px 8px;
-  border: 2px solid rgba(31, 58, 96, 0.25);
+  border: 2px solid rgba(91, 42, 134, 0.25);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.40);
-  color: #1F3A60;
+  color: #5B2A86;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
@@ -32,18 +32,18 @@ ion-content {
     padding: 6px;
     margin-bottom: 4px;
     border-radius: 50%;
-    background: #F5EBE1;
+    background: #FFF4DA;
     object-fit: contain;
   }
 
   small {
     font-size: 13px;
     font-weight: 400;
-    color: #3F4F63;
+    color: #4B4560;
   }
 
   &.selected {
-    border-color: #C47B66;
+    border-color: #C8303D;
     background: rgba(255, 240, 235, 0.65);
     box-shadow: 0 0 0 3px rgba(196, 123, 102, 0.35);
   }
@@ -55,7 +55,7 @@ ion-content {
   gap: 10px;
   margin-bottom: 16px;
   font-size: 15px;
-  color: #1F3A60;
+  color: #5B2A86;
 
   img {
     box-sizing: border-box;
@@ -63,7 +63,7 @@ ion-content {
     height: 44px;
     padding: 3px;
     border-radius: 50%;
-    background: #F5EBE1;
+    background: #FFF4DA;
     object-fit: contain;
   }
 
@@ -77,10 +77,10 @@ ion-content {
   font-size: 14px;
   line-height: 1.45;
   text-align: center;
-  color: #1F3A60;
+  color: #5B2A86;
 
   a {
-    color: #7A4A3C;
+    color: #A61E2C;
     font-weight: 700;
     text-decoration: underline;
   }
