@@ -86,6 +86,14 @@
         <ion-icon *ngIf="!estaDesbloqueada(unidad.id)" name="lock-closed" class="node-icon-lock"></ion-icon>
       </div>
 
+      <!-- Tu compañero, parado junto a la unidad en la que vas -->
+      <button type="button" *ngIf="unidad.id === unidadCompanero" class="companero-mapa"
+        [ngClass]="i % 2 !== 0 ? 'hacia-derecha' : 'hacia-izquierda'" [class.llegando]="llegando"
+        (click)="tocarCompaneroMapa()"
+        [attr.aria-label]="nombreCompanero + (todoCompletado ? ' celebra: completaste todas las unidades' : ', tu compañero, está aquí')">
+        <app-companero [avatarId]="avatarId" [estado]="estadoMapa" [tamano]="76"></app-companero>
+      </button>
+
       <p class="node-title">{{ unidad.title }}</p>
       <p class="stage-count" *ngIf="estaDesbloqueada(unidad.id)">
         {{ etapasCompletadas(unidad.id) }} de {{ etapasDe(unidad.id).length }} etapas

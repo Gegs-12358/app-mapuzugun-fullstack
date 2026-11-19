@@ -9,6 +9,9 @@ import {
 import { addIcons } from 'ionicons';
 import { logOutOutline, checkmark, lockClosed, flame, informationCircleOutline } from 'ionicons/icons';
 import { AVATARES, imagenAvatar } from '../../avatars';
+import { CompaneroComponent, EstadoVisual } from '../../companero/companero.component';
+
+const CLAVE_UNIDAD_COMPANERO = 'kimanke_companero_unidad';
 
 @Component({
   selector: 'app-units',
@@ -17,7 +20,7 @@ import { AVATARES, imagenAvatar } from '../../avatars';
   standalone: true,
   imports: [
     CommonModule, IonHeader, IonToolbar, IonTitle, IonContent,
-    IonIcon, IonButtons, IonButton
+    IonIcon, IonButtons, IonButton, CompaneroComponent
   ]
 })
 export class UnitsPage implements OnInit {
@@ -34,6 +37,10 @@ export class UnitsPage implements OnInit {
   selectorAbierto = false;
 
   racha = 0;
+
+  // Compañero sobre el camino
+  estadoMapa: EstadoVisual = 'quieto';
+  llegando = false;
 
   constructor(private http: HttpClient, private router: Router, private alertCtrl: AlertController) {
     addIcons({ logOutOutline, checkmark, lockClosed, flame, informationCircleOutline });
@@ -101,6 +108,7 @@ export class UnitsPage implements OnInit {
         this.loading = false;
         const actual = this.unidades.find(u => this.esActual(u.id));
         if (actual) this.unidadAbierta = actual.id;
+        this.revisarLlegada();
       },
       error: (err) => {
         console.error('Error al cargar etapas:', err);
@@ -171,6 +179,54 @@ export class UnitsPage implements OnInit {
     this.router.navigateByUrl(`/home/${unitId}/${stage}`, {
       state: { tituloUnidad, tituloEtapa }
     });
+  }
+
+  // --- Compañero en el mapa ---
+  // Se para junto a la unidad actual; si ya terminó todo, celebra en la última.
+  get unidadCompanero(): number | null {
+    const actual = this.unidades.find(u => this.esActual(u.id));
+    if (actual) return actual.id;
+    return this.unidades.length ? this.unidades[this.unidades.length - 1].id : null;
+  }
+
+  get todoCompletado(): boolean {
+    return this.unidades.length > 0 && this.unidades.every(u => this.estaCompletada(u.id));
+  }
+
+  // Si el compañero cambió de unidad desde la última visita, llega saltando
+  private revisarLlegada() {
+    const destino = this.unidadCompanero;
+    if (destino === null) return;
+    let anterior: string | null = null;
+    try { anterior = localStorage.getItem(CLAVE_UNIDAD_COMPANERO); } catch {}
+    try { localStorage.setItem(CLAVE_UNIDAD_COMPANERO, String(destino)); } catch {}
+
+    if (this.todoCompletado) {
+      this.estadoMapa = 'celebra';
+      return;
+    }
+    if (anterior !== null && anterior !== String(destino)) {
+      this.llegando = true;
+      this.reaccionarMapa('feliz');
+      setTimeout(() => this.llegando = false, 1200);
+    }
+  }
+
+  private reaccionarMapa(estado: EstadoVisual) {
+    this.estadoMapa = 'quieto';
+    setTimeout(() => {
+      this.estadoMapa = estado;
+      setTimeout(() => { if (!this.todoCompletado) this.estadoMapa = 'quieto'; }, 1500);
+    }, 30);
+  }
+
+  tocarCompaneroMapa() {
+    if (this.todoCompletado) return;
+    this.reaccionarMapa('saltito');
+  }
+
+  get nombreCompanero(): string {
+    return AVATARES.find(a => a.id === this.avatarId)?.nombre ?? 'Tu compañero';
   }
 
   // --- Avatar ---
