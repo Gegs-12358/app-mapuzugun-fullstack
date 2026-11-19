@@ -341,3 +341,131 @@ ion-card ion-button.btn-accion[disabled] {
   --box-shadow: none;
   opacity: 1;
 }
+
+/* =====================================================================
+   COMPAÑERO VIVO: reacciona en cada pregunta y celebra al final.
+   Con "reducir movimiento" activado no hay animaciones.
+   ===================================================================== */
+.companero-leccion {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  min-height: 92px;
+  padding: 4px 20px 0;
+  text-align: left;
+}
+
+.companero-btn {
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.companero-burbuja {
+  position: relative;
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: #FFF4DA;
+  border: 2px solid #FFB703;
+  color: #2A1640;
+  font-size: 16px;
+  line-height: 1.35;
+  animation: aparecer 0.25s ease-out;
+
+  strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 800;
+    color: #A61E2C;
+  }
+
+  /* piquito hacia el compañero */
+  &::before {
+    content: '';
+    position: absolute;
+    left: -9px;
+    bottom: 14px;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-right: 8px solid #FFB703;
+  }
+
+  &.feliz {
+    background: #E3F4EA;
+    border-color: #1E7D47;
+    &::before { border-right-color: #1E7D47; }
+  }
+}
+
+/* Fin de la etapa y sin Newen */
+.celebracion,
+.durmiendo-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 12px 0 6px;
+}
+
+.celebracion-frase {
+  margin: 10px 0 4px;
+  font-size: 17px;
+  font-weight: 800;
+  color: #5B2A86;
+}
+
+.zzz {
+  position: absolute;
+  top: -6px;
+  right: calc(50% - 76px);
+  font-size: 26px;
+  animation: flotar-zzz 2.4s ease-in-out infinite;
+}
+
+/* Confeti que cae sobre la tarjeta */
+.confeti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+
+  span {
+    position: absolute;
+    top: -12px;
+    width: 9px;
+    height: 14px;
+    border-radius: 2px;
+    opacity: 0;
+    animation-name: caer;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+  }
+}
+
+ion-card { position: relative; }
+
+@keyframes flotar-zzz {
+  0%   { transform: translate(0, 0); opacity: 0; }
+  30%  { opacity: 1; }
+  100% { transform: translate(10px, -22px); opacity: 0; }
+}
+
+@keyframes aparecer {
+  from { transform: scale(0.85); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+@keyframes caer {
+  0%   { opacity: 1; transform: translateY(0) rotate(0); }
+  100% { opacity: 0.9; transform: translateY(520px) rotate(540deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .companero-burbuja,
+  .zzz { animation: none; }
+  .confeti { display: none; }
+}

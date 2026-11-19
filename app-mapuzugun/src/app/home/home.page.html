@@ -42,7 +42,12 @@
   <ion-card *ngIf="gameOver" class="ion-margin-top"
     style="border: 3px solid #C8303D; text-align: center; padding: 20px;">
     <h2 style="color: #C8303D; font-weight: 900;">¡Te has quedado sin Newen!</h2>
-    <p style="font-size: 40px; margin: 20px 0;">🍂</p>
+    <div class="durmiendo-wrap">
+      <app-companero [avatarId]="avatarId" estado="durmiendo" [tamano]="150"
+        role="img" [attr.aria-label]="nombreCompanero + ' descansa'"></app-companero>
+      <span class="zzz" aria-hidden="true">💤</span>
+    </div>
+    <p class="celebracion-frase">{{ nombreCompanero }} está recuperando energía. ¡Descansemos un poco!</p>
 
     <p style="color: #444; font-size: 1em; margin-bottom: 15px;">
       Tu <strong>Newen</strong> (fuerza vital) se ha agotado.
@@ -69,7 +74,7 @@
 
     <!-- OPCIÓN 2: Comprar con gemas -->
     <ion-button expand="block" (click)="comprarVidas()"
-      style="--background: #9C5340; margin-top: 10px; font-weight: bold;">
+      style="--background: #1D4FBF; margin-top: 10px; font-weight: bold;">
       🟢 COMPRAR 5 NEWEN (30 LLANKAS)
     </ion-button>
 
@@ -87,8 +92,17 @@
   <!-- PANTALLA DE LECCIÓN TERMINADA -->
   <ion-card *ngIf="leccionTerminada" class="ion-margin-top"
     style="border: 3px solid #5B2A86; text-align: center; padding: 20px;">
+    <div class="confeti" aria-hidden="true">
+      <span *ngFor="let c of confeti" [style.left.%]="c.izquierda" [style.background]="c.color"
+        [style.animation-delay.s]="c.retraso" [style.animation-duration.s]="c.duracion"
+        [style.transform]="'rotate(' + c.giro + 'deg)'"></span>
+    </div>
     <h2 style="color: #5B2A86; font-weight: 900;">¡Lección Completada!</h2>
-    <p style="font-size: 40px; margin: 20px 0;">🎉</p>
+    <div class="celebracion">
+      <app-companero [avatarId]="avatarId" estado="celebra" [tamano]="150"
+        role="img" [attr.aria-label]="nombreCompanero + ' celebra contigo'"></app-companero>
+      <p class="celebracion-frase">¡Lo hicimos juntos!</p>
+    </div>
     <p style="font-size: 1.1em; color: #333;">Has ganado {{ xpGanado }} puntos de <strong>Kimün</strong>.</p>
     <p *ngIf="gemasGanadas > 0" style="font-size: 1.1em; color: #333;">
       Y <strong>{{ gemasGanadas }} Llankas</strong> para recargar Newen.
@@ -258,6 +272,17 @@
       </div>
 
     </ion-card-content>
+
+    <div class="companero-leccion">
+      <button type="button" class="companero-btn" (click)="tocarCompanero()"
+        [attr.aria-label]="'Tocar a ' + nombreCompanero">
+        <app-companero [avatarId]="avatarId" [estado]="estadoCompanero" [tamano]="84"></app-companero>
+      </button>
+      <div *ngIf="fraseCompanero" class="companero-burbuja" [ngClass]="tonoFrase" role="status" aria-live="polite">
+        <strong>{{ nombreCompanero }}</strong>
+        <span>{{ fraseCompanero }}</span>
+      </div>
+    </div>
 
     <div style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.5); background-color: rgba(255,255,255,0.25);">
       <!-- BOTÓN COMPROBAR (Se oculta en modo match hasta que se completen las parejas) -->

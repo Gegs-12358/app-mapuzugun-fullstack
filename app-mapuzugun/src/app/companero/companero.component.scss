@@ -1,0 +1,134 @@
+:host {
+  display: inline-block;
+}
+
+.comp-vivo {
+  position: relative;
+}
+
+.cuerpo {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 100%;
+  animation: respirar 3s ease-in-out infinite;
+
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    /* Sin fondo ni borde: la regla global de .companero img es para la intro */
+    background: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    user-select: none;
+    pointer-events: none;
+
+    &.visible { opacity: 1; }
+  }
+
+  /* Compañeros sin poses: imagen única dentro de un círculo */
+  .marco {
+    box-sizing: border-box;
+    padding: 6%;
+    border-radius: 50%;
+    background: #FFF4DA !important;
+    box-shadow: 0 3px 8px rgba(91, 42, 134, 0.25) !important;
+  }
+}
+
+/* Compañeros con poses: libres, parados sobre su sombra */
+.sombra {
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  bottom: 1%;
+  height: 9%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(42, 22, 64, 0.32), rgba(42, 22, 64, 0) 70%);
+  animation: sombra-respirar 3s ease-in-out infinite;
+}
+
+/* ===== Animaciones del cuerpo según el estado ===== */
+.est-feliz    .cuerpo { animation: salto-feliz 0.9s ease-out; }
+.est-animando .cuerpo { animation: inclinar 1.1s ease-in-out; }
+.est-saltito  .cuerpo { animation: saltito 0.6s ease-out; }
+.est-celebra  .cuerpo { animation: celebrar 1.2s ease-in-out infinite; }
+.est-durmiendo .cuerpo { animation: dormir 4s ease-in-out infinite; }
+
+.est-feliz   .sombra { animation: sombra-salto 0.9s ease-out; }
+.est-saltito .sombra { animation: sombra-saltito 0.6s ease-out; }
+.est-celebra .sombra { animation: sombra-celebra 1.2s ease-in-out infinite; }
+
+@keyframes respirar {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.03, 0.975); }
+}
+
+@keyframes salto-feliz {
+  0%   { transform: translateY(0) scale(1); }
+  15%  { transform: translateY(0) scale(1.08, 0.9); }
+  45%  { transform: translateY(-30%) scale(0.97, 1.04) rotate(-5deg); }
+  70%  { transform: translateY(0) scale(1.06, 0.94); }
+  85%  { transform: translateY(-4%) scale(1); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes inclinar {
+  0%, 100% { transform: rotate(0); }
+  20%      { transform: rotate(-9deg); }
+  45%      { transform: rotate(7deg); }
+  70%      { transform: rotate(-3deg); }
+}
+
+@keyframes saltito {
+  0%, 100% { transform: translateY(0); }
+  35%      { transform: translateY(-10%) rotate(3deg); }
+  65%      { transform: translateY(0) rotate(-2deg); }
+}
+
+@keyframes celebrar {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  25%      { transform: translateY(-18%) rotate(-6deg); }
+  50%      { transform: translateY(0) rotate(0); }
+  75%      { transform: translateY(-12%) rotate(6deg); }
+}
+
+@keyframes dormir {
+  0%, 100% { transform: rotate(-6deg) scale(1); }
+  50%      { transform: rotate(-6deg) scale(1.03, 0.97); }
+}
+
+@keyframes sombra-respirar {
+  0%, 100% { transform: scaleX(1); }
+  50%      { transform: scaleX(1.04); }
+}
+
+@keyframes sombra-salto {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  45%      { transform: scale(0.55); opacity: 0.5; }
+}
+
+@keyframes sombra-saltito {
+  0%, 100% { transform: scale(1); }
+  35%      { transform: scale(0.8); }
+}
+
+@keyframes sombra-celebra {
+  0%, 50%, 100% { transform: scale(1); opacity: 1; }
+  25%      { transform: scale(0.6); opacity: 0.55; }
+  75%      { transform: scale(0.7); opacity: 0.65; }
+}
+
+/* Con "reducir movimiento" el compañero no se mueve, pero sigue cambiando de cara */
+@media (prefers-reduced-motion: reduce) {
+  .cuerpo,
+  .sombra,
+  .est-feliz .cuerpo,
+  .est-animando .cuerpo,
+  .est-saltito .cuerpo,
+  .est-celebra .cuerpo,
+  .est-durmiendo .cuerpo { animation: none !important; }
+}

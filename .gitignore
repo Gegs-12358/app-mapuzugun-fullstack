@@ -21,3 +21,4 @@ app-mapuzugun/www/
 # Llaves de firma de Android: nunca al repositorio
 *.jks
 *.keystore
+imagenes/

@@ -29,6 +29,19 @@ Quedan por definir con hablantes: la ortografía y el significado del nombre "Ki
 - Juego: experiencia (Kimün), racha diaria (Kütral, con hora de Chile), gemas (Llanka) y vidas (Newen).
 - Economía: 40 gemas al registrarse, 10 gemas por una etapa perfecta (solo la primera vez), 30 gemas por una recarga completa. Las vidas son 5 como máximo y se recupera una cada 10 minutos, o practicando.
 
+## Compañeros animados
+
+Cada compañero puede tener cinco poses (sentado, ojos cerrados, feliz, saltando y saludando) para parpadear y reaccionar durante la lección. Hoy solo Pudimel (pudú) las tiene; los demás usan su imagen única.
+
+Para agregar las poses de otro compañero:
+
+1. En Canva, crea las cinco versiones sobre el mismo lienzo, sin mover ni cambiar el tamaño del personaje, y descárgalas como PNG con fondo transparente.
+2. Desde la carpeta del proyecto, ejecuta (necesita `python3-pil`):
+   ```bash
+   python3 scripts/preparar_poses.py puma sentado.png ojos.png feliz.png saltando.png saludando.png
+   ```
+3. En `app-mapuzugun/src/app/avatars.ts`, agrega `poses: true` al compañero.
+
 ## Tecnologías
 
 - Frontend: Ionic 8 y Angular 18 (componentes standalone), con Capacitor para Android.
