@@ -362,3 +362,31 @@
   font-weight: 700;
   cursor: pointer;
 }
+/* === COMPAÑERO SOBRE EL CAMINO === */
+.companero-mapa {
+  position: absolute;
+  top: -4px;
+  z-index: 4;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  /* Hacia el centro del camino, al lado de la estrella (85 px de ancho) */
+  &.hacia-izquierda { right: calc(50% + 46px); }
+  &.hacia-derecha   { left: calc(50% + 46px); }
+
+  &.llegando { animation: llegar 1s cubic-bezier(0.25, 1.4, 0.5, 1); }
+}
+
+@keyframes llegar {
+  0%   { transform: translateY(-110px) scale(0.7); opacity: 0; }
+  40%  { opacity: 1; }
+  70%  { transform: translateY(6px) scale(1.05, 0.92); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .companero-mapa.llegando { animation: none; }
+}
