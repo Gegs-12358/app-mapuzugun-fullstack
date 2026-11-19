@@ -4,10 +4,10 @@ import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonBackButton
 } from '@ionic/angular/standalone';
 import { AVATARES } from '../../avatars';
+import { GRAFEMARIO_APP, nombreGrafemario } from '../../escritura';
 
 // --- Datos que el proyecto debe completar ---
 const CONTACTO = '';     // correo de contacto, por ejemplo 'hola@tudominio.cl'
-const GRAFEMARIO = '';   // por ejemplo 'Azümchefe'. Vacío = aún por confirmar con hablantes
 
 // Solo personas que dieron permiso explícito para aparecer aquí.
 const CREDITOS: { nombre: string; comunidad?: string; aporte: string }[] = [];
@@ -21,7 +21,7 @@ const CREDITOS: { nombre: string; comunidad?: string; aporte: string }[] = [];
 })
 export class AcercaPage {
   contacto = CONTACTO;
-  grafemario = GRAFEMARIO;
+  grafemario = nombreGrafemario(GRAFEMARIO_APP);
   creditos = CREDITOS;
   companeros = AVATARES;
 }

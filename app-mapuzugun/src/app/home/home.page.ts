@@ -9,6 +9,7 @@ import {
   IonProgressBar, IonBackButton, IonInput, AlertController
 } from '@ionic/angular/standalone';
 import { imagenAvatar } from '../avatars';
+import { LETRAS_ESPECIALES, nombreGrafemario, normalizarRespuesta } from '../escritura';
 
 @Component({
   selector: 'app-home',
@@ -55,6 +56,8 @@ export class HomePage implements OnInit {
   xpGanado = 0;
   gemasGanadas = 0;
 
+  letrasEspeciales = LETRAS_ESPECIALES;
+
   // Variables para el juego de emparejamiento (Match)
   matchLeftColumn: any[] = [];
   matchRightColumn: any[] = [];
@@ -84,6 +87,16 @@ export class HomePage implements OnInit {
   get progreso() {
     if (this.ejercicios.length === 0) return 0;
     return this.currentIndex / this.ejercicios.length;
+  }
+
+  get grafemarioActual(): string {
+    return nombreGrafemario(this.ejercicioActual?.grafemario);
+  }
+
+  // Agrega una letra que no está en el teclado (por ejemplo la ü)
+  insertarLetra(letra: string) {
+    if (this.isAnswered) return;
+    this.writtenAnswer = (this.writtenAnswer ?? '') + letra;
   }
 
   get avatarImg(): string {
@@ -257,7 +270,7 @@ export class HomePage implements OnInit {
 
     if (this.ejercicioActual.type === 'write' || this.ejercicioActual.type === 'fill_blank') {
       if (!this.writtenAnswer.trim()) return;
-      this.isCorrect = this.writtenAnswer.trim().toLowerCase() === this.ejercicioActual.correct_answer.trim().toLowerCase();
+      this.isCorrect = normalizarRespuesta(this.writtenAnswer) === normalizarRespuesta(this.ejercicioActual.correct_answer);
     } else if (this.ejercicioActual.type === 'multiple_choice') {
       if (!this.selectedOption) return;
       this.isCorrect = this.selectedOption === this.ejercicioActual.correct_answer;

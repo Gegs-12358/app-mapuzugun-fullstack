@@ -54,8 +54,20 @@ CREATE TABLE IF NOT EXISTS exercises (
   estado         TEXT NOT NULL DEFAULT 'borrador'
                  CHECK (estado IN ('borrador', 'aprobado')),
   revisado_por   TEXT,                          -- quién revisó (solo con su consentimiento)
-  revisado_en    DATE
+  revisado_en    DATE,
+  -- Alfabeto en que está escrito el ejercicio. La app usa el Unificado por defecto.
+  grafemario     TEXT NOT NULL DEFAULT 'unificado'
+                 CHECK (grafemario IN ('unificado', 'azumchefe', 'raguileo')),
+  -- Territorio o variante, según quien aportó la palabra o el audio
+  -- (por ejemplo 'Lafkenche', 'Pewenche'). 'General' si se usa en todos lados.
+  -- NULL = todavía no se sabe.
+  variante       TEXT
 );
+
+-- Si tu base ya existía sin grafemario ni variante, agrégalos así:
+--   ALTER TABLE exercises ADD COLUMN IF NOT EXISTS grafemario TEXT NOT NULL DEFAULT 'unificado'
+--     CHECK (grafemario IN ('unificado', 'azumchefe', 'raguileo'));
+--   ALTER TABLE exercises ADD COLUMN IF NOT EXISTS variante TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_exercises_unit ON exercises(unit_id);
 
