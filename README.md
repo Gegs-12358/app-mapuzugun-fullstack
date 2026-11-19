@@ -12,14 +12,14 @@ Kimanke es un apoyo educativo sin fines comerciales. Nada de lo que enseña debe
 - Si no hay nada aprobado, la app lo dice ("Estamos preparando las lecciones") en vez de mostrar contenido sin revisar.
 - Este repositorio contiene el código y el esquema de la base de datos, no las lecciones.
 - La app no usa símbolos sagrados (como el kultrun y su cruz) sin autorización de la comunidad.
-- Los cuatro compañeros que acompañan a quien aprende (Pangipol, Manketor, Rakyfar y Teutimos) tienen nombres inventados para el proyecto, y la app lo aclara: no son palabras del mapuzugun.
+- Los compañeros que acompañan a quien aprende tienen nombres inventados para el proyecto, y la app lo aclara: no son palabras del mapuzugun.
 
 Quedan por definir con hablantes: la ortografía y el significado del nombre "Kimanke", el grafemario que se usará en las lecciones y los nombres de las estadísticas del juego (Kütral, Kimün, Llanka y Newen son provisorios).
 
 ## Qué hace hoy
 
 - Introducción de dos pantallas, que se muestra solo la primera vez.
-- Registro e inicio de sesión. Al crear la cuenta se elige uno de cuatro compañeros animales (puma, cóndor, bandurria y monito del monte), y se puede cambiar después.
+- Registro e inicio de sesión. Al crear la cuenta se elige uno de seis compañeros animales (puma, águila, bandurria, monito del monte, pudú y ranita de Darwin), y se puede cambiar después.
 - Mapa de unidades con etapas. Cada etapa tiene 5 ejercicios; una unidad se desbloquea al terminar la anterior.
 - Tres tipos de ejercicio: selección múltiple, escritura y emparejamiento. El audio se reproduce desde la URL del ejercicio, cuando la tiene.
 - Juego: experiencia (Kimün), racha diaria (Kütral, con hora de Chile), gemas (Llanka) y vidas (Newen).
@@ -111,8 +111,8 @@ WHERE unit_id = 1 AND stage = 1;
 ## Pendiente
 
 - Validación del contenido y de los nombres con hablantes.
-- Probar el APK y cambiar el `appId` de Capacitor (hoy `io.ionic.starter`) antes de publicar.
-- Desplegar con HTTPS y definir la licencia del proyecto.
+- Probar el APK antes de publicar.
+- Generar la llave de firma de Android y guardarla **fuera** del repositorio (`*.jks` está en `.gitignore`).
 
 ## Cómo colaborar
 
@@ -120,4 +120,4 @@ Si hablas mapuzugun y quieres revisar contenido o corregir algo, abre un *issue*
 
 ## Licencia
 
-Por definir.
+Todos los derechos reservados. Ver [LICENSE](LICENSE).

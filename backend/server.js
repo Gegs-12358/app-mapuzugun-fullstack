@@ -1,7 +1,18 @@
 require('dotenv').config();
 const express = require('express');
 const { Pool } = require('pg');
-const AVATARES = ['puma', 'aguila', 'bandurria', 'monito', 'pudu', 'ranita'];// Contenido: en producción solo se entrega lo aprobado por hablantes.
+const AVATARES = ['puma', 'aguila', 'bandurria', 'monito', 'pudu', 'ranita'];
+
+// ---------- REGLAS DEL JUEGO ----------
+const XP_POR_ACIERTO = 20;
+const XP_POR_REPASO = 5;
+const GEMAS_INICIALES = 40;
+const COSTO_RECARGA = 30;
+const GEMAS_POR_ACIERTO = 2; // solo la primera vez que se completa una etapa
+const VIDAS_MAX = 5;
+const MINUTOS_POR_VIDA = 10;
+
+// Contenido: en producción solo se entrega lo aprobado por hablantes.
 // Para desarrollo, pon CONTENIDO_BORRADOR=true en el .env.
 const VER_BORRADORES = process.env.CONTENIDO_BORRADOR === 'true';
 const soloAprobado = (alias = '') =>
@@ -44,7 +55,10 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: Number(process.env.DB_PORT),
-  ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false }});
+  // Se verifica el certificado del servidor (Neon usa uno válido).
+  // DB_SSL=false solo para una base local sin SSL.
+  ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: true }
+});
 
 // ---------- LÍMITES DE INTENTOS ----------
 // Máximo 10 intentos fallidos de login cada 15 minutos por conexión
@@ -90,15 +104,17 @@ function requireAuth(req, res, next) {
 
 // ---------- RUTAS PÚBLICAS ----------
 app.post('/api/register', limiteRegistro, async (req, res) => {
-  const { username, password, avatar } = req.body;
+  const { password, avatar } = req.body;
+  let { username } = req.body;
 
   if (typeof username !== 'string' || typeof password !== 'string') {
     return res.status(400).json({ error: 'Datos inválidos' });
   }
+  username = username.trim();
   if (!AVATARES.includes(avatar)) {
     return res.status(400).json({ error: 'Elige un avatar' });
   }
-  if (username.trim().length < 3 || username.length > 50) {
+  if (username.length < 3 || username.length > 50) {
     return res.status(400).json({ error: 'El usuario debe tener entre 3 y 50 caracteres' });
   }
   if (password.length < 8) {
@@ -123,6 +139,10 @@ app.post('/api/register', limiteRegistro, async (req, res) => {
     const user = newUser.rows[0];
     res.json({ ...user, token: crearToken(user) });
   } catch (err) {
+    // Dos registros simultáneos con el mismo nombre: gana uno, el otro choca con UNIQUE
+    if (err.code === '23505') {
+      return res.status(400).json({ error: 'El nombre de usuario ya está en uso' });
+    }
     console.error(err);
     res.status(500).json({ error: 'Error en el servidor' });
   }
@@ -136,7 +156,7 @@ app.post('/api/login', limiteLogin, async (req, res) => {
   }
 
   try {
-    const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+    const result = await pool.query('SELECT * FROM users WHERE username = $1', [username.trim()]);
     const user = result.rows[0];
 
     // Mismo mensaje si falla el usuario o la contraseña
@@ -161,7 +181,12 @@ app.post('/api/login', limiteLogin, async (req, res) => {
 
 app.get('/api/units', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM units ORDER BY id');
+    // Solo unidades que tienen al menos un ejercicio visible
+    const result = await pool.query(
+      `SELECT u.* FROM units u
+       WHERE EXISTS (SELECT 1 FROM exercises e WHERE e.unit_id = u.id AND ${soloAprobado('e')})
+       ORDER BY u.id`
+    );
     res.json(result.rows);
   } catch (err) {
     console.error(err);
@@ -288,9 +313,14 @@ app.get('/api/user/:username', async (req, res) => {
 
 app.post('/api/lose-life', async (req, res) => {
   try {
+    // Si estaba con las vidas llenas, el reloj de recarga parte ahora.
+    // Sin esto, last_life_regen quedaba viejo y la vida perdida volvía al instante.
     const result = await pool.query(
-      'UPDATE users SET lives = GREATEST(lives - 1, 0) WHERE id = $1 RETURNING lives, gems',
-      [req.user.id]
+      `UPDATE users
+       SET lives = GREATEST(lives - 1, 0),
+           last_life_regen = CASE WHEN lives >= $2::int THEN LOCALTIMESTAMP ELSE last_life_regen END
+       WHERE id = $1 RETURNING lives, gems`,
+      [req.user.id, VIDAS_MAX]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
     res.json(result.rows[0]);
@@ -305,8 +335,8 @@ app.post('/api/buy-lives', async (req, res) => {
   try {
     // Una sola consulta atómica: descuenta solo si alcanzan las gemas
     const result = await pool.query(
-      'UPDATE users SET gems = gems - $1, lives = 5 WHERE id = $2 AND gems >= $1 RETURNING lives, gems',
-      [costoGemas, req.user.id]
+      'UPDATE users SET gems = gems - $1, lives = $3 WHERE id = $2 AND gems >= $1 RETURNING lives, gems',
+      [costoGemas, req.user.id, VIDAS_MAX]
     );
     if (result.rows.length === 0) {
       return res.status(400).json({ error: 'No tienes suficientes gemas' });
@@ -317,12 +347,6 @@ app.post('/api/buy-lives', async (req, res) => {
     res.status(500).json({ error: 'Error en el servidor' });
   }
 });
-
-const XP_POR_ACIERTO = 20;
-const XP_POR_REPASO = 5;
-const GEMAS_INICIALES = 40;
-const COSTO_RECARGA = 30;
-const GEMAS_POR_ACIERTO = 2; // solo la primera vez que se completa una etapa
 
 app.post('/api/lessons/complete', async (req, res) => {
   const { unitId, stage, correct } = req.body;
@@ -417,23 +441,39 @@ app.post('/api/earn-life', async (req, res) => {
 
 app.post('/api/regen-lives', async (req, res) => {
   try {
+    // Los minutos se calculan en la base, no en Node: last_life_regen no guarda zona
+    // horaria, y si Node y Postgres tienen zonas distintas el cálculo se desfasa horas.
     const userRes = await pool.query(
-      'SELECT lives, last_life_regen FROM users WHERE id = $1',
+      `SELECT lives,
+              EXTRACT(EPOCH FROM (LOCALTIMESTAMP - last_life_regen)) / 60 AS minutos
+       FROM users WHERE id = $1`,
       [req.user.id]
     );
     if (userRes.rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
 
     const user = userRes.rows[0];
-    const minutesSinceLast = (Date.now() - new Date(user.last_life_regen).getTime()) / 60000;
-    const livesToAdd = Math.floor(minutesSinceLast / 10); // 1 vida cada 10 minutos
+    const minutesSinceLast = Number(user.minutos) || 0;
+    const livesToAdd = Math.floor(minutesSinceLast / MINUTOS_POR_VIDA);
 
-    if (livesToAdd > 0 && user.lives < 5) {
-      const newLives = Math.min(user.lives + livesToAdd, 5);
+    if (livesToAdd > 0 && user.lives < VIDAS_MAX) {
+      const newLives = Math.min(user.lives + livesToAdd, VIDAS_MAX);
+      // Se avanza el reloj solo lo que se usó, para no perder los minutos sobrantes.
+      // Con las vidas llenas, el reloj ya no importa (lose-life lo reinicia).
       const updateRes = await pool.query(
-        'UPDATE users SET lives = $1, last_life_regen = CURRENT_TIMESTAMP WHERE id = $2 RETURNING lives',
-        [newLives, req.user.id]
+        `UPDATE users
+         SET lives = $1::int,
+             last_life_regen = CASE WHEN $1::int >= $4::int THEN LOCALTIMESTAMP
+                                    ELSE last_life_regen + make_interval(mins => $3::int) END
+         WHERE id = $2 AND lives = $5::int
+         RETURNING lives`,
+        [newLives, req.user.id, livesToAdd * MINUTOS_POR_VIDA, VIDAS_MAX, user.lives]
       );
-      return res.json({ lives: updateRes.rows[0].lives, regened: livesToAdd });
+      if (updateRes.rows.length === 0) {
+        // Otra petición cambió las vidas entretanto; se responde con el valor actual
+        const actual = await pool.query('SELECT lives FROM users WHERE id = $1', [req.user.id]);
+        return res.json({ lives: actual.rows[0]?.lives ?? user.lives, regened: 0 });
+      }
+      return res.json({ lives: updateRes.rows[0].lives, regened: newLives - user.lives });
     }
 
     res.json({ lives: user.lives, regened: 0 });
