@@ -6,11 +6,12 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
   IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent,
-  IonProgressBar, IonBackButton, IonInput, AlertController
+  IonProgressBar, IonBackButton, IonInput, IonFooter, AlertController
 } from '@ionic/angular/standalone';
 import { AVATARES, imagenAvatar } from '../avatars';
 import { CompaneroComponent } from '../companero/companero.component';
 import { EstadoCompanero, FRASES, PiezaConfeti, crearConfeti, fraseAlAzar } from '../companero';
+import { enlaceReporte } from '../version';
 import { LETRAS_ESPECIALES, nombreGrafemario, normalizarRespuesta } from '../escritura';
 
 @Component({
@@ -22,7 +23,7 @@ import { LETRAS_ESPECIALES, nombreGrafemario, normalizarRespuesta } from '../esc
     CommonModule, FormsModule, RouterLink,
     IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
     IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent,
-    IonProgressBar, IonBackButton, IonInput, CompaneroComponent
+    IonProgressBar, IonBackButton, IonInput, IonFooter, CompaneroComponent
   ]
 })
 export class HomePage implements OnInit {
@@ -98,6 +99,15 @@ export class HomePage implements OnInit {
   get progreso() {
     if (this.ejercicios.length === 0) return 0;
     return this.currentIndex / this.ejercicios.length;
+  }
+
+  // Correo de reporte con la pregunta ya identificada, para revisar el contenido
+  get enlaceReporteEjercicio(): string {
+    const e = this.ejercicioActual;
+    if (!e) return enlaceReporte();
+    return enlaceReporte(
+      `Unidad ${this.unitId} · Etapa ${this.stage} · Ejercicio #${e.id}\nPregunta: ${e.question}\nRespuesta esperada: ${e.correct_answer ?? '(emparejar)'}`
+    );
   }
 
   get grafemarioActual(): string {
@@ -293,7 +303,7 @@ export class HomePage implements OnInit {
 
       } else {
         this.playWrongSound();
-        this.reaccionar('animando');
+        this.reaccionar('animando', FRASES.animando);
       }
       this.selectedLeft = null;
       this.selectedRight = null;

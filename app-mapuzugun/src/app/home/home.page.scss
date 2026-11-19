@@ -328,6 +328,19 @@ ion-card ion-button.btn-accion {
   letter-spacing: 1px;
 }
 
+ion-footer ion-button.btn-accion {
+  --background: var(--mapu-degradado);
+  --color: #fff;
+  --border-radius: 14px;
+  --box-shadow: 0 6px 14px rgba(91, 42, 134, 0.3);
+  margin: 0;
+  height: 52px;
+  font-size: 1.1em;
+  font-weight: 800 !important;
+  letter-spacing: 1px;
+}
+
+ion-footer ion-button.btn-accion.btn-continuar,
 ion-card ion-button.btn-accion.btn-continuar {
   --background: var(--mapu-sol);
   --color: #2A1640;
@@ -335,6 +348,7 @@ ion-card ion-button.btn-accion.btn-continuar {
 }
 
 /* Desactivado (todavía no eligió respuesta): se ve, pero apagado */
+ion-footer ion-button.btn-accion[disabled],
 ion-card ion-button.btn-accion[disabled] {
   --background: #DCCFEA;
   --color: #5B2A86;
@@ -346,12 +360,11 @@ ion-card ion-button.btn-accion[disabled] {
    COMPAÑERO VIVO: reacciona en cada pregunta y celebra al final.
    Con "reducir movimiento" activado no hay animaciones.
    ===================================================================== */
-.companero-leccion {
+.companero-arriba {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 10px;
-  min-height: 92px;
-  padding: 4px 20px 0;
+  margin: 0 0 16px;
   text-align: left;
 }
 
@@ -366,7 +379,8 @@ ion-card ion-button.btn-accion[disabled] {
 
 .companero-burbuja {
   position: relative;
-  margin-bottom: 10px;
+  flex: 1;
+  margin-top: 4px;
   padding: 10px 14px;
   border-radius: 16px;
   background: #FFF4DA;
@@ -388,7 +402,7 @@ ion-card ion-button.btn-accion[disabled] {
     content: '';
     position: absolute;
     left: -9px;
-    bottom: 14px;
+    top: 18px;
     border-top: 7px solid transparent;
     border-bottom: 7px solid transparent;
     border-right: 8px solid #FFB703;
@@ -399,6 +413,72 @@ ion-card ion-button.btn-accion[disabled] {
     border-color: #1E7D47;
     &::before { border-right-color: #1E7D47; }
   }
+
+  &.error {
+    background: #FBE9E6;
+    border-color: #C8303D;
+    &::before { border-right-color: #C8303D; }
+  }
+
+  .resultado {
+    display: block;
+    font-weight: 800;
+    font-size: 17px;
+  }
+
+  .respuesta-correcta {
+    display: block;
+    margin-top: 4px;
+    b { color: #8B2E2E; }
+  }
+
+  .nota {
+    display: block;
+    margin-top: 6px;
+    font-style: italic;
+    font-size: 15px;
+  }
+}
+
+/* Pie fijo con el botón principal */
+.pie-accion {
+  padding: 12px 16px calc(12px + var(--ion-safe-area-bottom, 0px));
+  background: rgba(255, 249, 238, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 -4px 14px rgba(42, 22, 64, 0.12);
+}
+
+.pista-match {
+  margin: 0;
+  text-align: center;
+  color: #4F5D6E;
+  font-size: 1em;
+  font-weight: bold;
+}
+
+.etiqueta-revision {
+  background: #FFF1D1;
+  color: #7A4A00;
+}
+
+/* Banderita para reportar, en la esquina de la tarjeta */
+ion-card-header { position: relative; }
+
+.btn-reporte {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid #E5D9F2;
+  font-size: 18px;
+  text-decoration: none;
 }
 
 /* Fin de la etapa y sin Newen */
@@ -468,4 +548,9 @@ ion-card { position: relative; }
   .companero-burbuja,
   .zzz { animation: none; }
   .confeti { display: none; }
+}
+
+/* Que el título no choque con la banderita */
+ion-card-header ion-card-title {
+  padding: 0 34px;
 }

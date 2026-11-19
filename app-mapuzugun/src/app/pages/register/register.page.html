@@ -1,6 +1,6 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="barra-kimanke">
-    <ion-title class="ion-text-center" style="font-weight: 800;">Kimanke</ion-title>
+    <ion-title class="ion-text-center" style="font-weight: 800;">Kimanke <span class="etiqueta-beta">beta</span></ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -11,8 +11,8 @@
     <div class="textile-band"></div>
 
     <div class="login-hero">
-      <h1 class="login-greeting">Crea tu cuenta</h1>
-      <p class="login-tagline">Paso {{ paso }} de 2</p>
+      <h1 class="login-greeting">{{ paso === 3 ? '¡Cuenta creada!' : 'Crea tu cuenta' }}</h1>
+      <p class="login-tagline" *ngIf="paso < 3">Paso {{ paso }} de 2</p>
     </div>
 
     <ion-card class="login-card">
@@ -91,9 +91,26 @@
         </ion-card-content>
       </ng-container>
 
+      <!-- PASO 3: TU COMPAÑERO SE PRESENTA -->
+      <ng-container *ngIf="paso === 3 && avatarElegido">
+        <ion-card-content class="presentacion">
+          <button type="button" class="presentacion-companero" (click)="saludar()"
+            [attr.aria-label]="'Tocar a ' + avatarElegido.nombre">
+            <app-companero [avatarId]="avatarElegido.id" [estado]="estadoCompanero" [tamano]="170"></app-companero>
+          </button>
+          <div class="presentacion-burbuja" role="status" aria-live="polite">
+            <p class="presentacion-hola">¡Mari mari, {{ nombreUsuario }}!</p>
+            <p>{{ avatarElegido.presentacion }}</p>
+            <p>Te voy a acompañar en cada lección: celebraré tus aciertos y te daré ánimo cuando cueste.
+              ¡Tócame cuando quieras!</p>
+          </div>
+          <ion-button expand="block" class="btn-principal" (click)="empezar()">¡VAMOS!</ion-button>
+        </ion-card-content>
+      </ng-container>
+
     </ion-card>
 
-    <div class="ion-text-center">
+    <div class="ion-text-center" *ngIf="paso < 3">
       <ion-button fill="clear" class="btn-cambio" routerLink="/login">
         ¿Ya tienes cuenta? Inicia sesión
       </ion-button>

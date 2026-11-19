@@ -51,6 +51,8 @@
 
   <!-- CONTADOR DE PROGRESO + RACHA -->
   <div *ngIf="!loading && !errorCarga && unidades.length > 0" class="progress-summary">
+    <button type="button" class="etiqueta-beta beta-mapa" (click)="irAAcerca()"
+      aria-label="Versión beta: ver detalles en Acerca de Kimanke">beta</button>
     <p>Has completado <strong>{{ completadas }}</strong> de <strong>{{ totalUnidades }}</strong> unidades</p>
     <div class="progress-bar-container">
       <div class="progress-bar-fill" [style.width.%]="(completadas / totalUnidades) * 100"></div>

@@ -18,6 +18,19 @@
         quienes hablan y enseñan la lengua son parte del proyecto.</p>
     </section>
 
+    <section class="seccion-beta">
+      <h2><span class="icono">🧪</span>Versión de prueba</h2>
+      <p>Estás usando Kimanke <strong>{{ version }}</strong>. Es una versión de prueba: todavía estamos ajustando la app
+        y el contenido se está revisando con hablantes, así que puede haber errores.</p>
+      <p>Si algo no funciona, se ve mal o una palabra está incorrecta, cuéntanos. En cada pregunta también puedes tocar
+        la banderita 🚩 de la esquina.</p>
+      <div class="contactos">
+        <a class="boton-contacto correo" [href]="reporte">🚩 Reportar un problema</a>
+        <a class="boton-contacto whatsapp" [href]="'https://wa.me/' + whatsapp" target="_blank" rel="noopener">💬
+          Por WhatsApp</a>
+      </div>
+    </section>
+
     <section>
       <h2><span class="icono">🤝</span>Nuestro acuerdo</h2>
       <p>Esto es lo que Kimanke promete y lo que pide a quien aprende. Lo aceptaste al empezar.</p>
@@ -143,5 +156,6 @@
       <p class="dato-contacto">ga.ed.gonzalezs&#64;gmail.com · +56 9 9811 7750</p>
     </section>
 
+    <p class="version-pie">Kimanke {{ version }}</p>
   </article>
 </ion-content>

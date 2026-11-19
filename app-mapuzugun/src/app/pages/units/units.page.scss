@@ -6,6 +6,7 @@
 
 /* === CONTADOR DE PROGRESO (vidrio) === */
 .progress-summary {
+  position: relative;
   background-color: rgba(255, 255, 255, 0.50);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -389,4 +390,14 @@
 
 @media (prefers-reduced-motion: reduce) {
   .companero-mapa.llegando { animation: none; }
+}
+
+/* Etiqueta beta en la esquina del resumen (en la barra no cabe junto al usuario) */
+.beta-mapa {
+  position: absolute;
+  top: -9px;
+  right: 14px;
+  border: 0;
+  font-size: 11px;
+  cursor: pointer;
 }

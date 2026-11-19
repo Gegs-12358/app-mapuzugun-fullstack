@@ -323,3 +323,26 @@ ion-progress-bar.progreso-etapa {
   --background: rgba(255, 183, 3, 0.25);
   --progress-background: var(--mapu-sol);
 }
+
+/* Etiqueta "beta": la app está en prueba */
+.etiqueta-beta {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--mapu-sol);
+  color: #2A1640;
+  font-size: 0.6em;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  vertical-align: middle;
+  text-shadow: none;
+  box-shadow: 0 0 0 2px #3B1A5E;
+}
+
+/* En la barra el título es grande: la etiqueta va más chica y un poco arriba */
+ion-toolbar.barra-kimanke ion-title .etiqueta-beta {
+  font-size: 12px;
+  padding: 2px 8px;
+  vertical-align: super;
+}

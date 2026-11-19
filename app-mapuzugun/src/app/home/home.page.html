@@ -155,6 +155,8 @@
     class="ion-margin-top" style="border: 3px solid #5B2A86; overflow: hidden;">
 
     <ion-card-header>
+      <a class="btn-reporte" [href]="enlaceReporteEjercicio" title="Reportar un problema con esta pregunta"
+        aria-label="Reportar un problema con esta pregunta">🚩</a>
       <p *ngIf="ejercicioActual.isReview"
         style="color: #A85E4A; font-size: 14px; font-weight: bold; text-align: center; margin-bottom: 5px;">
         🔄 Pregunta de repaso
@@ -171,25 +173,31 @@
           [attr.title]="ejercicioActual.variante === 'General' ? 'Se usa en distintos territorios' : 'Territorio o variante de esta palabra'">
           📍 {{ ejercicioActual.variante === 'General' ? 'Uso general' : ejercicioActual.variante }}
         </span>
+        <span *ngIf="ejercicioActual.estado !== 'aprobado'" class="etiqueta etiqueta-revision"
+          title="Este contenido todavía no lo revisa un hablante">⚠️ En revisión</span>
       </div>
-      <p *ngIf="ejercicioActual.estado !== 'aprobado'" class="ion-text-center"
-        style="margin: 4px 0 0; font-size: 14px; font-weight: 700; color: #7A4A00;">
-        ⚠️ Contenido en revisión
-      </p>
     </ion-card-header>
 
     <ion-card-content class="ion-text-center">
 
-      <!-- FEEDBACK: solo aparece después de responder -->
-      <div *ngIf="isAnswered" [ngClass]="{ 'bg-green': isCorrect, 'bg-red': !isCorrect }" class="nota-cultural">
-        <p style="font-weight: bold; margin-bottom: 6px; font-size: 1.15em;">
-          {{ isCorrect ? '¡Correcto! Muy bien.' : '¡Casi! La respuesta correcta era: ' + ejercicioActual.correct_answer
-          }}
-        </p>
-        <p *ngIf="ejercicioActual?.cultural_note"
-          style="font-size: 1em; opacity: 1; font-style: italic; line-height: 1.4;">
-          {{ ejercicioActual.cultural_note }}
-        </p>
+      <!-- COMPAÑERO + RESPUESTA: arriba, para no tener que bajar a buscarla -->
+      <div class="companero-arriba">
+        <button type="button" class="companero-btn" (click)="tocarCompanero()"
+          [attr.aria-label]="'Tocar a ' + nombreCompanero">
+          <app-companero [avatarId]="avatarId" [estado]="estadoCompanero" [tamano]="76"></app-companero>
+        </button>
+        <div class="companero-burbuja" role="status" aria-live="polite"
+          [ngClass]="isAnswered ? (isCorrect ? 'feliz' : 'error') : tonoFrase">
+          <strong>{{ nombreCompanero }}</strong>
+          <ng-container *ngIf="isAnswered; else charla">
+            <span class="resultado">{{ isCorrect ? '¡Correcto! ' + fraseCompanero : fraseCompanero }}</span>
+            <span *ngIf="!isCorrect" class="respuesta-correcta">
+              La respuesta era: <b>{{ ejercicioActual.correct_answer }}</b>
+            </span>
+            <span *ngIf="ejercicioActual?.cultural_note" class="nota">{{ ejercicioActual.cultural_note }}</span>
+          </ng-container>
+          <ng-template #charla><span>{{ fraseCompanero || '¡Aquí estoy contigo!' }}</span></ng-template>
+        </div>
       </div>
 
       <!-- BOTÓN DE AUDIO (Oculto en modo Match y si no hay URL) -->
@@ -273,30 +281,20 @@
 
     </ion-card-content>
 
-    <div class="companero-leccion">
-      <button type="button" class="companero-btn" (click)="tocarCompanero()"
-        [attr.aria-label]="'Tocar a ' + nombreCompanero">
-        <app-companero [avatarId]="avatarId" [estado]="estadoCompanero" [tamano]="84"></app-companero>
-      </button>
-      <div *ngIf="fraseCompanero" class="companero-burbuja" [ngClass]="tonoFrase" role="status" aria-live="polite">
-        <strong>{{ nombreCompanero }}</strong>
-        <span>{{ fraseCompanero }}</span>
-      </div>
-    </div>
-
-    <div style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.5); background-color: rgba(255,255,255,0.25);">
-      <!-- BOTÓN COMPROBAR (Se oculta en modo match hasta que se completen las parejas) -->
-      <ion-button *ngIf="ejercicioActual.type !== 'match' || isAnswered" expand="block"
-        (click)="isAnswered ? nextExercise() : checkAnswer()"
-        [disabled]="(ejercicioActual.type === 'multiple_choice' && !selectedOption && !isAnswered) || ((ejercicioActual.type === 'write' || ejercicioActual.type === 'fill_blank') && !writtenAnswer && !isAnswered)"
-        class="btn-accion" [class.btn-continuar]="isAnswered">
-        {{ isAnswered ? (currentIndex === ejercicios.length - 1 ? 'FINALIZAR' : 'CONTINUAR') : 'COMPROBAR' }}
-      </ion-button>
-
-      <p *ngIf="ejercicioActual.type === 'match' && !isAnswered"
-        style="text-align: center; color: #4F5D6E; font-size: 1em; margin-top: 10px; font-weight: bold;">
-        Une todas las parejas para continuar
-      </p>
-    </div>
   </ion-card>
 </ion-content>
+
+<!-- BOTÓN PRINCIPAL: fijo abajo, siempre a la vista -->
+<ion-footer *ngIf="!loading && !leccionTerminada && !gameOver && ejercicioActual && !mostrarPortada"
+  class="ion-no-border pie-accion">
+  <!-- COMPROBAR se oculta en modo match hasta que se completen las parejas -->
+  <ion-button *ngIf="ejercicioActual.type !== 'match' || isAnswered" expand="block"
+    (click)="isAnswered ? nextExercise() : checkAnswer()"
+    [disabled]="(ejercicioActual.type === 'multiple_choice' && !selectedOption && !isAnswered) || ((ejercicioActual.type === 'write' || ejercicioActual.type === 'fill_blank') && !writtenAnswer && !isAnswered)"
+    class="btn-accion" [class.btn-continuar]="isAnswered">
+    {{ isAnswered ? (currentIndex === ejercicios.length - 1 ? 'FINALIZAR' : 'CONTINUAR') : 'COMPROBAR' }}
+  </ion-button>
+  <p *ngIf="ejercicioActual.type === 'match' && !isAnswered" class="pista-match">
+    Une todas las parejas para continuar
+  </p>
+</ion-footer>
