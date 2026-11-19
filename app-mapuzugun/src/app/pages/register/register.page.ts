@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -9,6 +9,7 @@ import {
   IonItem, IonInput, IonButton, IonSpinner
 } from '@ionic/angular/standalone';
 import { AVATARES } from '../../avatars';
+import { CompaneroComponent, EstadoVisual } from '../../companero/companero.component';
 
 @Component({
   selector: 'app-register',
@@ -19,11 +20,14 @@ import { AVATARES } from '../../avatars';
     CommonModule, FormsModule, RouterLink,
     IonHeader, IonToolbar, IonTitle, IonContent,
     IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,
-    IonItem, IonInput, IonButton, IonSpinner
+    IonItem, IonInput, IonButton, IonSpinner, CompaneroComponent
   ]
 })
-export class RegisterPage {
-  paso: 1 | 2 = 1;
+export class RegisterPage implements OnDestroy {
+  paso: 1 | 2 | 3 = 1;
+  nombreUsuario = '';
+  estadoCompanero: EstadoVisual = 'quieto';
+  private temporizadores: any[] = [];
   avatares = AVATARES;
   avatar: string | null = null;
   username = '';
@@ -33,6 +37,26 @@ export class RegisterPage {
   errorMsg = '';
 
   constructor(private http: HttpClient, private router: Router) {}
+
+  ngOnDestroy() {
+    this.temporizadores.forEach(t => clearTimeout(t));
+  }
+
+  // El compañero saluda: se pasa por 'quieto' para que la animación se repita
+  saludar(estado: EstadoVisual = 'saltito') {
+    this.estadoCompanero = 'quieto';
+    this.temporizadores.push(setTimeout(() => this.estadoCompanero = estado, 30));
+  }
+
+  private presentar() {
+    this.paso = 3;
+    this.saludar('saltito');
+    this.temporizadores.push(setTimeout(() => this.saludar('feliz'), 1600));
+  }
+
+  empezar() {
+    this.router.navigateByUrl('/units', { replaceUrl: true });
+  }
 
   get avatarElegido() {
     return this.avatares.find(a => a.id === this.avatar) || null;
@@ -85,7 +109,8 @@ export class RegisterPage {
         localStorage.setItem('mapu_token', token);
         localStorage.setItem('mapu_user', JSON.stringify(user));
         this.loading = false;
-        this.router.navigateByUrl('/units', { replaceUrl: true });
+        this.nombreUsuario = user.username ?? this.username.trim();
+        this.presentar();
       },
       error: (err) => {
         this.loading = false;
