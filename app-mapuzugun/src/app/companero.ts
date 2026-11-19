@@ -12,7 +12,7 @@ export const FRASES = {
     'Equivocarse también es aprender.',
     'Tranquilidad, la repasaremos más adelante.',
   ],
-  toque: ['¡Hola!', '¡Me hiciste cosquillas!', 'Aprendamos juntos.', '¡Vamos, vamos!'],
+  toque: ['¡Hola!', '¡Mari mari!', 'Aprendamos juntos.', '¡Vamos, vamos!'],
 };
 
 export function fraseAlAzar(lista: string[], anterior = ''): string {

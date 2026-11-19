@@ -13,6 +13,7 @@ import { CompaneroComponent, EstadoVisual } from '../../companero/companero.comp
 
 const CLAVE_UNIDAD_COMPANERO = 'kimanke_companero_unidad';
 
+import { IconoRecursoComponent } from '../../icono-recurso/icono-recurso.component';
 @Component({
   selector: 'app-units',
   templateUrl: './units.page.html',
@@ -20,7 +21,7 @@ const CLAVE_UNIDAD_COMPANERO = 'kimanke_companero_unidad';
   standalone: true,
   imports: [
     CommonModule, IonHeader, IonToolbar, IonTitle, IonContent,
-    IonIcon, IonButtons, IonButton, CompaneroComponent
+    IonIcon, IonButtons, IonButton, CompaneroComponent, IconoRecursoComponent
   ]
 })
 export class UnitsPage implements OnInit {

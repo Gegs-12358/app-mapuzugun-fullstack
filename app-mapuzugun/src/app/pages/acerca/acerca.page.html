@@ -47,6 +47,17 @@
     </section>
 
     <section>
+      <h2><span class="icono">🔤</span>Las palabras del juego</h2>
+      <p>Lo que ganas en Kimanke tiene nombre en mapuzugun:</p>
+      <ul class="lista-recursos">
+        <li *ngFor="let r of recursos">
+          <app-icono-recurso [nombre]="r.id" [tamano]="30"></app-icono-recurso>
+          <span><strong>{{ r.palabra }}</strong> ({{ r.significado }}): {{ r.uso }}</span>
+        </li>
+      </ul>
+    </section>
+
+    <section>
       <h2><span class="icono">✍️</span>Sobre la escritura y las variantes</h2>
       <p>Las lecciones usan el <strong>grafemario {{ grafemario }}</strong>. Un grafemario es la forma de escribir los
         sonidos del mapuzugun con letras. Existen varios, como el Unificado, el Azümchefe y el Raguileo, y cada uno

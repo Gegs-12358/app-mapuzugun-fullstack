@@ -210,3 +210,66 @@
   font-size: 22px;
   line-height: 1.2;
 }
+
+/* ===== Cómo funciona ===== */
+.pantalla-guia {
+  justify-content: flex-start;
+  padding-top: 32px;
+
+  h3 {
+    margin: 6px 0 0;
+    color: #FFF4DA;
+    font-size: 19px;
+    font-weight: 800;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  }
+}
+
+.recursos,
+.ayudas {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 16px;
+    background: rgba(255, 244, 218, 0.94);
+    color: #2A1640;
+  }
+
+  p { margin: 2px 0 0; font-size: 14px; line-height: 1.4; }
+}
+
+.recursos {
+  strong { font-size: 17px; color: #A61E2C; }
+  em { font-size: 14px; color: #5B2A86; }
+}
+
+.ayudas {
+  li { background: rgba(91, 42, 134, 0.55); color: #FFF4DA; border: 1px solid rgba(255, 244, 218, 0.25); }
+  p { margin: 0; }
+  strong { color: #FFD166; }
+}
+
+.ayuda-icono {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 244, 218, 0.95);
+  font-size: 18px;
+
+  &.letra { color: #5B2A86; font-size: 22px; font-weight: 900; }
+}
