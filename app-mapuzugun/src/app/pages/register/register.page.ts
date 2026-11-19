@@ -6,8 +6,9 @@ import { Router, RouterLink } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent,
   IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent,
-  IonItem, IonInput, IonButton, IonSpinner
+  IonItem, IonInput, IonButton, IonSpinner, Platform
 } from '@ionic/angular/standalone';
+import { Subscription } from 'rxjs';
 import { AVATARES } from '../../avatars';
 import { CompaneroComponent, EstadoVisual } from '../../companero/companero.component';
 
@@ -28,6 +29,7 @@ export class RegisterPage implements OnDestroy {
   nombreUsuario = '';
   estadoCompanero: EstadoVisual = 'quieto';
   private temporizadores: any[] = [];
+  private botonAtras?: Subscription;
   avatares = AVATARES;
   avatar: string | null = null;
   username = '';
@@ -36,10 +38,18 @@ export class RegisterPage implements OnDestroy {
   loading = false;
   errorMsg = '';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router, private platform: Platform) {
+    // Botón o gesto «atrás» de Android: del paso 2 vuelve al 1; con la cuenta ya creada, va al mapa
+    this.botonAtras = this.platform.backButton.subscribeWithPriority(10, siguiente => {
+      if (this.paso === 2) this.volver();
+      else if (this.paso === 3) this.empezar();
+      else siguiente();
+    });
+  }
 
   ngOnDestroy() {
     this.temporizadores.forEach(t => clearTimeout(t));
+    this.botonAtras?.unsubscribe();
   }
 
   // El compañero saluda: se pasa por 'quieto' para que la animación se repita
