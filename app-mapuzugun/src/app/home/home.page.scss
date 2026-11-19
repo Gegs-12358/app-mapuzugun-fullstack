@@ -269,3 +269,46 @@ ion-card ion-button.btn-comenzar {
   font-weight: 800;
   letter-spacing: 0.5px;
 }
+
+/* ===== Grafemario y variante de la palabra ===== */
+.etiquetas-escritura {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.etiqueta {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #EEF2F6;
+  color: #1F3A60;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ===== Letras que no están en el teclado (ü) ===== */
+.letras-especiales {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.btn-letra {
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 2px solid #A9BCCB;
+  border-radius: 12px;
+  background: #fff;
+  color: #1F3A60;
+  font-size: 1.4em;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.btn-letra:active {
+  background: #EEF2F6;
+}

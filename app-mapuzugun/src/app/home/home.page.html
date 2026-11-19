@@ -151,6 +151,13 @@
       <p class="ion-text-center" style="font-size: 14px; color: #3F4F63; font-weight: 700;">
         Etapa {{ stage }} · Pregunta {{ currentIndex + 1 }} de {{ ejercicios.length }}
       </p>
+      <div class="etiquetas-escritura">
+        <span class="etiqueta" title="Alfabeto con que está escrita la palabra">✍️ Grafemario {{ grafemarioActual }}</span>
+        <span *ngIf="ejercicioActual.variante" class="etiqueta"
+          [attr.title]="ejercicioActual.variante === 'General' ? 'Se usa en distintos territorios' : 'Territorio o variante de esta palabra'">
+          📍 {{ ejercicioActual.variante === 'General' ? 'Uso general' : ejercicioActual.variante }}
+        </span>
+      </div>
       <p *ngIf="ejercicioActual.estado !== 'aprobado'" class="ion-text-center"
         style="margin: 4px 0 0; font-size: 14px; font-weight: 700; color: #7A4A00;">
         ⚠️ Contenido en revisión
@@ -197,6 +204,10 @@
         <ion-input [(ngModel)]="writtenAnswer" [disabled]="isAnswered" placeholder="Escribe tu respuesta aquí..."
           style="border: 2px solid #A9BCCB; border-radius: 12px; padding: 15px; font-size: 1.25em; color: #1F3A60; font-weight: bold; background-color: white;">
         </ion-input>
+        <div class="letras-especiales" *ngIf="!isAnswered">
+          <button *ngFor="let letra of letrasEspeciales" type="button" class="btn-letra"
+            (click)="insertarLetra(letra)" [attr.aria-label]="'Escribir la letra ' + letra">{{ letra }}</button>
+        </div>
       </div>
 
       <!-- NUEVO: MODO COMPLETAR LA FRASE (FILL BLANK) -->
@@ -207,6 +218,10 @@
         <ion-input [(ngModel)]="writtenAnswer" [disabled]="isAnswered" placeholder="Escribe la palabra que falta..."
           style="border: 2px solid #A9BCCB; border-radius: 12px; padding: 15px; font-size: 1.25em; color: #1F3A60; font-weight: bold; background-color: white;">
         </ion-input>
+        <div class="letras-especiales" *ngIf="!isAnswered">
+          <button *ngFor="let letra of letrasEspeciales" type="button" class="btn-letra"
+            (click)="insertarLetra(letra)" [attr.aria-label]="'Escribir la letra ' + letra">{{ letra }}</button>
+        </div>
       </div>
 
       <!-- MODO EMPAREJAMIENTO (MATCH) -->

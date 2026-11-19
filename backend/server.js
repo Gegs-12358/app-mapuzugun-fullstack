@@ -254,7 +254,7 @@ app.get('/api/exercises', async (req, res) => {
 
   try {
     let query = `SELECT id, unit_id, stage, type, question, correct_answer, options,
-                        audio_url, cultural_note, estado
+                        audio_url, cultural_note, estado, grafemario, variante
                  FROM exercises WHERE unit_id = $1 AND ${soloAprobado()}`;
     const params = [unitId];
     if (stage !== null) {

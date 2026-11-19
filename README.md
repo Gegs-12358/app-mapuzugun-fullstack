@@ -14,7 +14,10 @@ Kimanke es un apoyo educativo sin fines comerciales. Nada de lo que enseña debe
 - La app no usa símbolos sagrados (como el kultrun y su cruz) sin autorización de la comunidad.
 - Los compañeros que acompañan a quien aprende tienen nombres inventados para el proyecto, y la app lo aclara: no son palabras del mapuzugun.
 
-Quedan por definir con hablantes: la ortografía y el significado del nombre "Kimanke", el grafemario que se usará en las lecciones y los nombres de las estadísticas del juego (Kütral, Kimün, Llanka y Newen son provisorios).
+- Las lecciones usan el **grafemario Unificado**, el que se usa en los cursos de quienes participan en el proyecto. Cada ejercicio guarda su grafemario (`unificado`, `azumchefe` o `raguileo`) para poder sumar otros más adelante.
+- Cada palabra puede indicar su **variante territorial** (columna `variante`, por ejemplo `Lafkenche`, o `General` si se usa en todos lados). La indica quien aporta la palabra o el audio, no se supone.
+
+Quedan por definir con hablantes: la ortografía y el significado del nombre "Kimanke" y los nombres de las estadísticas del juego (Kütral, Kimün, Llanka y Newen son provisorios).
 
 ## Qué hace hoy
 
@@ -90,6 +93,12 @@ INSERT INTO stages (unit_id, stage, title) VALUES (1, 1, 'Etapa de ejemplo');
 INSERT INTO exercises (unit_id, stage, type, question, correct_answer, options)
 VALUES (1, 1, 'multiple_choice', 'Pregunta de ejemplo', 'Opción A',
         '["Opción A", "Opción B", "Opción C", "Opción D"]');
+```
+
+Para indicar la variante de una palabra (según quien la aportó):
+
+```sql
+UPDATE exercises SET variante = 'Lafkenche' WHERE id = 1;
 ```
 
 Cuando un hablante revise un ejercicio, se aprueba así:
