@@ -1,6 +1,6 @@
-<ion-content class="intro-content">
+<ion-content class="intro-content" (touchstart)="inicioToque($event)" (touchend)="finToque($event)">
 
-  <div class="pantalla" *ngIf="mostrar && paso === 1">
+  <div class="pantalla" [ngClass]="direccion" *ngIf="mostrar && paso === 1">
     <button type="button" class="enlace omitir" (click)="yaTengoCuenta()">Omitir</button>
 
     <img class="intro-ilustracion flota" src="assets/img/portada.webp" width="700" height="933"
@@ -17,7 +17,8 @@
     <ion-button expand="block" class="btn-intro" (click)="irA(2)">SIGUIENTE</ion-button>
   </div>
 
-  <div class="pantalla" *ngIf="mostrar && paso === 2">
+  <div class="pantalla" [ngClass]="direccion" *ngIf="mostrar && paso === 2">
+    <button type="button" class="enlace btn-atras" (click)="atras()" aria-label="Volver a la pantalla anterior">‹ Atrás</button>
     <h2>Conoce a tus compañeros</h2>
 
     <div class="companeros">
@@ -36,7 +37,8 @@
     <ion-button expand="block" class="btn-intro" (click)="irA(3)">SIGUIENTE</ion-button>
   </div>
 
-  <div class="pantalla pantalla-guia" *ngIf="mostrar && paso === 3">
+  <div class="pantalla pantalla-guia" [ngClass]="direccion" *ngIf="mostrar && paso === 3">
+    <button type="button" class="enlace btn-atras" (click)="atras()" aria-label="Volver a la pantalla anterior">‹ Atrás</button>
     <h2>Cómo funciona</h2>
     <p class="intro-texto">En Kimanke, lo que ganas tiene nombre en mapuzugun. Ya vas a aprender tus primeras cuatro
       palabras:</p>
@@ -70,7 +72,9 @@
     <button type="button" class="enlace" (click)="yaTengoCuenta()">Ya tengo cuenta</button>
   </div>
 
-  <div class="pantalla pantalla-acuerdo" *ngIf="mostrar && paso === 4">
+  <div class="pantalla pantalla-acuerdo" [ngClass]="direccion" *ngIf="mostrar && paso === 4">
+    <button *ngIf="pasoMinimo < 4" type="button" class="enlace btn-atras" (click)="atras()"
+      aria-label="Volver a la pantalla anterior">‹ Atrás</button>
     <h2>Nuestro acuerdo</h2>
     <p class="intro-texto">Antes de empezar, esto es lo que Kimanke promete y lo que te pide.</p>
 
