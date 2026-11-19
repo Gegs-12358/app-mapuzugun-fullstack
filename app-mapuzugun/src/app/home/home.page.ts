@@ -26,6 +26,7 @@ export class HomePage implements OnInit {
   ejercicios: any[] = [];
   currentIndex = 0;
   loading = true;
+  errorCarga = false;
 
   // Variables del juego
   xp = 0;
@@ -153,33 +154,39 @@ export class HomePage implements OnInit {
     });
 
     // Cargar Ejercicios
-    if (this.unitId) {
-      this.http.get<any[]>(`/api/exercises?unitId=${this.unitId}&stage=${this.stage}`).subscribe({
-        next: (data) => {
-          this.ejercicios = this.shuffleArray(data).map(ejercicio => {
-            if (typeof ejercicio.options === 'string') {
-              try { ejercicio.options = JSON.parse(ejercicio.options); } catch (e) { }
-            }
+    this.cargarEjercicios();
+  }
 
-            // Detectar si es match
-            if (Array.isArray(ejercicio.options) && ejercicio.options.length > 0) {
-              if (ejercicio.options[0].mapuche !== undefined) {
-                ejercicio.type = 'match';
-              } else {
-                ejercicio.options = this.shuffleArray([...ejercicio.options]);
-              }
+  cargarEjercicios() {
+    if (!this.unitId) return;
+    this.loading = true;
+    this.errorCarga = false;
+    this.http.get<any[]>(`/api/exercises?unitId=${this.unitId}&stage=${this.stage}`).subscribe({
+      next: (data) => {
+        this.ejercicios = this.shuffleArray(data).map(ejercicio => {
+          if (typeof ejercicio.options === 'string') {
+            try { ejercicio.options = JSON.parse(ejercicio.options); } catch (e) { }
+          }
+
+          // Detectar si es match
+          if (Array.isArray(ejercicio.options) && ejercicio.options.length > 0) {
+            if (ejercicio.options[0].mapuche !== undefined) {
+              ejercicio.type = 'match';
+            } else {
+              ejercicio.options = this.shuffleArray([...ejercicio.options]);
             }
-            return ejercicio;
-          });
-          this.loading = false;
-          this.initMatchGame();
-        },
-        error: (err) => {
-          console.error('Error al conectar con el backend:', err);
-          this.loading = false;
-        }
-      });
-    }
+          }
+          return ejercicio;
+        });
+        this.loading = false;
+        this.initMatchGame();
+      },
+      error: (err) => {
+        console.error('Error al conectar con el backend:', err);
+        this.errorCarga = true;
+        this.loading = false;
+      }
+    });
   }
 
   initMatchGame() {

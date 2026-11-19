@@ -31,6 +31,13 @@
     Cargando...
   </div>
 
+  <div *ngIf="!loading && errorCarga" class="ion-text-center ion-margin-top" style="padding: 24px;" role="alert">
+    <p style="font-weight: 800; font-size: 1.1em; color: #1F3A60;">No pudimos cargar esta etapa</p>
+    <p style="color: #1F3A60;">Revisa tu conexión a internet e inténtalo de nuevo.</p>
+    <ion-button (click)="cargarEjercicios()" style="--background: #1F3A60; font-weight: bold;">Reintentar</ion-button>
+    <ion-button fill="clear" routerLink="/units" routerDirection="back" style="--color: #1F3A60; font-weight: bold;">Volver al mapa</ion-button>
+  </div>
+
   <!-- PANTALLA DE JUEGO TERMINADO (Sin Newen) -->
   <ion-card *ngIf="gameOver" class="ion-margin-top"
     style="border: 3px solid #F44336; text-align: center; padding: 20px;">

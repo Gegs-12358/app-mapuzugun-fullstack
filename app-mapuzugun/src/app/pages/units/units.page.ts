@@ -26,6 +26,7 @@ export class UnitsPage implements OnInit {
   etapas: any[] = [];            // { unit_id, stage, ejercicios, title, completed, score }
   unidadAbierta: number | null = null;
   loading = true;
+  errorCarga = false;
   username = '';
 
   avatares = AVATARES;
@@ -51,7 +52,12 @@ export class UnitsPage implements OnInit {
     }
 
     this.cargarRacha();
+    this.cargarUnidades();
+  }
 
+  cargarUnidades() {
+    this.loading = true;
+    this.errorCarga = false;
     this.http.get<any[]>('/api/units').subscribe({
       next: (data) => {
         this.unidadesTodas = data;
@@ -59,14 +65,21 @@ export class UnitsPage implements OnInit {
       },
       error: (err) => {
         console.error('Error al cargar unidades:', err);
+        this.errorCarga = true;
         this.loading = false;
       }
     });
   }
 
+  reintentar() {
+    this.cargarRacha();
+    this.cargarUnidades();
+  }
+
   // Se ejecuta cada vez que se vuelve a esta pantalla (por ejemplo, al terminar una lección)
   ionViewWillEnter() {
-    if (!this.loading) this.cargarEtapas();
+    if (this.errorCarga) this.cargarUnidades();
+    else if (!this.loading) this.cargarEtapas();
     this.cargarRacha();
   }
 
@@ -82,6 +95,7 @@ export class UnitsPage implements OnInit {
     this.http.get<any[]>('/api/stages').subscribe({
       next: (data) => {
         this.etapas = data;
+        this.errorCarga = false;
         // Solo se muestran las unidades que tienen etapas aprobadas
         this.unidades = this.unidadesTodas.filter(u => this.etapasDe(u.id).length > 0);
         this.loading = false;
@@ -90,6 +104,7 @@ export class UnitsPage implements OnInit {
       },
       error: (err) => {
         console.error('Error al cargar etapas:', err);
+        this.errorCarga = true;
         this.loading = false;
       }
     });
