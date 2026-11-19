@@ -10,7 +10,7 @@ export interface Avatar {
 
 export const AVATARES: Avatar[] = [
   { id: 'puma',      nombre: 'Pangipol', animal: 'Puma',               img: 'assets/avatars/puma.png' },
-  { id: 'aguila',    nombre: 'Manketor', animal: 'Cóndor',             img: 'assets/avatars/aguila.png' },
+  { id: 'aguila',    nombre: 'Manketor', animal: 'Cóndor',             img: 'assets/avatars/aguila.png', poses: true },
   { id: 'bandurria', nombre: 'Rakyfar',  animal: 'Bandurria',          img: 'assets/avatars/bandurria.png' },
   { id: 'monito',    nombre: 'Teutimos', animal: 'Monito del monte',   img: 'assets/avatars/monito.png' },
   { id: 'pudu',      nombre: 'Pudimel',  animal: 'Pudú',               img: 'assets/avatars/pudu.png', poses: true },
