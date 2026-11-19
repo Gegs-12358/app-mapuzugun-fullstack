@@ -92,8 +92,7 @@
       <div class="dato-burbuja">
         <p class="dato-titulo">SABÍAS QUE…</p>
         <p class="dato-texto">{{ notaCultural }}</p>
-        <!-- Quitar este aviso cuando un hablante valide las notas -->
-        <p class="dato-aviso">⚠️ Contenido en revisión</p>
+        <p *ngIf="notaEnRevision" class="dato-aviso">⚠️ Contenido en revisión</p>
       </div>
     </div>
 

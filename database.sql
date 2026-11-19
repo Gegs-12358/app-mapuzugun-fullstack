@@ -23,9 +23,23 @@ CREATE TABLE IF NOT EXISTS users (
 --     CHECK (avatar IN ('puma', 'aguila', 'bandurria', 'monito', 'pudu', 'ranita'));
 
 CREATE TABLE IF NOT EXISTS units (
-  id    SERIAL PRIMARY KEY,
-  title VARCHAR(100) NOT NULL
+  id                SERIAL PRIMARY KEY,
+  title             VARCHAR(100) NOT NULL,
+  -- Nota cultural ("Sabías que…") que se muestra al terminar una etapa de la unidad.
+  -- Sigue la misma regla que los ejercicios: solo se entrega si está aprobada.
+  nota_cultural     TEXT,
+  nota_estado       TEXT NOT NULL DEFAULT 'borrador'
+                    CHECK (nota_estado IN ('borrador', 'aprobado')),
+  nota_revisada_por TEXT,                       -- quién revisó (solo con su consentimiento)
+  nota_revisada_en  DATE
 );
+
+-- Si tu base ya existía sin las columnas de la nota cultural, agrégalas así:
+--   ALTER TABLE units ADD COLUMN IF NOT EXISTS nota_cultural TEXT;
+--   ALTER TABLE units ADD COLUMN IF NOT EXISTS nota_estado TEXT NOT NULL DEFAULT 'borrador'
+--     CHECK (nota_estado IN ('borrador', 'aprobado'));
+--   ALTER TABLE units ADD COLUMN IF NOT EXISTS nota_revisada_por TEXT;
+--   ALTER TABLE units ADD COLUMN IF NOT EXISTS nota_revisada_en DATE;
 
 CREATE TABLE IF NOT EXISTS exercises (
   id             SERIAL PRIMARY KEY,

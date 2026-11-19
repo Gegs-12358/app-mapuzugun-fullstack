@@ -100,6 +100,14 @@ SET estado = 'aprobado', revisado_por = 'nombre o iniciales acordadas', revisado
 WHERE unit_id = 1 AND stage = 1;
 ```
 
+Las notas culturales ("Sabías que…") de cada unidad siguen la misma regla: se guardan en la tabla `units` como borrador y solo se muestran cuando se aprueban:
+
+```sql
+UPDATE units
+SET nota_estado = 'aprobado', nota_revisada_por = 'nombre o iniciales acordadas', nota_revisada_en = CURRENT_DATE
+WHERE id = 1;
+```
+
 ## Seguridad
 
 - Contraseñas con `bcrypt` (mínimo 8 caracteres) y sesión con JWT de 7 días.
