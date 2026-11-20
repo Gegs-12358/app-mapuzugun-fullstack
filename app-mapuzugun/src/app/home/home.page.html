@@ -107,18 +107,18 @@
     </div>
     <h2 style="color: #5B2A86; font-weight: 900;">¡Lección Completada!</h2>
     <div class="celebracion">
-      <app-companero [avatarId]="avatarId" estado="celebra" [tamano]="150"
+      <app-companero [avatarId]="avatarId" estado="celebra" [tamano]="120"
         role="img" [attr.aria-label]="nombreCompanero + ' celebra contigo'"></app-companero>
       <p class="celebracion-frase">¡Lo hicimos juntos!</p>
     </div>
     <p class="ganado"><app-icono-recurso nombre="kimun" [tamano]="24"></app-icono-recurso>
-      Has ganado {{ xpGanado }} puntos de <strong>Kimün</strong> (conocimiento).</p>
+      <span>Has ganado {{ xpGanado }} puntos de <strong>Kimün</strong> (conocimiento).</span></p>
     <p *ngIf="gemasGanadas > 0" class="ganado"><app-icono-recurso nombre="llanka" [tamano]="24"></app-icono-recurso>
-      Y <strong>{{ gemasGanadas }} Llankas</strong> para recargar Newen.
+      <span>Y <strong>{{ gemasGanadas }} Llankas</strong> para recargar Newen.</span>
     </p>
 
-    <div *ngIf="notaCultural" class="dato">
-      <img [src]="avatarImg" alt="Tu compañero" class="dato-avatar">
+    <!-- El compañero ya celebra arriba: aquí la nota usa todo el ancho -->
+    <div *ngIf="notaCultural" class="dato dato-solo">
       <div class="dato-burbuja">
         <p class="dato-titulo">SABÍAS QUE…</p>
         <p class="dato-texto">{{ notaCultural }}</p>

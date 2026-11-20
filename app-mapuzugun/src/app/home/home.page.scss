@@ -112,6 +112,13 @@ ion-card ion-button {
   color: #A61E2C;
 }
 
+/* Sin avatar al lado: sin piquito y a todo el ancho */
+.dato-solo {
+  margin-top: 14px;
+
+  .dato-burbuja::before { display: none; }
+}
+
 .dato-texto {
   margin: 0;
   font-size: 16px;
@@ -241,7 +248,9 @@ ion-card ion-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
+  margin: 6px 0;
+  text-align: left;
   font-size: 1.1em;
   color: #333;
 }
@@ -578,7 +587,8 @@ ion-card { position: relative; }
 
 @keyframes caer {
   0%   { opacity: 1; transform: translateY(0) rotate(0); }
-  100% { opacity: 0.9; transform: translateY(520px) rotate(540deg); }
+  80%  { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(520px) rotate(540deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
