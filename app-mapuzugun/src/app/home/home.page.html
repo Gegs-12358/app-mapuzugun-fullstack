@@ -164,18 +164,19 @@
     class="ion-margin-top" style="border: 3px solid #5B2A86; overflow: hidden;">
 
     <ion-card-header>
-      <a class="btn-reporte" [href]="enlaceReporteEjercicio" title="Reportar un problema con esta pregunta"
-        aria-label="Reportar un problema con esta pregunta">🚩</a>
       <p *ngIf="ejercicioActual.isReview"
         style="color: #A85E4A; font-size: 14px; font-weight: bold; text-align: center; margin-bottom: 5px;">
         🔄 Pregunta de repaso
       </p>
-      <ion-card-title class="ion-text-center" style="color: #5B2A86; font-weight: 800;">
+      <!-- La pregunta, en su propio recuadro para que se destaque -->
+      <ion-card-title class="pregunta">
         {{ ejercicioActual.question }}
       </ion-card-title>
-      <p class="ion-text-center" style="font-size: 14px; color: #4B4560; font-weight: 700;">
-        Etapa {{ stage }} · Pregunta {{ currentIndex + 1 }} de {{ ejercicios.length }}
-      </p>
+      <div class="progreso-pregunta">
+        <span>Etapa {{ stage }} · Pregunta {{ currentIndex + 1 }} de {{ ejercicios.length }}</span>
+        <a class="btn-reporte" [href]="enlaceReporteEjercicio" title="Reportar un problema con esta pregunta"
+          aria-label="Reportar un problema con esta pregunta">🚩</a>
+      </div>
       <div class="etiquetas-escritura">
         <span class="etiqueta" title="Alfabeto con que está escrita la palabra">✍️ Grafemario {{ grafemarioActual }}</span>
         <span *ngIf="ejercicioActual.variante" class="etiqueta"

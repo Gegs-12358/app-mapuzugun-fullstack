@@ -327,12 +327,13 @@ ion-card ion-button.btn-comenzar {
 }
 
 .etiqueta {
-  padding: 4px 12px;
+  padding: 3px 9px;
   border-radius: 999px;
   background: #F1EAF9;
   color: #5B2A86;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 /* ===== Letras que no están en el teclado (ü) ===== */
@@ -429,8 +430,8 @@ ion-card ion-button.btn-accion[disabled] {
   margin-top: 4px;
   padding: 10px 14px;
   border-radius: 16px;
-  background: #FFF4DA;
-  border: 2px solid #FFB703;
+  background: #F1EAF9;
+  border: 2px solid #7B4FB0;
   color: #2A1640;
   font-size: 16px;
   line-height: 1.35;
@@ -440,7 +441,7 @@ ion-card ion-button.btn-accion[disabled] {
     display: block;
     font-size: 14px;
     font-weight: 800;
-    color: #A61E2C;
+    color: #5B2A86;
   }
 
   /* piquito hacia el compañero */
@@ -451,7 +452,7 @@ ion-card ion-button.btn-accion[disabled] {
     top: 18px;
     border-top: 7px solid transparent;
     border-bottom: 7px solid transparent;
-    border-right: 8px solid #FFB703;
+    border-right: 8px solid #7B4FB0;
   }
 
   &.feliz {
@@ -508,24 +509,6 @@ ion-card ion-button.btn-accion[disabled] {
   color: #7A4A00;
 }
 
-/* Banderita para reportar, en la esquina de la tarjeta */
-ion-card-header { position: relative; }
-
-.btn-reporte {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid #E5D9F2;
-  font-size: 18px;
-  text-decoration: none;
-}
 
 /* Fin de la etapa y sin Newen */
 .celebracion,
@@ -597,7 +580,42 @@ ion-card { position: relative; }
   .confeti { display: none; }
 }
 
-/* Que el título no choque con la banderita */
-ion-card-header ion-card-title {
-  padding: 0 34px;
+/* ===== La pregunta: recuadro sol para que sea lo primero que se lea ===== */
+ion-card-title.pregunta {
+  margin: 0 0 8px;
+  padding: 16px 18px;
+  border: 3px solid #FFB703;
+  border-radius: 18px;
+  background: #FFF1C7;
+  box-shadow: 0 6px 14px rgba(224, 155, 0, 0.25);
+  color: #2A1640;
+  font-size: 23px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.progreso-pregunta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 2px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #6B6480;
+}
+
+/* Banderita para reportar, junto al número de pregunta */
+.btn-reporte {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #E5D9F2;
+  font-size: 15px;
+  text-decoration: none;
 }
