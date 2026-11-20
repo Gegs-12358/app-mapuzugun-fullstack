@@ -169,13 +169,12 @@
         🔄 Pregunta de repaso
       </p>
       <!-- La pregunta, en su propio recuadro para que se destaque -->
-      <ion-card-title class="pregunta">
-        {{ ejercicioActual.question }}
-      </ion-card-title>
+      <ion-card-title class="pregunta">{{ partesPregunta.antes }}<span *ngIf="partesPregunta.clave"
+          class="pregunta-clave">{{ partesPregunta.clave }}</span>{{ partesPregunta.despues }}</ion-card-title>
       <div class="progreso-pregunta">
         <span>Etapa {{ stage }} · Pregunta {{ currentIndex + 1 }} de {{ ejercicios.length }}</span>
         <a class="btn-reporte" [href]="enlaceReporteEjercicio" title="Reportar un problema con esta pregunta"
-          aria-label="Reportar un problema con esta pregunta">🚩</a>
+          aria-label="Reportar un error en esta pregunta">🚩 Reportar error</a>
       </div>
       <div class="etiquetas-escritura">
         <span class="etiqueta" title="Alfabeto con que está escrita la palabra">✍️ Grafemario {{ grafemarioActual }}</span>

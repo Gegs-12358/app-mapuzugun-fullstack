@@ -595,6 +595,11 @@ ion-card-title.pregunta {
   text-align: center;
 }
 
+/* La palabra que importa, de otro color */
+.pregunta-clave {
+  color: #A61E2C;
+}
+
 .progreso-pregunta {
   display: flex;
   align-items: center;
@@ -610,12 +615,15 @@ ion-card-title.pregunta {
 .btn-reporte {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  gap: 4px;
+  min-height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
   background: #fff;
   border: 1px solid #E5D9F2;
-  font-size: 15px;
+  color: #A61E2C;
+  font-size: 12px;
+  font-weight: 700;
   text-decoration: none;
+  white-space: nowrap;
 }
