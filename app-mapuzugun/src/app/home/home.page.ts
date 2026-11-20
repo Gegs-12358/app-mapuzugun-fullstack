@@ -14,7 +14,7 @@ import { EstadoCompanero, FRASES, PiezaConfeti, crearConfeti, fraseAlAzar } from
 import { enlaceReporte } from '../version';
 import { IconoRecursoComponent } from '../icono-recurso/icono-recurso.component';
 import { IdRecurso, Recurso, recurso } from '../recursos';
-import { LETRAS_ESPECIALES, nombreGrafemario, normalizarRespuesta } from '../escritura';
+import { LETRAS_ESPECIALES, nombreGrafemario, normalizarRespuesta, partirPregunta } from '../escritura';
 
 @Component({
   selector: 'app-home',
@@ -120,6 +120,11 @@ export class HomePage implements OnInit {
     return enlaceReporte(
       `Unidad ${this.unitId} · Etapa ${this.stage} · Ejercicio #${e.id}\nPregunta: ${e.question}\nRespuesta esperada: ${e.correct_answer ?? '(emparejar)'}`
     );
+  }
+
+  // La pregunta en partes, para pintar la palabra clave de otro color
+  get partesPregunta() {
+    return partirPregunta(this.ejercicioActual?.question);
   }
 
   get grafemarioActual(): string {
