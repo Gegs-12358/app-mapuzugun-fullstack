@@ -7,6 +7,10 @@ import { authInterceptor } from './app/auth.interceptor';
 
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
+import { aplicarAccesibilidad } from './app/accesibilidad';
+
+// Tamaño de letra y menos movimiento, antes de dibujar la app
+aplicarAccesibilidad();
 
 bootstrapApplication(AppComponent, {
   providers: [

@@ -363,3 +363,10 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - Código en vez de enlace, porque funciona igual en la APK y en la web.
 - La APK que ya está instalada no tiene esta pantalla: se exige el correo en la web desde ya, y en la APK cuando se instale la versión nueva.
 
+### Actualización 21 de noviembre de 2026 (accesibilidad)
+
+**Hecho**
+- Tamaño de letra en el panel del compañero: Normal, Grande (115 %) y Muy grande (130 %). Se aplica con `zoom` en `<html>`, que agranda todo de forma pareja y reacomoda la pantalla, porque los estilos usan tamaños en píxeles. Probado en registro, mapa y lección: nada se sale por los costados y el botón principal sigue a la vista.
+- "Menos movimiento": quita animaciones, transiciones y confeti, para quien se marea o se distrae con ellas.
+- Los ajustes se guardan en el dispositivo (`kimanke_accesibilidad`) y se aplican antes de dibujar la app (`main.ts`), para que no se vea un salto al abrirla.
+
