@@ -127,7 +127,7 @@
       </span>
     </div>
 
-    <div class="path-node-container"
+    <div class="path-node-container" [attr.id]="'unidad-' + unidad.id"
       [ngClass]="{'left-align': i % 2 !== 0, 'right-align': i % 2 === 0}">
 
       <div class="path-line" *ngIf="i !== 0 && !nivelQueEmpieza(i)"></div>

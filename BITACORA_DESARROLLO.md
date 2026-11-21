@@ -373,4 +373,5 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - Portada de la etapa rediseñada: estrella 3D de la unidad como en el mapa, fila con las etapas de la unidad (dorada superada, roja actual, plateada pendiente), el compañero animado con su globo, los tipos de pregunta y lo que se puede ganar. COMENZAR quedó en un pie fijo, siempre a la vista.
 - "Cargando", "sin conexión" y "estamos preparando las lecciones" ahora tienen al compañero y el estilo de tarjeta 3D, en el mapa y en la lección.
 - Se suelta el foco al cambiar de pantalla: el navegador avisaba que un botón enfocado quedaba dentro de una página oculta (aria-hidden), lo que confunde a los lectores de pantalla.
+- El mapa se abre en la unidad en la que va la persona (o la última, si terminó todo), centrada en la pantalla, también al volver de una lección. En la primera unidad se queda arriba para mostrar el resumen. Con "Menos movimiento" salta sin deslizarse.
 
