@@ -95,10 +95,10 @@
 }
 
 .btn-intro {
-  --background: #FFB703;
+  --background: var(--mapu-sol-3d);
   --color: #5B2A86;
   --border-radius: 14px;
-  --box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+  --box-shadow: var(--mapu-canto-sol);
   width: 100%;
   height: 54px;
   font-size: 16px;

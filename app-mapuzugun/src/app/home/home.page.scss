@@ -26,6 +26,15 @@ ion-card ion-button {
   --background: rgba(255, 255, 255, 0.55);
 }
 
+/* Alternativas en 3D: fondo con volumen y un canto lila abajo */
+ion-card-content ion-button[fill="outline"] {
+  --background: linear-gradient(180deg, #FFFFFF 0%, #F4EEFA 100%);
+  --box-shadow: 0 4px 0 #C9B8E0, 0 7px 10px rgba(91, 42, 134, 0.12);
+  transition: transform 0.08s ease-out;
+
+  &:active { transform: translateY(3px); }
+}
+
 /* ===== Nota cultural ===== */
 .nota-cultural {
   padding: 12px 16px;
@@ -306,10 +315,10 @@ ion-card h2 {
 }
 
 ion-card ion-button.btn-comenzar {
-  --background: #FFB703;
+  --background: var(--mapu-sol-3d);
   --color: #5B2A86;
   --border-radius: 14px;
-  --box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+  --box-shadow: var(--mapu-canto-sol);
   height: 54px;
   margin-top: 18px;
   font-size: 17px;
@@ -357,18 +366,24 @@ ion-card ion-button.btn-comenzar {
   cursor: pointer;
 }
 
+.btn-letra {
+  box-shadow: 0 3px 0 #C9B8E0;
+}
+
 .btn-letra:active {
   background: #F1EAF9;
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #C9B8E0;
 }
 
 /* ===== Botón principal de la pregunta =====
    COMPROBAR: degradado lago → maqui. CONTINUAR / FINALIZAR: amarillo sol. */
 .btn-accion,
 ion-card ion-button.btn-accion {
-  --background: var(--mapu-degradado);
+  --background: var(--mapu-degradado-3d);
   --color: #fff;
   --border-radius: 14px;
-  --box-shadow: 0 6px 14px rgba(91, 42, 134, 0.3);
+  --box-shadow: var(--mapu-canto-maqui);
   height: 52px;
   font-size: 1.1em;
   font-weight: 800 !important;
@@ -376,10 +391,10 @@ ion-card ion-button.btn-accion {
 }
 
 ion-footer ion-button.btn-accion {
-  --background: var(--mapu-degradado);
+  --background: var(--mapu-degradado-3d);
   --color: #fff;
   --border-radius: 14px;
-  --box-shadow: 0 6px 14px rgba(91, 42, 134, 0.3);
+  --box-shadow: var(--mapu-canto-maqui);
   margin: 0;
   height: 52px;
   font-size: 1.1em;
@@ -389,9 +404,9 @@ ion-footer ion-button.btn-accion {
 
 ion-footer ion-button.btn-accion.btn-continuar,
 ion-card ion-button.btn-accion.btn-continuar {
-  --background: var(--mapu-sol);
+  --background: var(--mapu-sol-3d);
   --color: #2A1640;
-  --box-shadow: 0 6px 14px rgba(224, 155, 0, 0.35);
+  --box-shadow: var(--mapu-canto-sol);
 }
 
 /* Desactivado (todavía no eligió respuesta): se ve, pero apagado */
