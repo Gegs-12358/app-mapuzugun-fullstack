@@ -268,5 +268,17 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - Revisión de hablantes de las notas culturales y del texto de la pantalla "sin Newen" (explicación de Newen/Mongen).
 - Licencia del código y del contenido; permiso de redistribución del diccionario de Augusta (hoy fuera del seguimiento, pero presente en el historial).
 - Créditos de "Acerca de": indicar que los fondos y avatares son ilustraciones generadas con IA.
--
+
+### Actualización 20 de noviembre de 2026 (niveles, repaso y recordatorio)
+
+**Hecho**
+- Niveles en el mapa (`src/app/niveles.ts`): 1 Primeros pasos (unidades 1–3), 2 Vida diaria (4–6), 3 Territorio y cosmovisión (7–8). Cada nivel tiene su cartel en el camino y una celebración al completarlo, que sale una sola vez por persona.
+- Modo repaso (`/repaso`): cada respuesta se guarda en la tabla `user_errores`. Una palabra entra al repaso al fallarla y sale al responderla bien dos veces seguidas. El repaso no gasta Newen, da 5 de Kimün por acierto y cuenta para la racha.
+- Recordatorio diario en la APK (`@capacitor/local-notifications`, `src/app/recordatorio.ts`): avisos para los próximos 7 días a la hora elegida, y se salta el del día si la persona ya practicó. El ícono blanco de la barra lo crea `scripts/crear_icono_notificacion.py`.
+- El servidor crea `user_errores` y la columna `users.creado_en` al arrancar (IF NOT EXISTS). Las cuentas anteriores quedan con `creado_en` en NULL.
+- Se actualizó la dependencia `body-parser` del servidor (vulnerabilidad de denegación de servicio).
+
+**Decisiones**
+- Los niveles agrupan solo el contenido básico que existe. Un nivel avanzado real (frases, conversación, relatos) se escribirá con hablantes.
+- Las notas culturales delicadas o inventadas se reemplazaron en la base por versiones neutras, y se retiraron 7 preguntas con palabras probablemente erróneas. El contenido original queda en la planilla de revisión para hablantes.
 

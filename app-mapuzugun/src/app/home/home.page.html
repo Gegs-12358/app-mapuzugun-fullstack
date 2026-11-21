@@ -103,7 +103,7 @@
         [style.animation-delay.s]="c.retraso" [style.animation-duration.s]="c.duracion"
         [style.transform]="'rotate(' + c.giro + 'deg)'"></span>
     </div>
-    <h2 style="color: #5B2A86; font-weight: 900;">¡Lección Completada!</h2>
+    <h2 style="color: #5B2A86; font-weight: 900;">{{ modoRepaso ? '¡Repaso completado!' : '¡Lección Completada!' }}</h2>
     <div class="celebracion">
       <app-companero [avatarId]="avatarId" estado="celebra" [tamano]="120"
         role="img" [attr.aria-label]="nombreCompanero + ' celebra contigo'"></app-companero>
@@ -129,12 +129,28 @@
     </ion-button>
   </ion-card>
 
+  <!-- REPASO SIN PALABRAS PENDIENTES -->
+  <ion-card *ngIf="!loading && !errorCarga && modoRepaso && sinRepaso" class="ion-margin-top portada-etapa">
+    <ion-card-content>
+      <h1 class="portada-numero" style="font-size: 34px;">¡Todo al día!</h1>
+      <div class="dato">
+        <img [src]="avatarImg" alt="Tu compañero" class="dato-avatar">
+        <div class="dato-burbuja">
+          <p class="dato-texto">No tienes palabras para repasar. Cuando te equivoques en una lección, esa palabra
+            aparecerá aquí para practicarla de nuevo.</p>
+        </div>
+      </div>
+      <ion-button expand="block" class="btn-comenzar" routerLink="/units" routerDirection="back">VOLVER AL MAPA</ion-button>
+    </ion-card-content>
+  </ion-card>
+
   <!-- PORTADA DE LA ETAPA -->
   <ion-card *ngIf="!loading && !gameOver && !leccionTerminada && mostrarPortada && ejercicios.length > 0"
     class="ion-margin-top portada-etapa">
     <ion-card-content>
-      <p class="portada-unidad">Unidad {{ unitId }}{{ tituloUnidad ? ' · ' + tituloUnidad : '' }}</p>
-      <h1 class="portada-numero">Etapa {{ stage }}</h1>
+      <p class="portada-unidad" *ngIf="!modoRepaso">Unidad {{ unitId }}{{ tituloUnidad ? ' · ' + tituloUnidad : '' }}</p>
+      <p class="portada-unidad" *ngIf="modoRepaso">Tus palabras para practicar</p>
+      <h1 class="portada-numero">{{ modoRepaso ? 'Repaso' : 'Etapa ' + stage }}</h1>
       <p class="portada-preguntas">
         {{ ejercicios.length === 1 ? '1 pregunta' : ejercicios.length + ' preguntas' }}
       </p>
@@ -143,10 +159,13 @@
         <img [src]="avatarImg" alt="Tu compañero" class="dato-avatar">
         <div class="dato-burbuja">
           <p class="dato-titulo">¡MARI MARI!</p>
-          <p class="dato-texto">
+          <p class="dato-texto" *ngIf="!modoRepaso">
             {{ tituloUnidad ? 'En esta unidad practicaremos «' + tituloUnidad + '».' : 'En esta etapa practicaremos paso
             a paso.' }}
             ¡Vamos de a poco!
+          </p>
+          <p class="dato-texto" *ngIf="modoRepaso">
+            Practiquemos las palabras que más te han costado. Aquí no se gasta Newen, así que tranquilidad.
           </p>
           <p class="dato-aviso">⚠️ Contenido en revisión</p>
         </div>
@@ -169,7 +188,7 @@
       <ion-card-title class="pregunta">{{ partesPregunta.antes }}<span *ngIf="partesPregunta.clave"
           class="pregunta-clave">{{ partesPregunta.clave }}</span>{{ partesPregunta.despues }}</ion-card-title>
       <div class="progreso-pregunta">
-        <span>Etapa {{ stage }} · Pregunta {{ currentIndex + 1 }} de {{ ejercicios.length }}</span>
+        <span>{{ modoRepaso ? 'Repaso' : 'Etapa ' + stage }} · Pregunta {{ currentIndex + 1 }} de {{ ejercicios.length }}</span>
         <a class="btn-reporte" [href]="enlaceReporteEjercicio" title="Reportar un problema con esta pregunta"
           aria-label="Reportar un error en esta pregunta">🚩 Reportar error</a>
       </div>

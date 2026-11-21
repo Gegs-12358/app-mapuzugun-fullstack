@@ -32,6 +32,12 @@ export const routes: Routes = [
     loadComponent: () => import('./home/home.page').then(m => m.HomePage)
   },
   {
+    // Repaso de las palabras que más le han costado a la persona (usa la misma pantalla de lección)
+    path: 'repaso',
+    canActivate: [authGuard],
+    loadComponent: () => import('./home/home.page').then(m => m.HomePage)
+  },
+  {
     path: 'acerca',
     loadComponent: () => import('./pages/acerca/acerca.page').then(m => m.AcercaPage)
   },

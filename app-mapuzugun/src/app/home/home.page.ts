@@ -15,6 +15,7 @@ import { enlaceReporte } from '../version';
 import { IconoRecursoComponent } from '../icono-recurso/icono-recurso.component';
 import { IdRecurso, Recurso, recurso } from '../recursos';
 import { LETRAS_ESPECIALES, nombreGrafemario, normalizarRespuesta, partirPregunta } from '../escritura';
+import { marcarPracticaDeHoy } from '../recordatorio';
 
 @Component({
   selector: 'app-home',
@@ -62,6 +63,12 @@ export class HomePage implements OnInit {
   gemasGanadas = 0;
 
   letrasEspeciales = LETRAS_ESPECIALES;
+
+  // Modo repaso: las palabras que más le han costado a la persona.
+  // No gasta Newen, suma un poco de Kimün y cuenta para la racha.
+  modoRepaso = false;
+  sinRepaso = false;
+  private fallosMatch = 0;
 
   // Explicación de Kütral, Kimün, Llanka o Newen al tocarlos en la barra
   recursoInfo: Recurso | null = null;
@@ -118,7 +125,7 @@ export class HomePage implements OnInit {
     const e = this.ejercicioActual;
     if (!e) return enlaceReporte();
     return enlaceReporte(
-      `Unidad ${this.unitId} · Etapa ${this.stage} · Ejercicio #${e.id}\nPregunta: ${e.question}\nRespuesta esperada: ${e.correct_answer ?? '(emparejar)'}`
+      `Unidad ${e.unit_id ?? this.unitId} · Etapa ${e.stage ?? this.stage} · Ejercicio #${e.id}\nPregunta: ${e.question}\nRespuesta esperada: ${e.correct_answer ?? '(emparejar)'}`
     );
   }
 
@@ -198,8 +205,8 @@ export class HomePage implements OnInit {
           // Actualizamos el localStorage con los datos frescos de la BD
           localStorage.setItem('mapu_user', JSON.stringify(userData));
 
-          // Si las vidas reales son 0, mostramos Game Over
-          if (this.lives <= 0) {
+          // Si las vidas reales son 0, mostramos Game Over (el repaso no gasta Newen)
+          if (this.lives <= 0 && !this.modoRepaso) {
             this.gameOver = true;
           }
 
@@ -210,11 +217,17 @@ export class HomePage implements OnInit {
       });
     }
 
+    this.modoRepaso = this.route.snapshot.routeConfig?.path === 'repaso';
     this.unitId = this.route.snapshot.paramMap.get('unitId');
     this.stage = this.route.snapshot.paramMap.get('stage');
     const estado = history.state ?? {};
-    this.tituloUnidad = estado.tituloUnidad ?? '';
+    this.tituloUnidad = this.modoRepaso ? 'Repaso' : (estado.tituloUnidad ?? '');
     this.tituloEtapa = estado.tituloEtapa ?? '';
+
+    if (this.modoRepaso) {
+      this.cargarEjercicios();
+      return;
+    }
 
     // La nota cultural viene de la base (tabla units) y solo llega si fue aprobada
     // por hablantes, o si el servidor está en modo borrador.
@@ -232,34 +245,60 @@ export class HomePage implements OnInit {
   }
 
   cargarEjercicios() {
+    if (this.modoRepaso) {
+      this.loading = true;
+      this.errorCarga = false;
+      this.http.get<{ total: number; ejercicios: any[] }>('/api/repaso').subscribe({
+        next: (res) => {
+          this.sinRepaso = res.ejercicios.length === 0;
+          this.prepararEjercicios(res.ejercicios);
+        },
+        error: (err) => {
+          console.error('Error al cargar el repaso:', err);
+          this.errorCarga = true;
+          this.loading = false;
+        }
+      });
+      return;
+    }
     if (!this.unitId) return;
     this.loading = true;
     this.errorCarga = false;
     this.http.get<any[]>(`/api/exercises?unitId=${this.unitId}&stage=${this.stage}`).subscribe({
-      next: (data) => {
-        this.ejercicios = this.shuffleArray(data).map(ejercicio => {
-          if (typeof ejercicio.options === 'string') {
-            try { ejercicio.options = JSON.parse(ejercicio.options); } catch (e) { }
-          }
-
-          // Detectar si es match
-          if (Array.isArray(ejercicio.options) && ejercicio.options.length > 0) {
-            if (ejercicio.options[0].mapuche !== undefined) {
-              ejercicio.type = 'match';
-            } else {
-              ejercicio.options = this.shuffleArray([...ejercicio.options]);
-            }
-          }
-          return ejercicio;
-        });
-        this.loading = false;
-        this.initMatchGame();
-      },
+      next: (data) => this.prepararEjercicios(data),
       error: (err) => {
         console.error('Error al conectar con el backend:', err);
         this.errorCarga = true;
         this.loading = false;
       }
+    });
+  }
+
+  private prepararEjercicios(data: any[]) {
+    this.ejercicios = this.shuffleArray(data).map(ejercicio => {
+      if (typeof ejercicio.options === 'string') {
+        try { ejercicio.options = JSON.parse(ejercicio.options); } catch (e) { }
+      }
+
+      // Detectar si es match
+      if (Array.isArray(ejercicio.options) && ejercicio.options.length > 0) {
+        if (ejercicio.options[0].mapuche !== undefined) {
+          ejercicio.type = 'match';
+        } else {
+          ejercicio.options = this.shuffleArray([...ejercicio.options]);
+        }
+      }
+      return ejercicio;
+    });
+    this.loading = false;
+    this.initMatchGame();
+  }
+
+  // Guarda si la persona acertó o no, para armar su repaso
+  private registrarRespuesta(ejercicio: any, correcta: boolean) {
+    if (!ejercicio?.id) return;
+    this.http.post('/api/respuesta', { exerciseId: ejercicio.id, correcta }).subscribe({
+      error: (err) => console.error('Error al guardar la respuesta:', err)
     });
   }
 
@@ -272,6 +311,7 @@ export class HomePage implements OnInit {
       this.selectedRight = null;
       this.matchedLeft = [];
       this.matchedRight = [];
+      this.fallosMatch = 0;
     }
   }
 
@@ -316,9 +356,12 @@ export class HomePage implements OnInit {
           this.xp += 20;
           this.playCorrectSound();
           this.reaccionar('feliz', FRASES.feliz);
+          // Un par equivocado se perdona; dos o más cuentan como error para el repaso
+          this.registrarRespuesta(this.ejercicioActual, this.fallosMatch < 2);
         }
 
       } else {
+        this.fallosMatch++;
         this.playWrongSound();
         this.reaccionar('animando', FRASES.animando);
       }
@@ -342,6 +385,7 @@ export class HomePage implements OnInit {
     }
 
     this.isAnswered = true;
+    this.registrarRespuesta(this.ejercicioActual, this.isCorrect);
 
     if (this.isCorrect) {
       this.playCorrectSound();
@@ -351,7 +395,7 @@ export class HomePage implements OnInit {
     } else {
       this.playWrongSound();
       this.reaccionar('animando', FRASES.animando);
-      this.restarVida();
+      if (!this.modoRepaso) this.restarVida();
       const yaEstaEnRepaso = this.ejercicios.slice(this.currentIndex + 1).some(e => e.id === this.ejercicioActual.id);
       if (!yaEstaEnRepaso) {
         this.ejercicios.push({ ...this.ejercicioActual, isReview: true });
@@ -404,14 +448,19 @@ export class HomePage implements OnInit {
   }
 
   terminarLeccion() {
-    if (!this.unitId) return;
+    if (!this.unitId && !this.modoRepaso) return;
 
-    this.http.post('/api/lessons/complete', {
-      unitId: parseInt(this.unitId, 10),
-      stage: parseInt(this.stage ?? '1', 10),
-      correct: this.aciertos
-    }).subscribe({
+    const guardar = this.modoRepaso
+      ? this.http.post('/api/repaso/completar', { correct: this.aciertos })
+      : this.http.post('/api/lessons/complete', {
+          unitId: parseInt(this.unitId ?? '0', 10),
+          stage: parseInt(this.stage ?? '1', 10),
+          correct: this.aciertos
+        });
+
+    guardar.subscribe({
       next: (res: any) => {
+        marcarPracticaDeHoy();
         this.xp = res.xp;
         this.streak = res.streak;
         this.gems = res.gems;

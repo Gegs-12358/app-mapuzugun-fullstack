@@ -3,6 +3,7 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { Capacitor } from '@capacitor/core';
 import { ServidorService } from './servidor.service';
 import { environment } from '../environments/environment';
+import { programarRecordatorios } from './recordatorio';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +21,9 @@ export class AppComponent {
     // mientras la persona lee la intro, así el registro o el mapa cargan más rápido.
     // Va directo (sin el interceptor) para no mostrar el aviso de «despertando».
     fetch(`${environment.apiUrl}/api/salud`, { cache: 'no-store' }).catch(() => {});
+
+    // Recordatorio diario (solo en la app de Android): mantiene programados los próximos días
+    programarRecordatorios();
   }
 
   cerrarAvisoIos() {

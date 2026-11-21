@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS users (
   gems            INT DEFAULT 40,
   last_life_regen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   avatar          VARCHAR(20) NOT NULL DEFAULT 'puma'
-                  CHECK (avatar IN ('puma', 'aguila', 'bandurria', 'monito', 'pudu', 'ranita'))
+                  CHECK (avatar IN ('puma', 'aguila', 'bandurria', 'monito', 'pudu', 'ranita')),
+  creado_en       TIMESTAMPTZ DEFAULT now()     -- las cuentas anteriores a nov 2026 quedan en NULL
 );
 
 -- Si tu base ya existía con la lista antigua de avatares, actualízala así:
@@ -93,4 +94,15 @@ CREATE TABLE IF NOT EXISTS user_progress (
   score        INT DEFAULT 0,                   -- mejor cantidad de aciertos en la etapa
   completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE (username, unit_id, stage)
+);
+
+-- Errores de cada persona, para el modo repaso. Una palabra sale del repaso
+-- al responderla bien dos veces seguidas. (El servidor la crea solo al arrancar.)
+CREATE TABLE IF NOT EXISTS user_errores (
+  user_id           INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  exercise_id       INT NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
+  fallos            INT NOT NULL DEFAULT 0,
+  aciertos_seguidos INT NOT NULL DEFAULT 0,
+  actualizado       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id, exercise_id)
 );
