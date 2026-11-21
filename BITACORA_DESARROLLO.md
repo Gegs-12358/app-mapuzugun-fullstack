@@ -374,4 +374,5 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - "Cargando", "sin conexión" y "estamos preparando las lecciones" ahora tienen al compañero y el estilo de tarjeta 3D, en el mapa y en la lección.
 - Se suelta el foco al cambiar de pantalla: el navegador avisaba que un botón enfocado quedaba dentro de una página oculta (aria-hidden), lo que confunde a los lectores de pantalla.
 - El mapa se abre en la unidad en la que va la persona (o la última, si terminó todo), centrada en la pantalla, también al volver de una lección. En la primera unidad se queda arriba para mostrar el resumen. Con "Menos movimiento" salta sin deslizarse.
+- Correo del proyecto: el contacto de "Acerca de" y los reportes de errores pasan a kimankeapp@gmail.com, en vez del correo personal.
 
