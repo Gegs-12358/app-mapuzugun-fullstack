@@ -394,7 +394,61 @@ export class UnitsPage implements OnInit {
     localStorage.removeItem('mapu_token');
     this.router.navigateByUrl('/login', { replaceUrl: true });
   }
-    async eliminarCuenta() {
+  // Cambiar el nombre de usuario: pide el nombre nuevo y la contraseña
+  async cambiarNombre(sugerido = '') {
+    const alerta = await this.alertCtrl.create({
+      header: 'Cambiar mi nombre',
+      message: `Hoy te llamas «${this.username}». Usa un apodo, no tu correo. Tu progreso se mantiene.`,
+      inputs: [
+        { name: 'nombre', type: 'text', placeholder: 'Nombre nuevo', value: sugerido,
+          attributes: { maxlength: 50, autocapitalize: 'off' } },
+        { name: 'password', type: 'password', placeholder: 'Tu contraseña' }
+      ],
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Cambiar',
+          handler: (data) => {
+            const nombre = (data.nombre || '').trim();
+            if (nombre.length < 3) { alerta.message = 'El nombre debe tener al menos 3 caracteres.'; return false; }
+            if (nombre.includes('@')) { alerta.message = 'Usa un apodo, no tu correo.'; return false; }
+            if (!data.password) { alerta.message = 'Escribe tu contraseña para confirmar.'; return false; }
+
+            this.http.put<any>('/api/username', { username: nombre, password: data.password }).subscribe({
+              next: (res) => {
+                const { token, ...user } = res;
+                try {
+                  localStorage.setItem('mapu_token', token);
+                  const anterior = JSON.parse(localStorage.getItem('mapu_user') || '{}');
+                  localStorage.setItem('mapu_user', JSON.stringify({ ...anterior, ...user }));
+                } catch {}
+                this.username = user.username;
+                alerta.dismiss();
+                this.avisar(`Listo, ahora te llamas «${user.username}».`);
+              },
+              error: (err) => {
+                const sugerencias: string[] = err.error?.sugerencias ?? [];
+                alerta.message = err.status === 403
+                  ? 'Contraseña incorrecta. Inténtalo de nuevo.'
+                  : err.status === 409
+                    ? `«${nombre}» ya está en uso.` + (sugerencias.length ? ` Libres: ${sugerencias.join(', ')}.` : '')
+                    : (err.error?.error || 'No se pudo cambiar el nombre. Inténtalo más tarde.');
+              }
+            });
+            return false; // el aviso queda abierto hasta tener respuesta
+          }
+        }
+      ]
+    });
+    await alerta.present();
+  }
+
+  private async avisar(mensaje: string) {
+    const aviso = await this.alertCtrl.create({ message: mensaje, buttons: ['OK'] });
+    await aviso.present();
+  }
+
+  async eliminarCuenta() {
     const alerta = await this.alertCtrl.create({
       header: 'Eliminar mi cuenta',
       message: 'Se borrarán tu usuario y todo tu progreso. Esto no se puede deshacer. Para confirmar, escribe tu contraseña.',

@@ -326,4 +326,4 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 **Decisiones**
 - Los niveles agrupan solo el contenido básico que existe. Un nivel avanzado real (frases, conversación, relatos) se escribirá con hablantes.
 - El contenido original de las notas reemplazadas y de las preguntas retiradas queda en la planilla de revisión para hablantes.
-
+- Cambio de nombre de usuario desde el panel del compañero, con la contraseña y sugerencias si el nombre está ocupado. Para que el progreso siga al nombre, el servidor cambia al arrancar la relación de `user_progress` con `users` a `ON UPDATE CASCADE`. Las rutas protegidas leen el nombre actual desde la base por el id del token, así una sesión abierta en otro dispositivo sigue guardando bien.

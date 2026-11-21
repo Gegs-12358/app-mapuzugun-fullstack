@@ -52,7 +52,10 @@
       </ng-template>
     </div>
 
-    <button type="button" class="btn-eliminar" (click)="eliminarCuenta()">Eliminar mi cuenta</button>
+    <div class="acciones-cuenta">
+      <button type="button" class="btn-cambiar-nombre" (click)="cambiarNombre()">✏️ Cambiar mi nombre</button>
+      <button type="button" class="btn-eliminar" (click)="eliminarCuenta()">Eliminar mi cuenta</button>
+    </div>
   </div>
 
   <div *ngIf="loading" class="ion-text-center ion-margin-top" style="color: #5B2A86; font-weight: bold;">

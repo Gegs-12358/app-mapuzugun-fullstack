@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS stages (
 
 CREATE TABLE IF NOT EXISTS user_progress (
   id           SERIAL PRIMARY KEY,
-  username     VARCHAR(50) REFERENCES users(username) ON DELETE CASCADE,
+  username     VARCHAR(50) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE,
   unit_id      INT REFERENCES units(id),
   stage        INT NOT NULL DEFAULT 1,
   completed    BOOLEAN DEFAULT FALSE,

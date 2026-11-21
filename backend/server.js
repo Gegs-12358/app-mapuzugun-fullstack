@@ -79,6 +79,20 @@ async function prepararBase() {
   // Fecha de creación de cada cuenta. Las cuentas antiguas quedan sin fecha (NULL).
   await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS creado_en TIMESTAMPTZ');
   await pool.query('ALTER TABLE users ALTER COLUMN creado_en SET DEFAULT now()');
+  // El progreso apunta al nombre de usuario: al cambiar el nombre, el progreso lo sigue
+  await pool.query(`
+    DO $$
+    DECLARE fk text;
+    BEGIN
+      SELECT conname INTO fk FROM pg_constraint
+      WHERE conrelid = 'user_progress'::regclass AND contype = 'f'
+        AND confrelid = 'users'::regclass AND confupdtype <> 'c';
+      IF fk IS NOT NULL THEN
+        EXECUTE format('ALTER TABLE user_progress DROP CONSTRAINT %I', fk);
+        ALTER TABLE user_progress ADD CONSTRAINT user_progress_username_fkey
+          FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE;
+      END IF;
+    END $$`);
 }
 
 // ---------- LÍMITES DE INTENTOS ----------
@@ -112,9 +126,20 @@ const limiteDisponible = rateLimit({
 
 // ---------- NOMBRES DE USUARIO ----------
 // Se comparan sin distinguir mayúsculas: «Gabriel» y «gabriel» son el mismo nombre
-async function nombreOcupado(nombre) {
-  const r = await pool.query('SELECT 1 FROM users WHERE LOWER(username) = LOWER($1)', [nombre]);
+// exceptoId: al cambiar el nombre, la propia cuenta no cuenta como ocupada
+async function nombreOcupado(nombre, exceptoId = null) {
+  const r = await pool.query(
+    'SELECT 1 FROM users WHERE LOWER(username) = LOWER($1) AND ($2::int IS NULL OR id <> $2)',
+    [nombre, exceptoId]
+  );
   return r.rows.length > 0;
+}
+
+// Reglas del nombre de usuario (registro y cambio de nombre). Devuelve el error o null.
+function errorDeNombre(username) {
+  if (username.length < 3 || username.length > 50) return 'El usuario debe tener entre 3 y 50 caracteres';
+  if (username.includes('@')) return 'Usa un apodo, no tu correo';
+  return null;
 }
 
 // Hasta 3 nombres parecidos que estén libres, a partir del que escribió la persona
@@ -171,14 +196,10 @@ app.post('/api/register', limiteRegistro, async (req, res) => {
   if (!AVATARES.includes(avatar)) {
     return res.status(400).json({ error: 'Elige un avatar' });
   }
-  if (username.length < 3 || username.length > 50) {
-    return res.status(400).json({ error: 'El usuario debe tener entre 3 y 50 caracteres' });
-  }
+  const errorNombre = errorDeNombre(username);
+  if (errorNombre) return res.status(400).json({ error: errorNombre });
   if (password.length < 8) {
     return res.status(400).json({ error: 'La contraseña debe tener al menos 8 caracteres' });
-  }
-  if (username.includes('@')) {
-    return res.status(400).json({ error: 'Usa un apodo, no tu correo' });
   }
 
   try {
@@ -294,6 +315,55 @@ app.get('/api/units', async (req, res) => {
 // De aquí en adelante hace falta token. El usuario sale del token,
 // no del cuerpo de la petición.
 app.use('/api', requireAuth);
+
+// El nombre se lee siempre de la base y no del token: así, si la persona cambió su
+// nombre desde otro dispositivo, una sesión antigua sigue guardando bien el progreso.
+app.use('/api', async (req, res, next) => {
+  try {
+    const r = await pool.query('SELECT username FROM users WHERE id = $1', [req.user.id]);
+    if (r.rows.length === 0) return res.status(401).json({ error: 'Sesión expirada o inválida' });
+    req.user.username = r.rows[0].username;
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Cambiar el nombre de usuario. Pide la contraseña para confirmar.
+app.put('/api/username', limiteLogin, async (req, res) => {
+  const { password } = req.body || {};
+  let { username } = req.body || {};
+  if (typeof username !== 'string' || typeof password !== 'string') {
+    return res.status(400).json({ error: 'Datos inválidos' });
+  }
+  username = username.trim();
+  const errorNombre = errorDeNombre(username);
+  if (errorNombre) return res.status(400).json({ error: errorNombre });
+
+  try {
+    const found = await pool.query('SELECT password, avatar FROM users WHERE id = $1', [req.user.id]);
+    if (found.rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (!(await bcrypt.compare(password, found.rows[0].password))) {
+      return res.status(403).json({ error: 'Contraseña incorrecta' });
+    }
+    if (await nombreOcupado(username, req.user.id)) {
+      return res.status(409).json({
+        error: 'Ese nombre ya está en uso',
+        sugerencias: await sugerirNombres(username, found.rows[0].avatar)
+      });
+    }
+    const result = await pool.query(
+      'UPDATE users SET username = $1 WHERE id = $2 RETURNING id, username, avatar, xp, streak, lives, gems',
+      [username, req.user.id]
+    );
+    const user = result.rows[0];
+    res.json({ ...user, token: crearToken(user) });
+  } catch (err) {
+    if (err.code === '23505') return res.status(409).json({ error: 'Ese nombre ya está en uso', sugerencias: [] });
+    console.error(err);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+});
 
 app.put('/api/avatar', async (req, res) => {
   const { avatar } = req.body;
