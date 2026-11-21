@@ -2,13 +2,18 @@
 
 Aplicación gratuita para aprender y practicar mapuzugun con lecciones cortas, a tu ritmo.
 
-> **Estado: prototipo en desarrollo.** El contenido (palabras, notas culturales, audios) todavía no ha sido validado por hablantes. Por eso no se publica en este repositorio, y la app no debería presentarse como material de enseñanza hasta que esa revisión exista.
+> **Estado: beta (0.9.0), en prueba con un grupo de un taller de mapuzugun.** El contenido (palabras, notas culturales, audios) todavía no ha sido validado por hablantes: está en revisión y la app lo indica en cada pregunta. Por eso las lecciones no se publican en este repositorio, y la app no debería presentarse como material de enseñanza hasta que esa revisión exista.
+>
+> - Versión web: https://kimanke.onrender.com (funciona en cualquier navegador, también en iPhone).
+> - Android: APK de prueba, compartida directamente con quienes prueban.
 
 ## Cómo se cuida el contenido
 
 Kimanke es un apoyo educativo sin fines comerciales. Nada de lo que enseña debería llegar al público sin que lo revisen hablantes y kimeltuchefe, así que el sistema está pensado alrededor de eso:
 
-- Cada ejercicio nace como **borrador**. En producción, el servidor solo entrega los que están marcados como **aprobados**, con quién los revisó y cuándo.
+- Cada ejercicio nace como **borrador**. Con `CONTENIDO_BORRADOR=false`, el servidor solo entrega los que están marcados como **aprobados**, con quién los revisó y cuándo. Durante la beta está en `true`: se muestran los borradores con la etiqueta "Contenido en revisión".
+- Lo que tiene errores se marca como **retirado**: deja de mostrarse en cualquier modo, pero no se borra, para poder corregirlo.
+- En cada pregunta hay un botón **Reportar error** que abre un correo con la pregunta ya identificada.
 - Si no hay nada aprobado, la app lo dice ("Estamos preparando las lecciones") en vez de mostrar contenido sin revisar.
 - Este repositorio contiene el código y el esquema de la base de datos, no las lecciones.
 - Al empezar, cada persona acepta **Nuestro acuerdo** (`app-mapuzugun/src/app/acuerdo.ts`): la app es gratuita y sin publicidad, apoya pero no reemplaza la enseñanza con hablantes y kimeltuchefe, la lengua tiene variantes y el contenido está en revisión. Nació de la encuesta a la comunidad. Si se cambia el texto, se sube la versión y se vuelve a pedir.
@@ -22,18 +27,20 @@ Quedan por definir con hablantes: la ortografía y el significado del nombre "Ki
 
 ## Qué hace hoy
 
-- Introducción de dos pantallas, que se muestra solo la primera vez.
-- Registro e inicio de sesión. Al crear la cuenta se elige uno de seis compañeros animales (puma, águila, bandurria, monito del monte, pudú y ranita de Darwin), y se puede cambiar después.
-- Mapa de unidades con etapas. Cada etapa tiene 5 ejercicios; una unidad se desbloquea al terminar la anterior.
-- Tres tipos de ejercicio: selección múltiple, escritura y emparejamiento. El audio se reproduce desde la URL del ejercicio, cuando la tiene.
-- Juego: experiencia (Kimün), racha diaria (Kütral, con hora de Chile), gemas (Llanka) y vidas (Newen).
-- Economía: 40 gemas al registrarse, 10 gemas por una etapa perfecta (solo la primera vez), 30 gemas por una recarga completa. Las vidas son 5 como máximo y se recupera una cada 10 minutos, o practicando.
+- Introducción de cuatro pantallas (bienvenida, compañeros, cómo funciona y nuestro acuerdo), que se muestra solo la primera vez. Se puede volver atrás deslizando o con el botón atrás de Android.
+- Registro e inicio de sesión. Mientras se escribe el nombre de usuario, la app avisa si está ocupado y sugiere otros. Al crear la cuenta se elige uno de seis compañeros animales (puma, cóndor, bandurria, monito del monte, pudú y ranita de Darwin), que se presenta y se puede cambiar después.
+- Mapa con **niveles** (`src/app/niveles.ts`): 1 Primeros pasos, 2 Vida diaria y 3 Territorio y cosmovisión. Cada nivel agrupa unidades, cada unidad tiene etapas y cada etapa unas 5 preguntas. Una unidad se desbloquea al terminar la anterior. La unidad que toca brilla, el compañero se para a su lado y el pie del mapa dice qué sigue.
+- Cuatro tipos de ejercicio: selección múltiple, escritura, completar la frase y emparejamiento. El audio se reproduce desde la URL del ejercicio, cuando la tiene.
+- **Repaso**: cada respuesta se guarda, y el mapa ofrece repasar las palabras que más costaron. Una palabra sale del repaso al responderla bien dos veces seguidas. El repaso no gasta Newen.
+- **Recordatorio diario** (solo en la APK de Android): un aviso a la hora que la persona elija, que se salta si ese día ya practicó.
+- Juego: experiencia (Kimün), racha diaria (Kütral, con hora de Chile), gemas (Llanka) y vidas (Newen). Al tocarlos en la barra de la lección se explica qué significa cada palabra.
+- Economía: 40 Llankas al registrarse, 2 por acierto la primera vez que se completa una etapa, 30 por una recarga completa de Newen. El Newen es 5 como máximo y se recupera uno cada 10 minutos, o practicando.
 
 ## Compañeros animados
 
-Cada compañero puede tener cinco poses (sentado, ojos cerrados, feliz, saltando y saludando) para parpadear y reaccionar durante la lección. Hoy solo Pudimel (pudú) las tiene; los demás usan su imagen única.
+Cada compañero tiene cinco poses (sentado, ojos cerrados, feliz, saltando y saludando) para parpadear y reaccionar durante la lección y en el mapa. Hoy los seis las tienen.
 
-Para agregar las poses de otro compañero:
+Para agregar las poses de un compañero nuevo:
 
 1. En Canva, crea las cinco versiones sobre el mismo lienzo, sin mover ni cambiar el tamaño del personaje, y descárgalas como PNG con fondo transparente.
 2. Desde la carpeta del proyecto, ejecuta (necesita `python3-pil`):
@@ -52,6 +59,7 @@ Para agregar las poses de otro compañero:
 /
 ├── app-mapuzugun/   # frontend (Ionic/Angular)
 ├── backend/         # API (server.js)
+├── scripts/         # íconos de la app, ícono de notificación y poses de los compañeros
 ├── database.sql     # esquema de la base de datos
 └── BITACORA_DESARROLLO.md
 ```
@@ -86,6 +94,8 @@ Para desarrollo, pon también `CONTENIDO_BORRADOR=true`. Luego:
 ```bash
 node server.js           # http://localhost:3000
 ```
+
+Al arrancar, el servidor crea lo que falte en la base (por ejemplo la tabla de errores para el repaso), así que no hace falta correr SQL a mano después de cada actualización.
 
 El archivo `.env` nunca debe subirse a Git. Si cambias algo en `server.js` o en `.env`, reinicia el servidor: no se recarga solo.
 
@@ -131,6 +141,32 @@ SET nota_estado = 'aprobado', nota_revisada_por = 'nombre o iniciales acordadas'
 WHERE id = 1;
 ```
 
+## Dónde está publicada
+
+- **Base de datos:** PostgreSQL en Neon (plan gratuito).
+- **Servidor:** Render, servicio web `kimanke-api`. Variables de entorno en Render: las del `.env`, más `CORS_ORIGIN` con los orígenes de la app (`https://localhost` para la APK y `https://kimanke.onrender.com` para la web).
+- **Versión web:** Render, sitio estático `kimanke` (carpeta `app-mapuzugun`, build `npm ci && npx ng build`, publica `www/browser`, con una regla que reescribe `/*` a `/index.html`).
+- **Servidor despierto:** el plan gratuito de Render se duerme tras 15 minutos sin uso. Una tarea en cron-job.org consulta `/api/salud` cada 10 minutos.
+- Cada cambio que llega a `main` en GitHub se publica solo en Render. La APK, en cambio, hay que compilarla y compartirla de nuevo.
+
+**Respaldo de la base:** con el cliente de PostgreSQL 18 (la versión de Neon), guardando el archivo fuera del repositorio:
+
+```bash
+/usr/lib/postgresql/18/bin/pg_dump "$URL_DE_NEON" -Fc -f ~/respaldos/kimanke-$(date +%F).dump
+```
+
+**Compilar la APK:**
+
+```bash
+cd app-mapuzugun
+npm install
+npx ng build
+npx cap sync android
+cd .. && python3 scripts/crear_icono_notificacion.py
+```
+
+Después, en Android Studio: Build → Build App Bundle(s) / APK(s) → Build APK(s).
+
 ## Seguridad
 
 - Contraseñas con `bcrypt` (mínimo 8 caracteres) y sesión con JWT de 7 días.
@@ -141,9 +177,10 @@ WHERE id = 1;
 
 ## Pendiente
 
-- Validación del contenido y de los nombres con hablantes.
-- Probar el APK antes de publicar.
-- Generar la llave de firma de Android y guardarla **fuera** del repositorio (`*.jks` está en `.gitignore`).
+- Validación del contenido y de los nombres con hablantes. Hay una planilla de revisión con todas las preguntas y notas, marcadas según la urgencia.
+- Rehacer con hablantes las preguntas retiradas (por ejemplo "no", pie, nueve, abuelo y abuela) y grabar audios con consentimiento.
+- Recuperar la contraseña con un correo opcional y poder cambiar el nombre de usuario.
+- Generar una llave de firma nueva para publicar en Play Store y guardarla **fuera** del repositorio (`*.jks` está en `.gitignore`).
 
 ## Cómo colaborar
 

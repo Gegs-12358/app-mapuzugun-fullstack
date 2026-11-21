@@ -269,6 +269,51 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - Licencia del código y del contenido; permiso de redistribución del diccionario de Augusta (hoy fuera del seguimiento, pero presente en el historial).
 - Créditos de "Acerca de": indicar que los fondos y avatares son ilustraciones generadas con IA.
 
+### Actualización 23–27 de octubre de 2026 (despliegue, privacidad y accesibilidad)
+
+**Hecho**
+- Despliegue: servidor en Render con SSL hacia Neon, `trust proxy` y script `start`. La app apunta al servidor en la nube. Compilación Android preparada (`appId` `cl.kimanke.app`, `webDir`).
+- Compañeros nuevos: Pudimel (pudú) y Rinodar (ranita de Darwin).
+- "Acerca de" rediseñada con tarjetas, compañeros, botones de contacto, créditos de las ilustraciones hechas con IA, gratuidad y condiciones de uso.
+- Privacidad: política ampliada, aviso de consentimiento en el registro y opción para eliminar la cuenta y todo el progreso (pide la contraseña).
+- Las fuentes quedan alojadas en la app (sin pedirlas a servidores externos).
+- Licencia: todos los derechos reservados (`LICENSE`).
+- Accesibilidad: se permite hacer zoom, los controles tienen nombre para lectores de pantalla y mejoró el contraste de los botones.
+- Portada de cada etapa y barra con franjas en el mapa y en la lección.
+
+### Actualización 18–19 de noviembre de 2026 (revisión, compañeros vivos y beta)
+
+**Hecho**
+- Correcciones de una revisión de código: llaves de firma fuera del repositorio, cálculo de vidas, avatares y registro.
+- Las notas culturales salen de la base (tabla `units`) y solo se muestran si están aprobadas, o en modo borrador.
+- Al despertar el servidor gratuito se muestra un aviso, con reintentos. Se agregaron guardias de sesión y pantallas de error de conexión.
+- Cada ejercicio indica su grafemario (Unificado por defecto) y su variante territorial. Botón para escribir la ü.
+- Rediseño con la tipografía Nunito y la paleta "Atardecer".
+- "Nuestro acuerdo": pantalla en la intro y sección en "Acerca de", nacida de la encuesta.
+- Compañeros vivos: los seis tienen cinco poses (parpadean, celebran, animan) en la lección y en el mapa, donde el compañero se para junto a la unidad actual.
+- Versión beta 0.9.0: etiqueta "beta", número de versión, botón para reportar errores en cada pregunta, respuesta junto al compañero arriba de la pregunta y botón principal fijo abajo.
+- El compañero se presenta al crear la cuenta.
+- Ícono nuevo de la app: globo de diálogo crema con la ü (`scripts/crear_icono.py`).
+- Íconos propios para Kütral, Kimün, Llanka y Newen, y una pantalla "Cómo funciona" en la intro que enseña esas cuatro palabras.
+- En la intro se puede volver atrás (deslizando o con el botón de Android).
+- Registro: avisa al tiro si el nombre está ocupado, sugiere otros y no acepta correos como nombre.
+- Versión web en Render (sitio estático) para iPhone y cualquier navegador, instalable en la pantalla de inicio.
+
+**Problemas y lecciones**
+- Desde iPhone no se puede instalar una APK. La solución fue la versión web; para que funcionara hubo que agregar su dirección a `CORS_ORIGIN` en el servidor.
+- Una hablante avisó que "müna" no significa "no" (es más bien "muy" o "qué"). Se agregó el estado `retirado` para sacar contenido con errores sin borrarlo, y se retiraron las preguntas 9 y 10.
+
+### Actualización 20 de noviembre de 2026 (lección, mapa, estilo 3D y contenido)
+
+**Hecho**
+- Lección: la pregunta va en un recuadro destacado, con la palabra clave en otro color, y el botón "Reportar error" tiene texto. La pantalla final es más compacta y deja visible el botón.
+- Mapa más claro: la unidad actual tiene destellos, el compañero dice qué hacer y un botón lleva directo a la siguiente etapa. Las unidades completadas pasaron a verde, porque el dorado se perdía en el camino.
+- Estilo 3D en toda la app, a tono con los compañeros: degradados con brillo, cantos bajo botones y tarjetas, bordes plateados en lo pendiente y dorados en lo superado, campos hundidos y fichas con volumen en "Empareja".
+- Presentaciones de los compañeros más claras. La de la ranita hablaba de crías "en la garganta" y se prestaba a malas lecturas.
+- Servidor despierto con cron-job.org (consulta `/api/salud` cada 10 minutos) y respaldo de la base con `pg_dump` 18 en `~/respaldos`, fuera del repositorio.
+- Planilla de revisión para hablantes con las 120 preguntas y las 8 notas de unidad. Cada fila tiene una alerta (alta, media, baja), qué revisar y una propuesta, también por confirmar.
+- En la base: se retiraron 7 preguntas con palabras probablemente erróneas (nueve, abuelo, abuela, pie y nalca) y se reemplazaron 12 notas de preguntas y 3 notas de unidad que eran inventadas o delicadas por versiones neutras.
+
 ### Actualización 20 de noviembre de 2026 (niveles, repaso y recordatorio)
 
 **Hecho**
@@ -280,5 +325,5 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 
 **Decisiones**
 - Los niveles agrupan solo el contenido básico que existe. Un nivel avanzado real (frases, conversación, relatos) se escribirá con hablantes.
-- Las notas culturales delicadas o inventadas se reemplazaron en la base por versiones neutras, y se retiraron 7 preguntas con palabras probablemente erróneas. El contenido original queda en la planilla de revisión para hablantes.
+- El contenido original de las notas reemplazadas y de las preguntas retiradas queda en la planilla de revisión para hablantes.
 
