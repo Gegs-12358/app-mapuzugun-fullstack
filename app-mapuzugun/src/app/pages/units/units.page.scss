@@ -423,8 +423,8 @@
 }
 
 @keyframes latir {
-  0%, 100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(255, 183, 3, 0.55); }
-  50%      { transform: scale(1.06); box-shadow: 0 0 0 10px rgba(255, 183, 3, 0); }
+  0%, 100% { transform: scale(1);    box-shadow: 0 4px 0 #6E0F18, 0 0 0 0 rgba(255, 183, 3, 0.6); }
+  50%      { transform: scale(1.06); box-shadow: 0 4px 0 #6E0F18, 0 0 0 12px rgba(255, 183, 3, 0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -540,10 +540,10 @@
 }
 
 ion-footer ion-button.btn-continuar-mapa {
-  --background: var(--mapu-sol);
+  --background: var(--mapu-sol-3d);
   --color: #2A1640;
   --border-radius: 14px;
-  --box-shadow: 0 6px 14px rgba(224, 155, 0, 0.35);
+  --box-shadow: var(--mapu-canto-sol);
   margin: 0;
   height: 52px;
   font-size: 1.1em;
@@ -560,4 +560,83 @@ ion-footer ion-button.btn-continuar-mapa {
 ion-toolbar.barra-kimanke ion-title.titulo-mapa {
   font-size: 24px;
   padding-inline: 4px;
+}
+
+/* =====================================================================
+   ESTRELLAS EN 3D con borde metálico
+   La estrella de afuera es el borde (dorado si está completa, plateado si no);
+   adentro va otra estrella con degradado y brillo, como la plasticina de los compañeros.
+   ===================================================================== */
+.path-node {
+  --c1: #FF9AA2; --c2: #E0414F; --c3: #9E1B28;   /* claro, medio, oscuro */
+  --metal: linear-gradient(135deg, #FFFFFF 0%, #C3C9D3 30%, #F4F6F9 52%, #8D96A6 78%, #DDE2E9 100%);
+}
+
+.path-node.color-unit-2 { --c1: #C9A2F0; --c2: #7B45B5; --c3: #46206E; }
+.path-node.color-unit-3 { --c1: #9BE7B6; --c2: #2E9E5B; --c3: #0F5A30; }
+.path-node.color-unit-4 { --c1: #FFE9A3; --c2: #FFB703; --c3: #C27C00; }
+.path-node.color-unit-5 { --c1: #8FB0FF; --c2: #2F63D6; --c3: #142F80; }
+
+.path-node.state-completada {
+  --c1: #9BE7B6; --c2: #2E9E5B; --c3: #0F5A30;
+  --metal: linear-gradient(135deg, #FFF6C9 0%, #F2C230 28%, #FFE58A 50%, #B07A00 76%, #F7D66B 100%);
+}
+
+.path-node.state-bloqueada {
+  --c1: #E1E4EA; --c2: #A3A9B4; --c3: #646B78;
+}
+
+.path-node .star-shape,
+.path-node.state-completada .star-shape,
+.path-node.state-bloqueada .star-shape {
+  background: var(--metal) !important;
+  filter: drop-shadow(0 5px 0 rgba(0, 0, 0, 0.22)) drop-shadow(0 9px 8px rgba(0, 0, 0, 0.22));
+}
+
+.path-node.state-actual .star-shape {
+  filter: drop-shadow(0 5px 0 rgba(0, 0, 0, 0.22)) drop-shadow(0 0 18px rgba(255, 215, 0, 0.9));
+}
+
+/* relleno con volumen */
+.path-node .star-shape::before,
+.path-node .star-shape::after {
+  content: '';
+  position: absolute;
+  inset: 9%;
+  clip-path: inherit;
+}
+
+.path-node .star-shape::before {
+  background: radial-gradient(circle at 38% 30%, var(--c1) 0%, var(--c2) 48%, var(--c3) 100%);
+}
+
+/* brillo de arriba */
+.path-node .star-shape::after {
+  background: radial-gradient(ellipse 45% 30% at 40% 28%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 70%);
+}
+
+/* ===== Etapas en 3D: borde dorado si está pasada, plateado si no ===== */
+.stage-chip {
+  border: 3px solid #B9C0CB;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F3EEE4 100%);
+  box-shadow: 0 4px 0 #9AA2AF, 0 8px 12px rgba(0, 0, 0, 0.18);
+
+  &.stage-actual {
+    border-color: #DDE2E9;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 50%),
+      linear-gradient(180deg, #D8404D 0%, #A61E2C 100%);
+    box-shadow: 0 4px 0 #6E0F18, 0 8px 14px rgba(110, 15, 24, 0.35);
+  }
+
+  &.stage-completada {
+    border-color: #F2C230;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 50%),
+      linear-gradient(180deg, #3DBB6F 0%, #1E7D47 100%);
+    box-shadow: 0 4px 0 #B07A00, 0 8px 12px rgba(0, 0, 0, 0.2);
+    color: #fff;
+  }
+
+  &.stage-bloqueada {
+    background: linear-gradient(180deg, #F1F2F5 0%, #D9DCE2 100%);
+  }
 }

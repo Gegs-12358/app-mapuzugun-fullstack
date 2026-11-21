@@ -36,6 +36,13 @@
   --mapu-tinta: #2A1640;
   --mapu-degradado: linear-gradient(90deg, #1D4FBF, #5B2A86);
 
+  /* Estilo 3D, a tono con los compañeros: brillo arriba, sombra abajo y un «canto» */
+  --mapu-brillo: linear-gradient(180deg, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0) 55%);
+  --mapu-sol-3d: var(--mapu-brillo), linear-gradient(180deg, #FFD45E 0%, #FFB703 55%, #E89A00 100%);
+  --mapu-degradado-3d: var(--mapu-brillo), linear-gradient(90deg, #2A5FD6, #6A35A0);
+  --mapu-canto-sol: 0 5px 0 #B87800, 0 10px 16px rgba(184, 120, 0, 0.35);
+  --mapu-canto-maqui: 0 5px 0 #34175A, 0 10px 16px rgba(52, 23, 90, 0.35);
+
   --ion-color-primary: #5B2A86;
   --ion-color-primary-rgb: 91, 42, 134;
   --ion-color-primary-contrast: #ffffff;
@@ -268,10 +275,10 @@ ion-toolbar.barra-kimanke ion-back-button {
 }
 
 .btn-principal {
-  --background: var(--mapu-degradado);
+  --background: var(--mapu-degradado-3d);
   --color: #FFF4DA;
   --border-radius: 14px;
-  --box-shadow: 0 6px 14px rgba(91, 42, 134, 0.35);
+  --box-shadow: var(--mapu-canto-maqui);
   height: 54px;
   margin-top: 8px;
   font-size: 16px;
@@ -345,4 +352,11 @@ ion-toolbar.barra-kimanke ion-title .etiqueta-beta {
   font-size: 12px;
   padding: 2px 8px;
   vertical-align: super;
+}
+
+/* Botones 3D: al presionarlos «bajan» */
+ion-button.btn-principal, ion-button.btn-accion, ion-button.btn-continuar-mapa,
+ion-button.btn-intro, ion-button.btn-comenzar {
+  transition: transform 0.08s ease-out;
+  &:active { transform: translateY(3px); }
 }
