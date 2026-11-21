@@ -76,19 +76,22 @@
     </div>
   </div>
 
-  <div *ngIf="loading" class="ion-text-center ion-margin-top" style="color: #5B2A86; font-weight: bold;">
-    Cargando el camino...
+  <div *ngIf="loading" class="estado-espera" role="status">
+    <app-companero [avatarId]="avatarId" estado="quieto" [tamano]="96"></app-companero>
+    <p>Cargando el camino<span class="puntitos" aria-hidden="true"><i></i><i></i><i></i></span></p>
   </div>
 
-  <div *ngIf="!loading && errorCarga" class="ion-text-center ion-margin-top" style="padding: 24px;" role="alert">
-    <p style="font-weight: 800; font-size: 1.1em; color: #5B2A86;">No pudimos conectar con el servidor</p>
-    <p style="color: #5B2A86;">Revisa tu conexión a internet e inténtalo de nuevo.</p>
-    <ion-button (click)="reintentar()" style="--background: #5B2A86; font-weight: bold;">Reintentar</ion-button>
+  <div *ngIf="!loading && errorCarga" class="estado-tarjeta" role="alert">
+    <app-companero [avatarId]="avatarId" estado="durmiendo" [tamano]="104"></app-companero>
+    <h2>No pudimos conectar</h2>
+    <p>Revisa tu conexión a internet e inténtalo de nuevo. A veces el servidor tarda un poco en despertar.</p>
+    <ion-button expand="block" class="btn-comenzar" (click)="reintentar()">REINTENTAR</ion-button>
   </div>
 
-  <div *ngIf="!loading && !errorCarga && unidades.length === 0" class="ion-text-center ion-margin-top" style="padding: 24px;">
-    <p style="font-weight: 800; font-size: 1.1em; color: #5B2A86;">Estamos preparando las lecciones</p>
-    <p style="color: #5B2A86;">Cada lección se revisa con hablantes de mapuzugun antes de publicarse. Vuelve pronto.</p>
+  <div *ngIf="!loading && !errorCarga && unidades.length === 0" class="estado-tarjeta">
+    <app-companero [avatarId]="avatarId" estado="feliz" [tamano]="104"></app-companero>
+    <h2>Estamos preparando las lecciones</h2>
+    <p>Cada lección se revisa con hablantes de mapuzugun antes de publicarse. ¡Vuelve pronto!</p>
   </div>
 
   <!-- CONTADOR DE PROGRESO + RACHA -->
@@ -189,6 +192,16 @@
 
 <!-- Qué sigue: el compañero lo dice y el botón lleva directo -->
 <ion-footer *ngIf="!loading && !errorCarga && unidades.length > 0" class="ion-no-border pie-mapa">
+  <!-- Consejo del compañero sobre opciones escondidas en el panel -->
+  <div class="consejo" *ngIf="consejoActual" role="status">
+    <span class="consejo-icono" aria-hidden="true">{{ consejoActual.icono }}</span>
+    <p><strong>{{ nombreCompanero }}:</strong> {{ consejoActual.texto }}</p>
+    <div class="consejo-botones">
+      <button type="button" class="consejo-ver" (click)="verConsejo()">Ver cómo</button>
+      <button type="button" class="consejo-cerrar" (click)="cerrarConsejo()">Entendido</button>
+    </div>
+  </div>
+
   <div class="pie-guia">
     <img [src]="avatarImg" alt="" width="44" height="44">
     <p>{{ guiaMapa }}</p>

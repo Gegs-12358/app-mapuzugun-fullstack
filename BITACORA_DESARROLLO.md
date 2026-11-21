@@ -369,4 +369,8 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - Tamaño de letra en el panel del compañero: Normal, Grande (115 %) y Muy grande (130 %). Se aplica con `zoom` en `<html>`, que agranda todo de forma pareja y reacomoda la pantalla, porque los estilos usan tamaños en píxeles. Probado en registro, mapa y lección: nada se sale por los costados y el botón principal sigue a la vista.
 - "Menos movimiento": quita animaciones, transiciones y confeti, para quien se marea o se distrae con ellas.
 - Los ajustes se guardan en el dispositivo (`kimanke_accesibilidad`) y se aplican antes de dibujar la app (`main.ts`), para que no se vea un salto al abrirla.
+- Consejos del compañero: en el pie del mapa, una vez por dispositivo y solo cuando ya hay progreso, cuenta las opciones escondidas en el panel (tamaño de letra y menos movimiento, recordatorio en Android, cambiar compañero, nombre o correo), con un botón que abre el panel. La intro también lo menciona en "Te ayudan en el camino".
+- Portada de la etapa rediseñada: estrella 3D de la unidad como en el mapa, fila con las etapas de la unidad (dorada superada, roja actual, plateada pendiente), el compañero animado con su globo, los tipos de pregunta y lo que se puede ganar. COMENZAR quedó en un pie fijo, siempre a la vista.
+- "Cargando", "sin conexión" y "estamos preparando las lecciones" ahora tienen al compañero y el estilo de tarjeta 3D, en el mapa y en la lección.
+- Se suelta el foco al cambiar de pantalla: el navegador avisaba que un botón enfocado quedaba dentro de una página oculta (aria-hidden), lo que confunde a los lectores de pantalla.
 
