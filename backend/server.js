@@ -24,6 +24,7 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 
 if (!process.env.JWT_SECRET) {
   console.error('Falta JWT_SECRET en el archivo .env');
@@ -33,6 +34,15 @@ if (!process.env.JWT_SECRET) {
 const app = express();
 
 app.set('trust proxy', 1);   // necesario detrás del proxy de Render (para el límite de intentos)
+
+// Encabezados de seguridad. La API solo responde JSON, así que la política de
+// contenido puede ser la más cerrada. CORP en 'cross-origin' para que la app web
+// y la APK (que vienen de otro origen) puedan leer las respuestas.
+app.use(helmet({
+  contentSecurityPolicy: { directives: { defaultSrc: ["'none'"], frameAncestors: ["'none'"] } },
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
+}));
+app.disable('x-powered-by');
 
 // ---------- CORS ----------
 // Orígenes permitidos, separados por coma en el .env
