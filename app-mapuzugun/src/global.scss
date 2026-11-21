@@ -42,6 +42,15 @@
   --mapu-degradado-3d: var(--mapu-brillo), linear-gradient(90deg, #2A5FD6, #6A35A0);
   --mapu-canto-sol: 0 5px 0 #B87800, 0 10px 16px rgba(184, 120, 0, 0.35);
   --mapu-canto-maqui: 0 5px 0 #34175A, 0 10px 16px rgba(52, 23, 90, 0.35);
+  /* Tarjetas con volumen: crema (contenido) y vidrio lila (sobre fotos) */
+  --mapu-crema-3d: var(--mapu-brillo), linear-gradient(180deg, #FFFBF1 0%, #FFF1D2 100%);
+  --mapu-canto-crema: 0 4px 0 #E3C98F, 0 8px 16px rgba(91, 42, 134, 0.18);
+  --mapu-vidrio-3d: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 45%), linear-gradient(180deg, rgba(118, 68, 168, 0.62), rgba(70, 30, 108, 0.62));
+  --mapu-canto-vidrio: 0 4px 0 rgba(40, 16, 66, 0.55), 0 8px 18px rgba(0, 0, 0, 0.25);
+  --mapu-claro-3d: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.52) 100%);
+  --mapu-canto-claro: 0 4px 0 rgba(91, 42, 134, 0.22), 0 8px 18px rgba(91, 42, 134, 0.18);
+  --mapu-copihue-3d: var(--mapu-brillo), radial-gradient(circle at 50% 35%, #E2505C 0%, #C8303D 60%, #A61E2C 100%);
+  --mapu-canto-copihue: 0 5px 0 #6E0F18, 0 10px 16px rgba(110, 15, 24, 0.35);
 
   --ion-color-primary: #5B2A86;
   --ion-color-primary-rgb: 91, 42, 134;
@@ -79,7 +88,7 @@ ion-button, .node-title, .nota-cultural {
 
 /* Tarjetas: sin fondo forzado, para poder hacerlas translúcidas */
 ion-card {
-  box-shadow: 0 6px 18px rgba(42, 22, 64, 0.12) !important;
+  box-shadow: 0 5px 0 rgba(91, 42, 134, 0.18), 0 10px 22px rgba(42, 22, 64, 0.16) !important;
   border-radius: 18px !important;
   border: 1px solid rgba(91, 42, 134, 0.2) !important;
 }
@@ -208,11 +217,11 @@ ion-toolbar.barra-kimanke ion-back-button {
   width: 100%;
   margin: 0;
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.35);
+  background: var(--mapu-claro-3d);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.45) !important;
-  box-shadow: 0 8px 26px rgba(91, 42, 134, 0.25);
+  border: 2px solid rgba(255, 255, 255, 0.75) !important;
+  box-shadow: var(--mapu-canto-claro) !important;
 
   ion-card-title {
     font-size: 24px;
@@ -233,13 +242,15 @@ ion-toolbar.barra-kimanke ion-back-button {
 }
 
 .campo {
-  --background: rgba(255, 255, 255, 0.50);
+  --background: linear-gradient(180deg, rgba(240, 232, 248, 0.85), rgba(255, 255, 255, 0.85));
   --border-radius: 14px;
   --padding-start: 16px;
   --min-height: 58px;
   margin-bottom: 14px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  /* Hundido: sombra por dentro arriba, como un hueco donde se escribe */
+  box-shadow: inset 0 3px 5px rgba(91, 42, 134, 0.18), 0 1px 0 rgba(255, 255, 255, 0.8);
 
   ion-input {
     --color: #5B2A86;
@@ -267,8 +278,9 @@ ion-toolbar.barra-kimanke ion-back-button {
 .login-error {
   margin-bottom: 12px;
   padding: 10px 12px;
-  border-radius: 10px;
-  background: #fdecea;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #FFF3F1, #FBE1DD);
+  box-shadow: 0 3px 0 #E7A9A2;
   color: #b3261e;
   font-size: 14px;
   text-align: center;
@@ -288,7 +300,8 @@ ion-toolbar.barra-kimanke ion-back-button {
 
 /* Enlace entre login y registro, con recuadro de vidrio */
 .btn-cambio {
-  --background: rgba(255, 255, 255, 0.35);
+  --background: var(--mapu-claro-3d);
+  --box-shadow: var(--mapu-canto-claro);
   --background-hover: rgba(255, 255, 255, 0.5);
   --background-activated: rgba(255, 255, 255, 0.55);
   --color: #5B2A86;
@@ -336,7 +349,8 @@ ion-progress-bar.progreso-etapa {
   display: inline-block;
   padding: 1px 8px;
   border-radius: 999px;
-  background: var(--mapu-sol);
+  background: var(--mapu-sol-3d);
+  box-shadow: 0 2px 0 #B87800;
   color: #2A1640;
   font-size: 0.6em;
   font-weight: 800;
@@ -356,7 +370,7 @@ ion-toolbar.barra-kimanke ion-title .etiqueta-beta {
 
 /* Botones 3D: al presionarlos «bajan» */
 ion-button.btn-principal, ion-button.btn-accion, ion-button.btn-continuar-mapa,
-ion-button.btn-intro, ion-button.btn-comenzar {
+ion-button.btn-intro, ion-button.btn-comenzar, ion-button.btn-cambio {
   transition: transform 0.08s ease-out;
   &:active { transform: translateY(3px); }
 }

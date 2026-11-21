@@ -20,10 +20,10 @@ ion-toolbar.barra-kimanke ion-title {
     margin-bottom: 16px;
     padding: 16px 18px 12px;
     border-radius: 18px;
-    background: rgba(255, 244, 218, 0.92);
-    border: 1px solid rgba(255, 255, 255, 0.7);
+    background: var(--mapu-crema-3d);
+    border: 1px solid rgba(255, 255, 255, 0.8);
     border-left: 6px solid var(--acento);
-    box-shadow: 0 4px 14px rgba(91, 42, 134, 0.18);
+    box-shadow: var(--mapu-canto-crema);
   }
 
   section:nth-of-type(4n + 2) { --acento: #FFB703; }
@@ -48,9 +48,9 @@ ion-toolbar.barra-kimanke ion-title {
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background: var(--acento);
+    background: var(--mapu-brillo), var(--acento);
     font-size: 18px;
-    box-shadow: 0 2px 6px rgba(91, 42, 134, 0.25);
+    box-shadow: 0 3px 0 rgba(42, 22, 64, 0.35), inset 0 -4px 6px rgba(0, 0, 0, 0.18);
   }
 
   p {
@@ -99,7 +99,8 @@ ion-toolbar.barra-kimanke ion-title {
     border-radius: 50%;
     background: #FFF4DA;
     border: 1px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 2px 6px rgba(91, 42, 134, 0.2);
+    background: radial-gradient(circle at 50% 30%, #FFFFFF 0%, #FFF4DA 55%, #F2DDB0 100%) !important;
+    box-shadow: 0 3px 0 #D9BD84, 0 6px 10px rgba(91, 42, 134, 0.2) !important;
     object-fit: contain;
   }
 
@@ -127,10 +128,11 @@ ion-toolbar.barra-kimanke ion-title {
   font-size: 15px;
   font-weight: 700;
   text-decoration: none;
-  box-shadow: 0 4px 12px rgba(91, 42, 134, 0.25);
+  transition: transform 0.08s ease-out;
+  &:active { transform: translateY(3px); }
 
-  &.correo { background: linear-gradient(135deg, #1D4FBF, #5B2A86); }
-  &.whatsapp { background: linear-gradient(135deg, #5A9470, #3E7552); }
+  &.correo { background: var(--mapu-degradado-3d); box-shadow: var(--mapu-canto-maqui); }
+  &.whatsapp { background: var(--mapu-brillo), linear-gradient(180deg, #67A57E, #3E7552); box-shadow: 0 5px 0 #24492F, 0 10px 16px rgba(36, 73, 47, 0.3); }
 }
 
 .dato-contacto {

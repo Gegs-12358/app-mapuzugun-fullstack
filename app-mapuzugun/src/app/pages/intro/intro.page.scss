@@ -59,8 +59,9 @@
   gap: 2px;
   padding: 12px 6px;
   border-radius: 18px;
-  background: rgba(91, 42, 134, 0.42);
-  border: 1px solid rgba(255, 244, 218, 0.25);
+  background: var(--mapu-vidrio-3d);
+  border: 1px solid rgba(255, 244, 218, 0.35);
+  box-shadow: var(--mapu-canto-vidrio);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 
@@ -71,7 +72,8 @@
     padding: 6px;
     margin-bottom: 4px;
     border-radius: 50%;
-    background: #FFF4DA;
+    background: radial-gradient(circle at 50% 30%, #FFFFFF 0%, #FFF4DA 55%, #F2DDB0 100%) !important;
+    box-shadow: 0 3px 0 #D9BD84, 0 6px 10px rgba(0, 0, 0, 0.25) !important;
     object-fit: contain;
   }
 
@@ -90,7 +92,7 @@
     border-radius: 50%;
     background: rgba(255, 244, 218, 0.45);
 
-    &.activo { background: #FFB703; }
+    &.activo { background: var(--mapu-sol-3d); box-shadow: 0 2px 0 #B87800; }
   }
 }
 
@@ -110,7 +112,8 @@
   padding: 8px 16px;
   border: 0;
   border-radius: 20px;
-  background: rgba(91, 42, 134, 0.45);
+  background: var(--mapu-vidrio-3d);
+  box-shadow: 0 3px 0 rgba(40, 16, 66, 0.55);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   color: #FFF4DA;
@@ -134,10 +137,11 @@
   margin: 6px 0 0;
   padding: 10px 14px;
   border-radius: 14px;
-  background: rgba(91, 42, 134, 0.55);
+  background: var(--mapu-vidrio-3d);
+  box-shadow: var(--mapu-canto-vidrio);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 244, 218, 0.25);
+  border: 1px solid rgba(255, 244, 218, 0.35);
   font-size: 13px;
   line-height: 1.45;
   color: #FFF4DA;
@@ -161,8 +165,8 @@
   max-width: 300px;
   height: auto;
   border-radius: 24px;
-  border: 3px solid rgba(255, 244, 218, 0.85);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  border: 3px solid rgba(255, 244, 218, 0.9);
+  box-shadow: 0 6px 0 rgba(40, 16, 66, 0.6), 0 14px 26px rgba(0, 0, 0, 0.35);
 }
 /* ===== Nuestro acuerdo ===== */
 .pantalla-acuerdo {
@@ -186,8 +190,8 @@
     align-items: flex-start;
     padding: 12px 14px;
     border-radius: 16px;
-    background: rgba(255, 244, 218, 0.94);
-    box-shadow: 0 4px 12px rgba(42, 22, 64, 0.2);
+    background: var(--mapu-crema-3d);
+    box-shadow: var(--mapu-canto-crema);
   }
 
   strong {
@@ -243,7 +247,8 @@
     gap: 12px;
     padding: 10px 14px;
     border-radius: 16px;
-    background: rgba(255, 244, 218, 0.94);
+    background: var(--mapu-crema-3d);
+    box-shadow: var(--mapu-canto-crema);
     color: #2A1640;
   }
 
@@ -256,7 +261,7 @@
 }
 
 .ayudas {
-  li { background: rgba(91, 42, 134, 0.55); color: #FFF4DA; border: 1px solid rgba(255, 244, 218, 0.25); }
+  li { background: var(--mapu-vidrio-3d); box-shadow: var(--mapu-canto-vidrio); color: #FFF4DA; border: 1px solid rgba(255, 244, 218, 0.35); }
   p { margin: 0; }
   strong { color: #FFD166; }
 }
@@ -269,7 +274,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: rgba(255, 244, 218, 0.95);
+  background: radial-gradient(circle at 50% 30%, #FFFFFF 0%, #FFF4DA 60%, #EED6A2 100%);
+  box-shadow: 0 2px 0 #CDAF72;
   font-size: 18px;
 
   &.letra { color: #5B2A86; font-size: 22px; font-weight: 900; }
