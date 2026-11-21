@@ -215,9 +215,6 @@
         style="color: #A85E4A; font-size: 14px; font-weight: bold; text-align: center; margin-bottom: 5px;">
         🔄 Pregunta de repaso
       </p>
-      <!-- La pregunta, en su propio recuadro para que se destaque -->
-      <ion-card-title class="pregunta">{{ partesPregunta.antes }}<span *ngIf="partesPregunta.clave"
-          class="pregunta-clave">{{ partesPregunta.clave }}</span>{{ partesPregunta.despues }}</ion-card-title>
       <div class="progreso-pregunta">
         <span>{{ modoRepaso ? 'Repaso' : 'Etapa ' + stage }} · Pregunta {{ currentIndex + 1 }} de {{ ejercicios.length }}</span>
         <a class="btn-reporte" [href]="enlaceReporteEjercicio" title="Reportar un problema con esta pregunta"
@@ -236,7 +233,7 @@
 
     <ion-card-content class="ion-text-center">
 
-      <!-- COMPAÑERO + RESPUESTA: arriba, para no tener que bajar a buscarla -->
+      <!-- COMPAÑERO + RESPUESTA: sobre la pregunta, para no tener que bajar a buscarla -->
       <div class="companero-arriba">
         <button type="button" class="companero-btn" (click)="tocarCompanero()"
           [attr.aria-label]="'Saludar a ' + nombreCompanero">
@@ -263,6 +260,10 @@
           </ng-template>
         </div>
       </div>
+
+      <!-- La pregunta, justo encima de las respuestas para no perderla de vista -->
+      <ion-card-title class="pregunta">{{ partesPregunta.antes }}<span *ngIf="partesPregunta.clave"
+          class="pregunta-clave">{{ partesPregunta.clave }}</span>{{ partesPregunta.despues }}</ion-card-title>
 
       <!-- BOTÓN DE AUDIO (Oculto en modo Match y si no hay URL) -->
       <ion-button *ngIf="ejercicioActual.type !== 'match' && ejercicioActual.audio_url" fill="clear"
