@@ -210,7 +210,8 @@
 
 <!-- Qué sigue: el compañero lo dice y el botón lleva directo -->
 <ion-footer *ngIf="!loading && !errorCarga && unidades.length > 0" class="ion-no-border pie-mapa">
-  <div class="pie-guia">
+  <!-- El compañero ya habla sobre la etapa; abajo solo queda cuando ya no hay etapa que jugar -->
+  <div class="pie-guia" *ngIf="todoCompletado">
     <img [src]="avatarImg" alt="" width="44" height="44">
     <p>{{ guiaMapa }}</p>
   </div>
