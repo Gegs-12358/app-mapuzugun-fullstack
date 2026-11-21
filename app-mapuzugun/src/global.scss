@@ -374,3 +374,21 @@ ion-button.btn-intro, ion-button.btn-comenzar, ion-button.btn-cambio {
   transition: transform 0.08s ease-out;
   &:active { transform: translateY(3px); }
 }
+
+/* ===== Accesibilidad (ver src/app/accesibilidad.ts) ===== */
+/* Letra más grande: agranda todo de forma pareja y reacomoda la pantalla */
+html.letra-grande { zoom: 1.15; }
+html.letra-muy-grande { zoom: 1.3; }
+
+/* Menos movimiento: sin animaciones ni transiciones (confeti, destellos, saltos) */
+html.menos-movimiento *,
+html.menos-movimiento *::before,
+html.menos-movimiento *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  animation-delay: 0s !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+html.menos-movimiento .confeti { display: none !important; }
+

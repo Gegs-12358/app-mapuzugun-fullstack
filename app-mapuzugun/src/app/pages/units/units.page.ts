@@ -13,6 +13,9 @@ import { CompaneroComponent, EstadoVisual } from '../../companero/companero.comp
 import { PiezaConfeti, crearConfeti } from '../../companero';
 import { NIVELES, Nivel, nivelDeUnidad } from '../../niveles';
 import {
+  AjustesAccesibilidad, TAMANOS, TamanoLetra, guardarAccesibilidad, leerAccesibilidad
+} from '../../accesibilidad';
+import {
   AjustesRecordatorio, cambiarRecordatorio, leerAjustes, recordatorioDisponible
 } from '../../recordatorio';
 
@@ -60,6 +63,10 @@ export class UnitsPage implements OnInit {
   recordatorioNativo = recordatorioDisponible();
   ajustesRecordatorio: AjustesRecordatorio = leerAjustes();
   avisoRecordatorio = '';
+
+  // Accesibilidad: tamaño de letra y menos movimiento
+  tamanos = TAMANOS;
+  accesibilidad: AjustesAccesibilidad = leerAccesibilidad();
 
   constructor(private http: HttpClient, private router: Router, private alertCtrl: AlertController) {
     addIcons({ logOutOutline, checkmark, lockClosed, flame, informationCircleOutline });
@@ -261,6 +268,17 @@ export class UnitsPage implements OnInit {
   get siguienteNivel(): Nivel | null {
     if (!this.nivelCelebrado) return null;
     return NIVELES.find(n => n.numero === this.nivelCelebrado!.numero + 1 && this.unidadesDelNivel(n).length) ?? null;
+  }
+
+  // --- Accesibilidad ---
+  cambiarLetra(letra: TamanoLetra) {
+    this.accesibilidad = { ...this.accesibilidad, letra };
+    guardarAccesibilidad(this.accesibilidad);
+  }
+
+  cambiarMovimiento(menos: boolean) {
+    this.accesibilidad = { ...this.accesibilidad, menosMovimiento: menos };
+    guardarAccesibilidad(this.accesibilidad);
   }
 
   // --- Recordatorio diario ---

@@ -31,6 +31,23 @@
       </button>
     </div>
 
+    <!-- Accesibilidad -->
+    <div class="ajuste-panel">
+      <p class="ajuste-titulo" id="titulo-letra">🔤 Tamaño de letra</p>
+      <div class="tamanos" role="radiogroup" aria-labelledby="titulo-letra">
+        <button type="button" *ngFor="let t of tamanos; let n = index" role="radio"
+          [attr.aria-checked]="accesibilidad.letra === t.id" [class.elegido]="accesibilidad.letra === t.id"
+          [ngClass]="'tamano-' + n" (click)="cambiarLetra(t.id)">
+          <span class="muestra" aria-hidden="true">Aa</span>{{ t.nombre }}
+        </button>
+      </div>
+      <label class="recordatorio-fila">
+        <input type="checkbox" [checked]="accesibilidad.menosMovimiento"
+          (change)="cambiarMovimiento($any($event.target).checked)">
+        <span>Menos movimiento <small>(sin animaciones ni confeti)</small></span>
+      </label>
+    </div>
+
     <!-- Recordatorio diario para practicar -->
     <div class="recordatorio">
       <p class="recordatorio-titulo">🔔 Recordatorio diario</p>

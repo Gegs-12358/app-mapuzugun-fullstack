@@ -33,6 +33,7 @@ Quedan por definir con hablantes: la ortografía y el significado del nombre "Ki
 - Mapa con **niveles** (`src/app/niveles.ts`): 1 Primeros pasos, 2 Vida diaria y 3 Territorio y cosmovisión. Cada nivel agrupa unidades, cada unidad tiene etapas y cada etapa unas 5 preguntas. Una unidad se desbloquea al terminar la anterior. La unidad que toca brilla, el compañero se para a su lado y el pie del mapa dice qué sigue.
 - Cuatro tipos de ejercicio: selección múltiple, escritura, completar la frase y emparejamiento. El audio se reproduce desde la URL del ejercicio, cuando la tiene.
 - **Repaso**: cada respuesta se guarda, y el mapa ofrece repasar las palabras que más costaron. Una palabra sale del repaso al responderla bien dos veces seguidas. El repaso no gasta Newen.
+- **Accesibilidad:** en el panel del compañero se elige el tamaño de letra (Normal, Grande o Muy grande) y se pueden quitar las animaciones ("Menos movimiento"). Se guarda en cada dispositivo. La app también respeta la opción de reducir movimiento del sistema y permite hacer zoom.
 - **Recordatorio diario** (solo en la APK de Android): un aviso a la hora que la persona elija, que se salta si ese día ya practicó.
 - Juego: experiencia (Kimün), racha diaria (Kütral, con hora de Chile), gemas (Llanka) y vidas (Newen). Al tocarlos en la barra de la lección se explica qué significa cada palabra.
 - Economía: 40 Llankas al registrarse, 2 por acierto la primera vez que se completa una etapa, 30 por una recarga completa de Newen. El Newen es 5 como máximo y se recupera uno cada 10 minutos, o practicando.
