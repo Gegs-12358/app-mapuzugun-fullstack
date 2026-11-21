@@ -249,3 +249,27 @@
   .celebra-nivel, .celebra-tarjeta { animation: none; }
   .celebra-nivel .confeti { display: none; }
 }
+
+/* Acciones de la cuenta, en el panel del compañero */
+.acciones-cuenta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+
+  .btn-eliminar { margin: 0; }
+}
+
+.btn-cambiar-nombre {
+  padding: 8px 14px;
+  border: 1px solid rgba(91, 42, 134, 0.5);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #FFFFFF, #EADFF6);
+  box-shadow: 0 3px 0 rgba(91, 42, 134, 0.45);
+  color: #5B2A86;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
