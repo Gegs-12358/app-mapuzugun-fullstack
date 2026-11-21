@@ -280,8 +280,11 @@ async function enviarCorreo(para, asunto, texto) {
   if (!r.ok) throw new Error(`Brevo respondió ${r.status}: ${(await r.text()).slice(0, 200)}`);
 }
 
-// Crea un código nuevo (anula los anteriores del mismo tipo) y lo envía
-async function enviarCodigo(userId, proposito, email, nombre) {
+// Crea un código nuevo (anula los anteriores del mismo tipo) y lo envía.
+// Con cuentaDuena (el correo ya es de otra cuenta), se guarda un código que nunca
+// se envía y al correo le llega un aviso en vez del código. Así la app responde
+// igual en ambos casos y nadie puede averiguar qué correos tienen cuenta.
+async function enviarCodigo(userId, proposito, email, nombre, cuentaDuena = null) {
   const codigo = nuevoCodigo();
   await pool.query('DELETE FROM codigos_correo WHERE user_id = $1 AND proposito = $2', [userId, proposito]);
   await pool.query(
@@ -289,6 +292,14 @@ async function enviarCodigo(userId, proposito, email, nombre) {
      VALUES ($1, $2, $3, $4, now() + make_interval(mins => $5))`,
     [userId, proposito, email, huellaCodigo(codigo), MINUTOS_CODIGO]
   );
+  if (cuentaDuena) {
+    await enviarCorreo(email, 'Aviso de Kimanke: este correo ya tiene una cuenta',
+      `Mari mari, ${cuentaDuena}.\n\nAlguien (quizás tú) intentó agregar este correo a otra cuenta de Kimanke. ` +
+      `Este correo ya está en tu cuenta «${cuentaDuena}», así que no lo agregamos a la otra.\n\n` +
+      'Si fuiste tú y no recuerdas tu contraseña, en la app elige «¿Olvidaste tu contraseña?».\n' +
+      'Si no fuiste tú, ignora este mensaje: tu cuenta sigue segura.\n\nKimanke');
+    return;
+  }
   const motivo = proposito === 'verificar'
     ? 'Para confirmar este correo en tu cuenta de Kimanke, escribe este código en la app:'
     : 'Pediste recuperar tu contraseña de Kimanke. Escribe este código en la app para elegir una nueva:';
@@ -591,9 +602,9 @@ app.post('/api/correo/enviar', limiteCodigos, async (req, res) => {
   if (!correoValido(email)) return res.status(400).json({ error: 'Revisa el correo: parece que está mal escrito' });
   if (!CORREO_DISPONIBLE) return res.status(503).json({ error: 'El envío de correos todavía no está disponible.' });
   try {
-    const usado = await pool.query('SELECT 1 FROM users WHERE LOWER(email) = $1 AND id <> $2', [email, req.user.id]);
-    if (usado.rows.length) return res.status(409).json({ error: 'Ese correo ya está en otra cuenta de Kimanke' });
-    await enviarCodigo(req.user.id, 'verificar', email, req.user.username);
+    // Si el correo ya es de otra cuenta, la respuesta es la misma: al correo le llega un aviso
+    const usado = await pool.query('SELECT username FROM users WHERE LOWER(email) = $1 AND id <> $2', [email, req.user.id]);
+    await enviarCodigo(req.user.id, 'verificar', email, req.user.username, usado.rows[0]?.username ?? null);
     res.json({ ok: true });
   } catch (err) {
     console.error(err);
@@ -609,7 +620,7 @@ app.post('/api/correo/verificar', limiteLogin, async (req, res) => {
     await pool.query('UPDATE users SET email = $1 WHERE id = $2', [revision.fila.email, req.user.id]);
     res.json({ ok: true, tiene_correo: true });
   } catch (err) {
-    if (err.code === '23505') return res.status(409).json({ error: 'Ese correo ya está en otra cuenta de Kimanke' });
+    if (err.code === '23505') return res.status(400).json({ error: 'El código venció o ya no es válido. Pide uno nuevo.' });
     console.error(err);
     res.status(500).json({ error: 'Error en el servidor' });
   }

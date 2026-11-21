@@ -156,6 +156,19 @@ export class UnitsPage implements OnInit {
     this.cargarRepaso();
   }
 
+  // El mapa solo se puede medir cuando la pantalla ya está a la vista: durante la
+  // transición de Ionic sigue oculta y todas las medidas dan cero.
+  private visible = false;
+
+  ionViewDidEnter() {
+    this.visible = true;
+    setTimeout(() => this.irAUnidadActual(), 60);
+  }
+
+  ionViewWillLeave() {
+    this.visible = false;
+  }
+
   cargarRacha() {
     if (!this.username) return;
     this.http.get<any>(`/api/user/${encodeURIComponent(this.username)}`).subscribe({
@@ -304,13 +317,14 @@ export class UnitsPage implements OnInit {
   // Baja el camino hasta la unidad en la que vas (o la última, si terminaste todo)
   // y la deja al centro. En la primera unidad baja lo mínimo.
   private async irAUnidadActual() {
-    if (!this.contenido || this.selectorAbierto) return;
+    if (!this.visible || !this.contenido || this.selectorAbierto || this.loading) return;
     const destino = this.unidadCompanero;
     if (destino === null) return;
     // Si el compañero está sobre la etapa, se centra eso; si no, la estrella
     const nodo = document.getElementById('compa-etapa') ?? document.getElementById(`unidad-${destino}`);
-    if (!nodo) return;
+    if (!nodo || nodo.offsetParent === null || nodo.getBoundingClientRect().height === 0) return;
     const caja = await this.contenido.getScrollElement();
+    if (caja.clientHeight === 0) return;
     const arriba = nodo.getBoundingClientRect().top - caja.getBoundingClientRect().top + caja.scrollTop;
     // En la primera unidad se baja solo lo justo para que se vea la etapa roja bajo
     // el compañero (así queda a la vista también el resumen de arriba)

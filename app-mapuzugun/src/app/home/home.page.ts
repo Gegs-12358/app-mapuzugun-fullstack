@@ -78,7 +78,7 @@ export class HomePage implements OnInit, OnDestroy {
   parejaPista: string | null = null;
   private usoPista = false;
   private relojPista: any = null;
-  private static readonly SEGUNDOS_PISTA = 15;
+  private static readonly SEGUNDOS_PISTA = 10;
 
   // Portada: etapas de la unidad (para la fila de etapas) y el compañero que saluda
   etapasUnidad: { stage: number; completed: boolean; title?: string }[] = [];
