@@ -252,7 +252,15 @@
             </span>
             <span *ngIf="ejercicioActual?.cultural_note" class="nota">{{ ejercicioActual.cultural_note }}</span>
           </ng-container>
-          <ng-template #charla><span>{{ fraseCompanero || '¡Aquí estoy contigo!' }}</span></ng-template>
+          <ng-template #charla>
+            <span *ngIf="nivelPista === 0">{{ fraseCompanero || '¡Aquí estoy contigo!' }}</span>
+            <span *ngIf="nivelPista > 0" class="pista-texto">💡 {{ textoPista }}</span>
+            <span *ngIf="formaPista" class="pista-forma" [attr.aria-label]="'Forma de la respuesta: ' + formaPista">{{ formaPista }}</span>
+            <button type="button" class="btn-pista"
+              *ngIf="(ofrecerPista || nivelPista > 0) && nivelPista < maxNivelPista" (click)="darPista()">
+              💡 {{ nivelPista === 0 ? 'Sí, una pista' : 'Otra pista' }}
+            </button>
+          </ng-template>
         </div>
       </div>
 
@@ -264,7 +272,9 @@
 
       <!-- MODO SELECCIÓN MÚLTIPLE -->
       <div *ngIf="ejercicioActual.type === 'multiple_choice'" style="display: flex; flex-direction: column; gap: 12px;">
-        <ion-button *ngFor="let option of ejercicioActual.options" expand="block" fill="outline" [ngClass]="{
+        <ion-button *ngFor="let option of ejercicioActual.options" expand="block" fill="outline"
+          [class.opcion-apagada]="opcionesApagadas.includes(option) && !isAnswered"
+          [disabled]="opcionesApagadas.includes(option) && !isAnswered" [ngClass]="{
             'btn-selected': !isAnswered && selectedOption === option,
             'btn-correct': isAnswered && option === ejercicioActual.correct_answer,
             'btn-incorrect': isAnswered && selectedOption === option && !isCorrect
@@ -306,7 +316,7 @@
           <!-- Columna Izquierda (Kimanke) -->
           <div class="columna-match">
             <div *ngFor="let item of matchLeftColumn" (click)="selectLeft(item)" class="pieza-match"
-              [class.elegida]="selectedLeft === item" [class.match-completed]="matchedLeft.includes(item.mapuche)">
+              [class.elegida]="selectedLeft === item" [class.pista-brilla]="parejaPista === item.mapuche && !matchedLeft.includes(item.mapuche)" [class.match-completed]="matchedLeft.includes(item.mapuche)">
               {{ item.mapuche }}
             </div>
           </div>
@@ -314,7 +324,7 @@
           <!-- Columna Derecha (Español) -->
           <div class="columna-match">
             <div *ngFor="let item of matchRightColumn" (click)="selectRight(item)" class="pieza-match"
-              [class.elegida]="selectedRight === item" [class.match-completed]="matchedRight.includes(item.spanish)">
+              [class.elegida]="selectedRight === item" [class.pista-brilla]="parejaPista === item.mapuche && !matchedRight.includes(item.spanish)" [class.match-completed]="matchedRight.includes(item.spanish)">
               {{ item.spanish }}
             </div>
           </div>

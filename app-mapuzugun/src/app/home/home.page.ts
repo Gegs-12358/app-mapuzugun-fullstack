@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -29,7 +29,7 @@ import { marcarPracticaDeHoy } from '../recordatorio';
     IonProgressBar, IonBackButton, IonInput, IonFooter, CompaneroComponent, IconoRecursoComponent
   ]
 })
-export class HomePage implements OnInit {
+export class HomePage implements OnInit, OnDestroy {
   ejercicios: any[] = [];
   currentIndex = 0;
   loading = true;
@@ -68,6 +68,17 @@ export class HomePage implements OnInit {
   // No gasta Newen, suma un poco de Kimün y cuenta para la racha.
   modoRepaso = false;
   sinRepaso = false;
+
+  // Pistas: si pasan unos segundos sin responder, el compañero ofrece ayuda.
+  // Salen de la misma respuesta correcta (letras, opciones descartadas), sin
+  // inventar contenido. Quien usa pista, igual deja la palabra para el repaso.
+  nivelPista = 0;
+  ofrecerPista = false;
+  opcionesApagadas: string[] = [];
+  parejaPista: string | null = null;
+  private usoPista = false;
+  private relojPista: any = null;
+  private static readonly SEGUNDOS_PISTA = 15;
 
   // Portada: etapas de la unidad (para la fila de etapas) y el compañero que saluda
   etapasUnidad: { stage: number; completed: boolean; title?: string }[] = [];
@@ -146,6 +157,92 @@ export class HomePage implements OnInit {
     this.mostrarPortada = false;
     this.fraseCompanero = fraseAlAzar(FRASES.inicio);
     this.tonoFrase = '';
+    this.iniciarPista();
+  }
+
+  ngOnDestroy() {
+    clearTimeout(this.relojPista);
+  }
+
+  ionViewWillLeave() {
+    clearTimeout(this.relojPista);
+  }
+
+  // --- Pistas ---
+  private iniciarPista() {
+    clearTimeout(this.relojPista);
+    this.nivelPista = 0;
+    this.ofrecerPista = false;
+    this.opcionesApagadas = [];
+    this.parejaPista = null;
+    this.usoPista = false;
+    this.relojPista = setTimeout(() => {
+      if (this.isAnswered || this.mostrarPortada || this.leccionTerminada || this.gameOver) return;
+      this.ofrecerPista = true;
+      this.reaccionar('saltito');
+      this.fraseCompanero = '¿Te ayudo con una pista?';
+      this.tonoFrase = '';
+    }, HomePage.SEGUNDOS_PISTA * 1000);
+  }
+
+  get maxNivelPista(): number {
+    const e = this.ejercicioActual;
+    if (!e) return 0;
+    if (e.type === 'match') return 1;
+    if (e.type === 'multiple_choice') return (e.options?.length ?? 0) >= 4 ? 3 : 2;
+    return 3;
+  }
+
+  darPista() {
+    if (this.isAnswered || this.nivelPista >= this.maxNivelPista) return;
+    clearTimeout(this.relojPista);
+    this.nivelPista++;
+    this.usoPista = true;
+    this.ofrecerPista = false;
+    const e = this.ejercicioActual;
+    if (e.type === 'multiple_choice' && this.nivelPista >= 2) {
+      // Apagar una alternativa incorrecta que siga encendida
+      const malas = (e.options as string[]).filter(o => o !== e.correct_answer && !this.opcionesApagadas.includes(o));
+      const quitar = malas[Math.floor(Math.random() * malas.length)];
+      if (quitar) {
+        this.opcionesApagadas = [...this.opcionesApagadas, quitar];
+        if (this.selectedOption === quitar) this.selectedOption = null;
+      }
+    }
+    if (e.type === 'match') {
+      const libre = (e.options as any[]).find(p => !this.matchedLeft.includes(p.mapuche));
+      this.parejaPista = libre?.mapuche ?? null;
+    }
+  }
+
+  // «M _ _ i   _ _ _ i»: guiones por letra, con la primera (y en el nivel 3 la última) visible
+  get formaPista(): string {
+    const e = this.ejercicioActual;
+    if (!e || this.nivelPista < 2 || (e.type !== 'write' && e.type !== 'fill_blank')) return '';
+    const resp = String(e.correct_answer ?? '').trim();
+    const conUltima = this.nivelPista >= 3;
+    return resp.split(/\s+/).map((palabra, n) =>
+      [...palabra].map((letra, i, todas) =>
+        (i === 0 && (n === 0 || conUltima)) || (conUltima && i === todas.length - 1) ? letra : '_'
+      ).join(' ')
+    ).join('   ');
+  }
+
+  get textoPista(): string {
+    const e = this.ejercicioActual;
+    if (!e || this.nivelPista === 0) return '';
+    if (e.type === 'match') return 'Mira la pareja que brilla. Las demás van por tu cuenta.';
+    const resp = String(e.correct_answer ?? '').trim();
+    const primera = `Empieza con «${resp.charAt(0)}».`;
+    const aviso = ' Esta palabra quedará para repasar.';
+    if (e.type === 'multiple_choice') {
+      if (this.nivelPista === 1) return primera + aviso;
+      return primera + (this.nivelPista === 2 ? ' Apagué una opción que no es.' : ' Quedan solo dos opciones.');
+    }
+    // Escribir o completar: la forma de la palabra va aparte (formaPista)
+    if (this.nivelPista === 1) return primera + aviso;
+    if (this.nivelPista === 2) return `${primera} Tiene esta forma:`;
+    return 'Primera y última letra de cada palabra:';
   }
   constructor(
     private http: HttpClient,
@@ -355,7 +452,8 @@ export class HomePage implements OnInit {
   // Guarda si la persona acertó o no, para armar su repaso
   private registrarRespuesta(ejercicio: any, correcta: boolean) {
     if (!ejercicio?.id) return;
-    this.http.post('/api/respuesta', { exerciseId: ejercicio.id, correcta }).subscribe({
+    // Con pista, la palabra queda para el repaso aunque se acierte
+    this.http.post('/api/respuesta', { exerciseId: ejercicio.id, correcta: correcta && !this.usoPista }).subscribe({
       error: (err) => console.error('Error al guardar la respuesta:', err)
     });
   }
@@ -383,7 +481,7 @@ export class HomePage implements OnInit {
   }
 
   selectOption(option: string) {
-    if (!this.isAnswered) {
+    if (!this.isAnswered && !this.opcionesApagadas.includes(option)) {
       this.selectedOption = option;
     }
   }
@@ -443,6 +541,8 @@ export class HomePage implements OnInit {
     }
 
     this.isAnswered = true;
+    clearTimeout(this.relojPista);
+    this.ofrecerPista = false;
     this.registrarRespuesta(this.ejercicioActual, this.isCorrect);
 
     if (this.isCorrect) {
@@ -503,6 +603,7 @@ export class HomePage implements OnInit {
     this.isAnswered = false;
     this.isCorrect = false;
     this.initMatchGame();
+    this.iniciarPista();
   }
 
   terminarLeccion() {
@@ -618,6 +719,7 @@ export class HomePage implements OnInit {
     this.isAnswered = false;
     this.isCorrect = false;
     this.initMatchGame();
+    this.iniciarPista();
   }
 
   // Mezcla las dos columnas del emparejado y evita que una palabra quede en la
