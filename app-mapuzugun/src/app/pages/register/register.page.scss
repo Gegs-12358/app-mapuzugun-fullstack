@@ -16,9 +16,10 @@ ion-content {
   align-items: center;
   gap: 2px;
   padding: 10px 6px 8px;
-  border: 2px solid rgba(91, 42, 134, 0.25);
+  border: 2px solid #C9CFD8;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.40);
+  background: var(--mapu-claro-3d);
+  box-shadow: 0 4px 0 #A9B1BD, 0 8px 14px rgba(91, 42, 134, 0.15);
   color: #5B2A86;
   font-size: 15px;
   font-weight: 700;
@@ -42,10 +43,13 @@ ion-content {
     color: #4B4560;
   }
 
+  &:active { transform: translateY(3px); }
+
+  /* Elegido: borde dorado, como las etapas superadas */
   &.selected {
-    border-color: #C8303D;
-    background: rgba(255, 240, 235, 0.65);
-    box-shadow: 0 0 0 3px rgba(196, 123, 102, 0.35);
+    border-color: #F2C230;
+    background: var(--mapu-crema-3d);
+    box-shadow: 0 4px 0 #B88A10, 0 0 0 3px rgba(242, 194, 48, 0.35), 0 8px 14px rgba(91, 42, 134, 0.2);
   }
 }
 
@@ -108,8 +112,9 @@ ion-content {
   margin: 14px 0 18px;
   padding: 14px 16px;
   border-radius: 18px;
-  background: #FFF4DA;
+  background: var(--mapu-crema-3d);
   border: 2px solid #FFB703;
+  box-shadow: 0 4px 0 #D39A00, 0 8px 16px rgba(91, 42, 134, 0.18);
   color: #2A1640;
   font-size: 16px;
   line-height: 1.45;
@@ -161,7 +166,8 @@ ion-content {
     padding: 8px 14px;
     border: 2px solid #5B2A86;
     border-radius: 999px;
-    background: #F1EAF9;
+    background: linear-gradient(180deg, #FFFFFF, #EADFF6);
+    box-shadow: 0 3px 0 #5B2A86;
     color: #5B2A86;
     font: inherit;
     font-size: 15px;
@@ -169,5 +175,5 @@ ion-content {
     cursor: pointer;
   }
 
-  button:active { background: #E1D3F2; }
+  button:active { background: #E1D3F2; transform: translateY(2px); box-shadow: 0 1px 0 #5B2A86; }
 }
