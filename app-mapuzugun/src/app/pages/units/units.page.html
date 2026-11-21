@@ -1,6 +1,6 @@
 <ion-header class="ion-no-border" style="box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;">
   <ion-toolbar class="barra-kimanke">
-    <ion-title style="font-weight: 800; letter-spacing: 1px;">Kimanke</ion-title>
+    <ion-title class="titulo-mapa" style="font-weight: 800; letter-spacing: 1px;">Kimanke</ion-title>
 
     <ion-buttons slot="start">
       <ion-button class="avatar-btn" (click)="selectorAbierto = !selectorAbierto" aria-label="Cambiar avatar">
@@ -78,6 +78,15 @@
            ]" (click)="irAUnidad(unidad.id)">
         <div class="star-shape"></div>
 
+        <!-- La unidad que toca brilla con destellos -->
+        <ng-container *ngIf="estadoUnidad(unidad.id) === 'actual'">
+          <span class="halo" aria-hidden="true"></span>
+          <span class="destello d1" aria-hidden="true">✦</span>
+          <span class="destello d2" aria-hidden="true">✦</span>
+          <span class="destello d3" aria-hidden="true">✦</span>
+          <span class="destello d4" aria-hidden="true">✦</span>
+        </ng-container>
+
         <!-- Número (si no está completada) -->
         <span class="node-number" *ngIf="!estaCompletada(unidad.id)">{{ i + 1 }}</span>
 
@@ -94,6 +103,7 @@
         (click)="tocarCompaneroMapa()"
         [attr.aria-label]="nombreCompanero + (todoCompletado ? ' celebra: completaste todas las unidades' : ', tu compañero, está aquí')">
         <app-companero [avatarId]="avatarId" [estado]="estadoMapa" [tamano]="76"></app-companero>
+        <span class="globo-mapa" aria-hidden="true">{{ fraseMapa }}</span>
       </button>
 
       <p class="node-title">{{ unidad.title }}</p>
@@ -117,3 +127,15 @@
   </div>
 
 </ion-content>
+
+<!-- Qué sigue: el compañero lo dice y el botón lleva directo -->
+<ion-footer *ngIf="!loading && !errorCarga && unidades.length > 0" class="ion-no-border pie-mapa">
+  <div class="pie-guia">
+    <img [src]="avatarImg" alt="" width="44" height="44">
+    <p>{{ guiaMapa }}</p>
+  </div>
+  <ion-button *ngIf="siguienteEtapa" expand="block" class="btn-continuar-mapa"
+    (click)="irAEtapa(siguienteEtapa.unitId, siguienteEtapa.stage, siguienteEtapa.tituloUnidad, siguienteEtapa.tituloEtapa)">
+    ▶ {{ hayProgreso ? 'CONTINUAR' : 'EMPEZAR' }}
+  </ion-button>
+</ion-footer>

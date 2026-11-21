@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent,
-  IonIcon, IonButtons, IonButton, AlertController,
+  IonIcon, IonButtons, IonButton, IonFooter, AlertController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { logOutOutline, checkmark, lockClosed, flame, informationCircleOutline } from 'ionicons/icons';
@@ -21,7 +21,7 @@ import { IconoRecursoComponent } from '../../icono-recurso/icono-recurso.compone
   standalone: true,
   imports: [
     CommonModule, IonHeader, IonToolbar, IonTitle, IonContent,
-    IonIcon, IonButtons, IonButton, CompaneroComponent, IconoRecursoComponent
+    IonIcon, IonButtons, IonButton, IonFooter, CompaneroComponent, IconoRecursoComponent
   ]
 })
 export class UnitsPage implements OnInit {
@@ -38,6 +38,7 @@ export class UnitsPage implements OnInit {
   selectorAbierto = false;
 
   racha = 0;
+  newen: number | null = null;
 
   // Compañero sobre el camino
   estadoMapa: EstadoVisual = 'quieto';
@@ -94,7 +95,7 @@ export class UnitsPage implements OnInit {
   cargarRacha() {
     if (!this.username) return;
     this.http.get<any>(`/api/user/${encodeURIComponent(this.username)}`).subscribe({
-      next: (u) => this.racha = u.streak ?? 0,
+      next: (u) => { this.racha = u.streak ?? 0; this.newen = u.lives ?? null; },
       error: (err) => console.error('Error al cargar la racha:', err)
     });
   }
@@ -224,6 +225,38 @@ export class UnitsPage implements OnInit {
   tocarCompaneroMapa() {
     if (this.todoCompletado) return;
     this.reaccionarMapa('saltito');
+  }
+
+  // --- Qué sigue ---
+  // La primera etapa disponible y sin completar de la unidad en que va la persona
+  get siguienteEtapa(): { unitId: number; stage: number; tituloUnidad: string; tituloEtapa: string } | null {
+    const unidad = this.unidades.find(u => this.esActual(u.id));
+    if (!unidad) return null;
+    const etapa = this.etapasDe(unidad.id).find(e => this.estadoEtapa(unidad.id, e.stage) === 'actual');
+    if (!etapa) return null;
+    return { unitId: unidad.id, stage: etapa.stage, tituloUnidad: unidad.title, tituloEtapa: etapa.title };
+  }
+
+  get hayProgreso(): boolean {
+    return this.etapas.some(e => e.completed);
+  }
+
+  // Lo que dice el compañero en el pie del mapa
+  get guiaMapa(): string {
+    if (this.todoCompletado) return '¡Terminaste todas las unidades! Pronto habrá más lecciones.';
+    if (this.newen === 0) return 'Te quedaste sin Newen. Descansa unos minutos o practica para recuperarlo.';
+    const s = this.siguienteEtapa;
+    if (!s) return '';
+    const etapa = s.tituloEtapa || `Etapa ${s.stage}`;
+    return this.hayProgreso
+      ? `¡Vamos con «${etapa}» de ${s.tituloUnidad}!`
+      : `¡Mari mari! Empecemos con ${s.tituloUnidad}.`;
+  }
+
+  // El globo corto del compañero sobre el camino, apuntando a la estrella
+  get fraseMapa(): string {
+    if (this.todoCompletado) return '¡Lo lograste!';
+    return this.hayProgreso ? '¡Sigue aquí!' : '¡Empieza aquí!';
   }
 
   get nombreCompanero(): string {
