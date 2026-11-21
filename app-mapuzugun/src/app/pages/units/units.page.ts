@@ -24,6 +24,18 @@ const CLAVE_CONSEJOS = 'kimanke_consejos_vistos';
 
 interface Consejo { id: string; icono: string; texto: string; soloApp?: boolean; }
 
+// Consejos para practicar: al tocar al compañero en el mapa va diciendo uno distinto.
+// Son sobre cómo aprender y cómo usar la app, no sobre la lengua o la cultura
+// (eso se escribe con hablantes).
+const CONSEJOS_PRACTICA: string[] = [
+  'Un ratito cada día ayuda más que mucho de una sola vez.',
+  'Di las palabras en voz alta mientras practicas.',
+  'Si te equivocas, no pasa nada: esa palabra vuelve en el repaso.',
+  '¿Ves algo raro en una pregunta? Toca la banderita y nos llega el aviso.',
+  'Si tu teclado no tiene la ü, usa el botón ü en los ejercicios.',
+  'Practicar con alguien que habla mapuzugun es lo mejor de todo.',
+];
+
 // Lo que el compañero cuenta sobre opciones que no están a la vista
 const CONSEJOS: Consejo[] = [
   { id: 'letra', icono: '🔤', texto: '¿Te cuesta leer? Puedes agrandar la letra o quitar las animaciones.' },
@@ -77,6 +89,7 @@ export class UnitsPage implements OnInit {
   // Consejos del compañero: cada uno se muestra una sola vez por dispositivo
   @ViewChild(IonContent) contenido?: IonContent;
   consejoActual: Consejo | null = null;
+  private indiceConsejoPractica = -1;
 
   // Accesibilidad: tamaño de letra y menos movimiento
   tamanos = TAMANOS;
@@ -289,16 +302,22 @@ export class UnitsPage implements OnInit {
 
   // --- Mostrar el mapa desde donde vas ---
   // Baja el camino hasta la unidad en la que vas (o la última, si terminaste todo)
-  // y la deja al centro. En la primera unidad no se mueve, para que se vea el resumen.
+  // y la deja al centro. En la primera unidad baja lo mínimo.
   private async irAUnidadActual() {
     if (!this.contenido || this.selectorAbierto) return;
     const destino = this.unidadCompanero;
-    if (destino === null || destino === this.unidades[0]?.id) return;
-    const nodo = document.getElementById(`unidad-${destino}`);
+    if (destino === null) return;
+    // Si el compañero está sobre la etapa, se centra eso; si no, la estrella
+    const nodo = document.getElementById('compa-etapa') ?? document.getElementById(`unidad-${destino}`);
     if (!nodo) return;
     const caja = await this.contenido.getScrollElement();
     const arriba = nodo.getBoundingClientRect().top - caja.getBoundingClientRect().top + caja.scrollTop;
-    const y = Math.max(0, arriba - caja.clientHeight / 2 + 70);
+    // En la primera unidad se baja solo lo justo para que se vea la etapa roja bajo
+    // el compañero (así queda a la vista también el resumen de arriba)
+    const y = destino === this.unidades[0]?.id
+      ? Math.max(0, arriba + nodo.offsetHeight + 70 - caja.clientHeight)
+      : Math.max(0, arriba - caja.clientHeight / 2 + 70);
+    if (y === 0) return;
     const suave = !leerAccesibilidad().menosMovimiento;
     this.contenido.scrollToPoint(0, y, suave ? 500 : 0);
   }
@@ -414,6 +433,34 @@ export class UnitsPage implements OnInit {
   tocarCompaneroMapa() {
     if (this.todoCompletado) return;
     this.reaccionarMapa('saltito');
+    // Cada toque, un consejo distinto (si no está mostrando uno de las opciones)
+    if (!this.consejoActual) {
+      this.indiceConsejoPractica = (this.indiceConsejoPractica + 1) % CONSEJOS_PRACTICA.length;
+    }
+  }
+
+  // El compañero se para sobre la etapa que toca, si la lista de etapas está abierta
+  esEtapaDelCompanero(unitId: number, stage: number): boolean {
+    return unitId === this.unidadCompanero && this.unidadAbierta === unitId
+      && this.estadoEtapa(unitId, stage) === 'actual';
+  }
+
+  companeroEnEtapa(unitId: number): boolean {
+    return this.etapasDe(unitId).some(e => this.esEtapaDelCompanero(unitId, e.stage));
+  }
+
+  // Lo que dice el compañero junto a la etapa
+  get mensajeCompanero(): string {
+    if (this.consejoActual) return this.consejoActual.texto;
+    if (this.indiceConsejoPractica >= 0) return CONSEJOS_PRACTICA[this.indiceConsejoPractica];
+    if (this.newen === 0) return 'Me quedé sin Newen. Descansemos unos minutos o practiquemos para recuperarlo.';
+    const unidad = this.unidades.find(u => u.id === this.unidadCompanero);
+    if (!unidad) return '';
+    const faltan = this.etapasDe(unidad.id).length - this.etapasCompletadas(unidad.id);
+    if (!this.hayProgreso) return '¡Mari mari! Toca la etapa roja para empezar.';
+    if (faltan === 1) return `¡Es la última etapa de «${unidad.title}»! ¡Vamos!`;
+    if (this.etapasCompletadas(unidad.id) === 0) return `¡Empecemos «${unidad.title}»! Toca la etapa roja.`;
+    return `Te faltan ${faltan} etapas para terminar «${unidad.title}».`;
   }
 
   // --- Qué sigue ---

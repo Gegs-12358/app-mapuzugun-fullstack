@@ -159,7 +159,7 @@
       </div>
 
       <!-- Tu compañero, parado junto a la unidad en la que vas -->
-      <button type="button" *ngIf="unidad.id === unidadCompanero" class="companero-mapa"
+      <button type="button" *ngIf="unidad.id === unidadCompanero && !companeroEnEtapa(unidad.id)" class="companero-mapa"
         [ngClass]="i % 2 !== 0 ? 'hacia-derecha' : 'hacia-izquierda'" [class.llegando]="llegando"
         (click)="tocarCompaneroMapa()"
         [attr.aria-label]="nombreCompanero + (todoCompletado ? ' celebra: completaste todas las unidades' : ', tu compañero, está aquí')">
@@ -174,7 +174,24 @@
 
       <!-- Etapas (subtemáticas) -->
       <div class="stage-list" *ngIf="unidadAbierta === unidad.id && estaDesbloqueada(unidad.id)">
-        <button type="button" class="stage-chip" *ngFor="let e of etapasDe(unidad.id)"
+        <ng-container *ngFor="let e of etapasDe(unidad.id)">
+          <!-- Tu compañero, parado sobre la etapa que toca, con su consejo -->
+          <div *ngIf="esEtapaDelCompanero(unidad.id, e.stage)" id="compa-etapa" class="compa-etapa">
+            <button type="button" class="compa-etapa-btn" [class.llegando]="llegando" (click)="tocarCompaneroMapa()"
+              [attr.aria-label]="nombreCompanero + ': toca para otro consejo'">
+              <app-companero [avatarId]="avatarId" [estado]="estadoMapa" [tamano]="72"></app-companero>
+            </button>
+            <div class="compa-globo" role="status" aria-live="polite">
+              <strong>{{ nombreCompanero }}</strong>
+              <p>{{ mensajeCompanero }}</p>
+              <div class="compa-botones" *ngIf="consejoActual">
+                <button type="button" class="consejo-ver" (click)="verConsejo()">Ver cómo</button>
+                <button type="button" class="consejo-cerrar" (click)="cerrarConsejo()">Entendido</button>
+              </div>
+              <small *ngIf="!consejoActual" class="compa-pista">Tócame para otro consejo</small>
+            </div>
+          </div>
+          <button type="button" class="stage-chip"
           [ngClass]="'stage-' + estadoEtapa(unidad.id, e.stage)"
           [disabled]="estadoEtapa(unidad.id, e.stage) === 'bloqueada'"
           (click)="irAEtapa(unidad.id, e.stage, unidad.title, e.title)">
@@ -183,6 +200,7 @@
           <span>{{ e.title || ('Etapa ' + e.stage) }}</span>
           <span *ngIf="estadoEtapa(unidad.id, e.stage) === 'actual'" class="stage-jugar" aria-hidden="true">▶</span>
         </button>
+        </ng-container>
       </div>
     </div>
     </ng-container>
@@ -192,17 +210,8 @@
 
 <!-- Qué sigue: el compañero lo dice y el botón lleva directo -->
 <ion-footer *ngIf="!loading && !errorCarga && unidades.length > 0" class="ion-no-border pie-mapa">
-  <!-- Consejo del compañero sobre opciones escondidas en el panel -->
-  <div class="consejo" *ngIf="consejoActual" role="status">
-    <span class="consejo-icono" aria-hidden="true">{{ consejoActual.icono }}</span>
-    <p><strong>{{ nombreCompanero }}:</strong> {{ consejoActual.texto }}</p>
-    <div class="consejo-botones">
-      <button type="button" class="consejo-ver" (click)="verConsejo()">Ver cómo</button>
-      <button type="button" class="consejo-cerrar" (click)="cerrarConsejo()">Entendido</button>
-    </div>
-  </div>
-
-  <div class="pie-guia">
+  <!-- El compañero ya habla sobre la etapa; abajo solo queda cuando ya no hay etapa que jugar -->
+  <div class="pie-guia" *ngIf="todoCompletado">
     <img [src]="avatarImg" alt="" width="44" height="44">
     <p>{{ guiaMapa }}</p>
   </div>
