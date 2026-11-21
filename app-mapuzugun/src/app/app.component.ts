@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { NavigationStart, Router } from '@angular/router';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { Capacitor } from '@capacitor/core';
 import { ServidorService } from './servidor.service';
@@ -24,6 +25,13 @@ export class AppComponent {
 
     // Recordatorio diario (solo en la app de Android): mantiene programados los próximos días
     programarRecordatorios();
+
+    // Al cambiar de pantalla, Ionic oculta la anterior a los lectores de pantalla
+    // (aria-hidden). Si el botón tocado seguía enfocado, el navegador lo advierte y el
+    // lector se confunde. Se suelta el foco antes de navegar.
+    inject(Router).events.subscribe(e => {
+      if (e instanceof NavigationStart) (document.activeElement as HTMLElement | null)?.blur?.();
+    });
   }
 
   cerrarAvisoIos() {

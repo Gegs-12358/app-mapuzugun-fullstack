@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -20,6 +20,16 @@ import {
 } from '../../recordatorio';
 
 const CLAVE_UNIDAD_COMPANERO = 'kimanke_companero_unidad';
+const CLAVE_CONSEJOS = 'kimanke_consejos_vistos';
+
+interface Consejo { id: string; icono: string; texto: string; soloApp?: boolean; }
+
+// Lo que el compañero cuenta sobre opciones que no están a la vista
+const CONSEJOS: Consejo[] = [
+  { id: 'letra', icono: '🔤', texto: '¿Te cuesta leer? Puedes agrandar la letra o quitar las animaciones.' },
+  { id: 'recordatorio', icono: '🔔', texto: 'Puedo recordarte practicar cada día, a la hora que elijas.', soloApp: true },
+  { id: 'cuenta', icono: '✏️', texto: 'Si quieres, puedes cambiar tu compañero, tu nombre o tu correo.' },
+];
 
 import { IconoRecursoComponent } from '../../icono-recurso/icono-recurso.component';
 @Component({
@@ -63,6 +73,10 @@ export class UnitsPage implements OnInit {
   recordatorioNativo = recordatorioDisponible();
   ajustesRecordatorio: AjustesRecordatorio = leerAjustes();
   avisoRecordatorio = '';
+
+  // Consejos del compañero: cada uno se muestra una sola vez por dispositivo
+  @ViewChild(IonContent) contenido?: IonContent;
+  consejoActual: Consejo | null = null;
 
   // Accesibilidad: tamaño de letra y menos movimiento
   tamanos = TAMANOS;
@@ -162,6 +176,7 @@ export class UnitsPage implements OnInit {
         if (actual) this.unidadAbierta = actual.id;
         this.revisarLlegada();
         this.revisarNiveles();
+        this.elegirConsejo();
       },
       error: (err) => {
         console.error('Error al cargar etapas:', err);
@@ -268,6 +283,34 @@ export class UnitsPage implements OnInit {
   get siguienteNivel(): Nivel | null {
     if (!this.nivelCelebrado) return null;
     return NIVELES.find(n => n.numero === this.nivelCelebrado!.numero + 1 && this.unidadesDelNivel(n).length) ?? null;
+  }
+
+  // --- Consejos del compañero ---
+  // Aparecen cuando la persona ya completó alguna etapa, para no llenar de avisos la primera visita
+  private elegirConsejo() {
+    if (!this.hayProgreso || this.nivelCelebrado) { this.consejoActual = null; return; }
+    let vistos: string[] = [];
+    try { vistos = JSON.parse(localStorage.getItem(CLAVE_CONSEJOS) || '[]'); } catch {}
+    this.consejoActual = CONSEJOS.find(c => !vistos.includes(c.id) && (!c.soloApp || this.recordatorioNativo)) ?? null;
+  }
+
+  private marcarConsejoVisto() {
+    if (!this.consejoActual) return;
+    let vistos: string[] = [];
+    try { vistos = JSON.parse(localStorage.getItem(CLAVE_CONSEJOS) || '[]'); } catch {}
+    vistos.push(this.consejoActual.id);
+    try { localStorage.setItem(CLAVE_CONSEJOS, JSON.stringify(vistos)); } catch {}
+    this.consejoActual = null;
+  }
+
+  verConsejo() {
+    this.marcarConsejoVisto();
+    this.selectorAbierto = true;
+    this.contenido?.scrollToTop(300);
+  }
+
+  cerrarConsejo() {
+    this.marcarConsejoVisto();
   }
 
   // --- Accesibilidad ---

@@ -9,7 +9,7 @@ import {
   IonProgressBar, IonBackButton, IonInput, IonFooter, AlertController
 } from '@ionic/angular/standalone';
 import { AVATARES, imagenAvatar } from '../avatars';
-import { CompaneroComponent } from '../companero/companero.component';
+import { CompaneroComponent, EstadoVisual } from '../companero/companero.component';
 import { EstadoCompanero, FRASES, PiezaConfeti, crearConfeti, fraseAlAzar } from '../companero';
 import { enlaceReporte } from '../version';
 import { IconoRecursoComponent } from '../icono-recurso/icono-recurso.component';
@@ -20,7 +20,7 @@ import { marcarPracticaDeHoy } from '../recordatorio';
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
-  styleUrls: ['home.page.scss'],
+  styleUrls: ['home.page.scss', 'home.portada.scss'],
   standalone: true,
   imports: [
     CommonModule, FormsModule, RouterLink,
@@ -68,6 +68,10 @@ export class HomePage implements OnInit {
   // No gasta Newen, suma un poco de Kimün y cuenta para la racha.
   modoRepaso = false;
   sinRepaso = false;
+
+  // Portada: etapas de la unidad (para la fila de etapas) y el compañero que saluda
+  etapasUnidad: { stage: number; completed: boolean; title?: string }[] = [];
+  estadoPortada: EstadoVisual = 'quieto';
   private fallosMatch = 0;
 
   // Explicación de Kütral, Kimün, Llanka o Newen al tocarlos en la barra
@@ -94,6 +98,49 @@ export class HomePage implements OnInit {
   selectedRight: any = null;
   matchedLeft: string[] = [];
   matchedRight: string[] = [];
+
+  // Qué tipos de pregunta trae la etapa, para contarlo en la portada
+  get resumenTipos(): { icono: string; texto: string }[] {
+    const nombres: Record<string, [string, string, string]> = {
+      multiple_choice: ['🔘', 'alternativa', 'alternativas'],
+      write: ['✍️', 'para escribir', 'para escribir'],
+      fill_blank: ['🧩', 'completar la frase', 'completar la frase'],
+      match: ['🔗', 'emparejar', 'emparejar'],
+    };
+    const cuenta = new Map<string, number>();
+    for (const e of this.ejercicios) cuenta.set(e.type, (cuenta.get(e.type) ?? 0) + 1);
+    return [...cuenta.entries()].map(([tipo, n]) => {
+      const [icono, uno, varios] = nombres[tipo] ?? ['❓', 'pregunta', 'preguntas'];
+      return { icono, texto: `${n} ${n === 1 ? uno : varios}` };
+    });
+  }
+
+  reaccionarPortada() {
+    setTimeout(() => this.estadoPortada = 'saltito', 30);
+  }
+
+    get etapaYaCompletada(): boolean {
+    return this.etapasUnidad.some(e => String(e.stage) === this.stage && e.completed);
+  }
+
+  // Lo máximo que se puede ganar (mismas reglas que el servidor)
+  get kimunPosible(): number {
+    return this.ejercicios.length * (this.modoRepaso || this.etapaYaCompletada ? 5 : 20);
+  }
+
+  get llankasPosibles(): number {
+    return this.modoRepaso || this.etapaYaCompletada ? 0 : this.ejercicios.length * 2;
+  }
+
+  // Color de la estrella de la unidad, el mismo que en el mapa
+  get colorUnidad(): number {
+    return ((Number(this.unitId) - 1) % 5 + 5) % 5 + 1;
+  }
+
+  estadoDeEtapa(e: { stage: number; completed: boolean }): 'completada' | 'actual' | 'pendiente' {
+    if (String(e.stage) === this.stage) return 'actual';
+    return e.completed ? 'completada' : 'pendiente';
+  }
 
   comenzar() {
     this.mostrarPortada = false;
@@ -240,6 +287,15 @@ export class HomePage implements OnInit {
       error: (err) => console.error('Error al cargar la nota cultural:', err)
     });
 
+    // Etapas de esta unidad, para la portada
+    this.http.get<any[]>('/api/stages').subscribe({
+      next: (etapas) => {
+        this.etapasUnidad = etapas.filter(e => String(e.unit_id) === this.unitId)
+          .map(e => ({ stage: e.stage, completed: e.completed, title: e.title }));
+      },
+      error: () => {}
+    });
+
     // Cargar Ejercicios
     this.cargarEjercicios();
   }
@@ -292,6 +348,8 @@ export class HomePage implements OnInit {
     });
     this.loading = false;
     this.initMatchGame();
+    // El compañero saluda al aparecer la portada
+    setTimeout(() => this.estadoPortada = 'saltito', 350);
   }
 
   // Guarda si la persona acertó o no, para armar su repaso

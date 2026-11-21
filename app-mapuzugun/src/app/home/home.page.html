@@ -35,15 +35,19 @@
 
 <ion-content>
 
-  <div *ngIf="loading" class="ion-text-center ion-margin-top" style="color: #5B2A86; font-weight: bold;">
-    Cargando...
+  <!-- Cargando: el compañero espera con unos puntitos -->
+  <div *ngIf="loading" class="estado-espera" role="status">
+    <app-companero [avatarId]="avatarId" estado="quieto" [tamano]="96"></app-companero>
+    <p>{{ modoRepaso ? 'Buscando tus palabras' : 'Preparando la etapa' }}<span class="puntitos" aria-hidden="true"><i></i><i></i><i></i></span></p>
   </div>
 
-  <div *ngIf="!loading && errorCarga" class="ion-text-center ion-margin-top" style="padding: 24px;" role="alert">
-    <p style="font-weight: 800; font-size: 1.1em; color: #5B2A86;">No pudimos cargar esta etapa</p>
-    <p style="color: #5B2A86;">Revisa tu conexión a internet e inténtalo de nuevo.</p>
-    <ion-button (click)="cargarEjercicios()" class="btn-principal" style="font-weight: bold;">Reintentar</ion-button>
-    <ion-button fill="clear" routerLink="/units" routerDirection="back" style="--color: #5B2A86; font-weight: bold;">Volver al mapa</ion-button>
+  <!-- Sin conexión -->
+  <div *ngIf="!loading && errorCarga" class="estado-tarjeta" role="alert">
+    <app-companero [avatarId]="avatarId" estado="durmiendo" [tamano]="104"></app-companero>
+    <h2>No pudimos cargar esta etapa</h2>
+    <p>Revisa tu conexión a internet e inténtalo de nuevo. A veces el servidor tarda un poco en despertar.</p>
+    <ion-button expand="block" class="btn-comenzar" (click)="cargarEjercicios()">REINTENTAR</ion-button>
+    <ion-button expand="block" fill="clear" class="btn-volver" routerLink="/units" routerDirection="back">Volver al mapa</ion-button>
   </div>
 
   <!-- PANTALLA DE JUEGO TERMINADO (Sin Newen) -->
@@ -145,35 +149,62 @@
   </ion-card>
 
   <!-- PORTADA DE LA ETAPA -->
-  <ion-card *ngIf="!loading && !gameOver && !leccionTerminada && mostrarPortada && ejercicios.length > 0"
-    class="ion-margin-top portada-etapa">
-    <ion-card-content>
-      <p class="portada-unidad" *ngIf="!modoRepaso">Unidad {{ unitId }}{{ tituloUnidad ? ' · ' + tituloUnidad : '' }}</p>
-      <p class="portada-unidad" *ngIf="modoRepaso">Tus palabras para practicar</p>
-      <h1 class="portada-numero">{{ modoRepaso ? 'Repaso' : 'Etapa ' + stage }}</h1>
-      <p class="portada-preguntas">
-        {{ ejercicios.length === 1 ? '1 pregunta' : ejercicios.length + ' preguntas' }}
-      </p>
+  <div *ngIf="!loading && !gameOver && !leccionTerminada && mostrarPortada && ejercicios.length > 0"
+    class="portada">
 
-      <div class="dato">
-        <img [src]="avatarImg" alt="Tu compañero" class="dato-avatar">
-        <div class="dato-burbuja">
-          <p class="dato-titulo">¡MARI MARI!</p>
-          <p class="dato-texto" *ngIf="!modoRepaso">
-            {{ tituloUnidad ? 'En esta unidad practicaremos «' + tituloUnidad + '».' : 'En esta etapa practicaremos paso
-            a paso.' }}
-            ¡Vamos de a poco!
-          </p>
-          <p class="dato-texto" *ngIf="modoRepaso">
-            Practiquemos las palabras que más te han costado. Aquí no se gasta Newen, así que tranquilidad.
-          </p>
-          <p class="dato-aviso">⚠️ Contenido en revisión</p>
-        </div>
+    <!-- Estrella de la unidad, como en el mapa (o el símbolo del repaso) -->
+    <div class="portada-cabecera">
+      <div class="portada-estrella" [ngClass]="modoRepaso ? 'es-repaso' : 'color-' + colorUnidad" aria-hidden="true">
+        <span class="estrella-borde"></span>
+        <span class="estrella-numero">{{ modoRepaso ? '🔁' : unitId }}</span>
       </div>
+      <div class="portada-titulos">
+        <p class="portada-unidad">{{ modoRepaso ? 'Tus palabras para practicar' : 'Unidad ' + unitId + (tituloUnidad ? ' · ' + tituloUnidad : '') }}</p>
+        <h1 class="portada-numero">{{ modoRepaso ? 'Repaso' : (tituloEtapa || 'Etapa ' + stage) }}</h1>
+      </div>
+    </div>
 
-      <ion-button expand="block" class="btn-comenzar" (click)="comenzar()">COMENZAR</ion-button>
-    </ion-card-content>
-  </ion-card>
+    <!-- Etapas de la unidad: dorada la superada, roja la actual, plateada la que falta -->
+    <div class="portada-etapas" *ngIf="!modoRepaso && etapasUnidad.length > 1" role="list" aria-label="Etapas de la unidad">
+      <ng-container *ngFor="let e of etapasUnidad; let ultimo = last">
+        <span class="etapa-punto" role="listitem" [ngClass]="'etapa-' + estadoDeEtapa(e)"
+          [attr.aria-label]="'Etapa ' + e.stage + (estadoDeEtapa(e) === 'actual' ? ', la que vas a jugar' : e.completed ? ', completada' : '')">
+          {{ e.completed && estadoDeEtapa(e) !== 'actual' ? '✓' : e.stage }}
+        </span>
+        <span class="etapa-raya" *ngIf="!ultimo" aria-hidden="true"></span>
+      </ng-container>
+    </div>
+
+    <!-- El compañero saluda y cuenta de qué se trata -->
+    <div class="portada-compa">
+      <button type="button" class="companero-btn" (click)="estadoPortada = 'quieto'; reaccionarPortada()"
+        [attr.aria-label]="nombreCompanero + ', toca para que te salude'">
+        <app-companero [avatarId]="avatarId" [estado]="estadoPortada" [tamano]="104"></app-companero>
+      </button>
+      <div class="portada-burbuja">
+        <strong>{{ nombreCompanero }}</strong>
+        <p *ngIf="!modoRepaso">
+          ¡Mari mari! {{ tituloUnidad ? 'Practiquemos «' + tituloUnidad + '».' : 'Practiquemos paso a paso.' }}
+          ¡Vamos de a poco!
+        </p>
+        <p *ngIf="modoRepaso">Practiquemos las palabras que más te han costado. Aquí no se gasta Newen.</p>
+      </div>
+    </div>
+
+    <!-- Qué trae la etapa y cuánto se puede ganar -->
+    <div class="portada-info">
+      <p class="info-titulo">{{ ejercicios.length === 1 ? '1 pregunta' : ejercicios.length + ' preguntas' }}</p>
+      <div class="info-chips">
+        <span class="chip-tipo" *ngFor="let t of resumenTipos"><span aria-hidden="true">{{ t.icono }}</span> {{ t.texto }}</span>
+      </div>
+      <p class="info-titulo">Puedes ganar</p>
+      <div class="info-chips">
+        <span class="chip-premio"><app-icono-recurso nombre="kimun" [tamano]="20"></app-icono-recurso> hasta {{ kimunPosible }} Kimün</span>
+        <span class="chip-premio" *ngIf="llankasPosibles > 0"><app-icono-recurso nombre="llanka" [tamano]="20"></app-icono-recurso> hasta {{ llankasPosibles }} Llankas</span>
+      </div>
+      <p class="info-aviso">⚠️ Contenido en revisión con hablantes</p>
+    </div>
+  </div>
 
   <!-- PANTALLA DE PREGUNTA -->
   <ion-card *ngIf="!loading && !leccionTerminada && !gameOver && ejercicioActual && !mostrarPortada"
@@ -295,6 +326,12 @@
 
   </ion-card>
 </ion-content>
+
+<!-- COMENZAR de la portada: fijo abajo, siempre a la vista -->
+<ion-footer *ngIf="!loading && !gameOver && !leccionTerminada && mostrarPortada && ejercicios.length > 0"
+  class="ion-no-border pie-accion">
+  <ion-button expand="block" class="btn-comenzar-pie" (click)="comenzar()">▶ COMENZAR</ion-button>
+</ion-footer>
 
 <!-- BOTÓN PRINCIPAL: fijo abajo, siempre a la vista -->
 <ion-footer *ngIf="!loading && !leccionTerminada && !gameOver && ejercicioActual && !mostrarPortada"

@@ -335,3 +335,65 @@
     }
   }
 }
+
+/* Consejo del compañero, sobre la guía del pie del mapa */
+.consejo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  border: 2px solid #FFB703;
+  border-radius: 16px;
+  background: var(--mapu-crema-3d);
+  box-shadow: 0 4px 0 #D39A00, 0 8px 14px rgba(91, 42, 134, 0.15);
+  animation: consejo-aparece 0.3s ease-out;
+
+  .consejo-icono { font-size: 24px; }
+
+  p {
+    flex: 1 1 200px;
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.35;
+    color: #2A1640;
+
+    strong { color: #5B2A86; }
+  }
+
+  .consejo-botones {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  button {
+    padding: 7px 14px;
+    border-radius: 12px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .consejo-ver {
+    border: 2px solid #5B2A86;
+    background: linear-gradient(180deg, #FFFFFF, #EADFF6);
+    box-shadow: 0 3px 0 #5B2A86;
+    color: #5B2A86;
+  }
+
+  .consejo-cerrar {
+    border: 0;
+    background: none;
+    color: #6B6480;
+    text-decoration: underline;
+  }
+}
+
+@keyframes consejo-aparece {
+  from { transform: translateY(10px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
