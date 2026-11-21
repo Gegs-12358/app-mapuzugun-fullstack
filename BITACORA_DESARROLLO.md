@@ -375,4 +375,5 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - Se suelta el foco al cambiar de pantalla: el navegador avisaba que un botón enfocado quedaba dentro de una página oculta (aria-hidden), lo que confunde a los lectores de pantalla.
 - El mapa se abre en la unidad en la que va la persona (o la última, si terminó todo), centrada en la pantalla, también al volver de una lección. En la primera unidad se queda arriba para mostrar el resumen. Con "Menos movimiento" salta sin deslizarse.
 - Correo del proyecto: el contacto de "Acerca de" y los reportes de errores pasan a kimankeapp@gmail.com, en vez del correo personal.
+- El compañero se para sobre la etapa que toca (con la lista de etapas abierta) y habla en un globo: cuánto falta para terminar la unidad, los consejos de opciones (con "Ver cómo") y, al tocarlo, consejos para practicar. Los consejos son sobre cómo aprender y usar la app, no sobre la lengua o la cultura. La fila se corre al revés que el zigzag del camino para quedar centrada. Con la lista cerrada, vuelve a la estrella.
 

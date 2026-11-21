@@ -336,44 +336,78 @@
   }
 }
 
-/* Consejo del compañero, sobre la guía del pie del mapa */
-.consejo {
+/* ===== El compañero sobre la etapa que toca, con su globo ===== */
+/* La fila ocupa el ancho del camino y se corre al revés que el zigzag,
+   así queda centrada en la pantalla y no se sale por los costados. */
+.compa-etapa {
+  position: relative;
+  z-index: 5;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 10px;
-  margin-bottom: 10px;
-  padding: 10px 12px;
-  border: 2px solid #FFB703;
-  border-radius: 16px;
-  background: var(--mapu-crema-3d);
-  box-shadow: 0 4px 0 #D39A00, 0 8px 14px rgba(91, 42, 134, 0.15);
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin: 2px 0 -4px;
   animation: consejo-aparece 0.3s ease-out;
+}
+.right-align .compa-etapa { transform: translateX(-18%); }
+.left-align .compa-etapa { transform: translateX(18%); }
 
-  .consejo-icono { font-size: 24px; }
+.compa-etapa-btn {
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 
-  p {
-    flex: 1 1 200px;
-    margin: 0;
-    font-size: 15px;
-    line-height: 1.35;
-    color: #2A1640;
+  &.llegando { animation: llegar 1s cubic-bezier(0.25, 1.4, 0.5, 1); }
+}
 
-    strong { color: #5B2A86; }
+.compa-globo {
+  position: relative;
+  flex: 0 1 230px;
+  margin-bottom: 18px;
+  padding: 8px 12px 8px;
+  border: 2px solid #7B4FB0;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #FFFFFF, #EFE6F8);
+  box-shadow: 0 4px 0 #7B4FB0, 0 8px 14px rgba(42, 22, 64, 0.2);
+  text-align: left;
+
+  strong { display: block; font-size: 13px; color: #5B2A86; }
+  p { margin: 1px 0 0; font-size: 14px; line-height: 1.35; color: #2A1640; }
+
+  .compa-pista {
+    display: block;
+    margin-top: 3px;
+    font-size: 11.5px;
+    font-style: italic;
+    color: #7A6F8E;
   }
 
-  .consejo-botones {
-    display: flex;
-    gap: 8px;
-    width: 100%;
-    justify-content: flex-end;
+  /* piquito hacia el compañero */
+  &::before {
+    content: '';
+    position: absolute;
+    left: -9px;
+    bottom: 14px;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-right: 8px solid #7B4FB0;
   }
+}
+
+.compa-botones {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
 
   button {
-    padding: 7px 14px;
-    border-radius: 12px;
+    padding: 5px 10px;
+    border-radius: 10px;
     font: inherit;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 800;
     cursor: pointer;
   }
@@ -381,7 +415,7 @@
   .consejo-ver {
     border: 2px solid #5B2A86;
     background: linear-gradient(180deg, #FFFFFF, #EADFF6);
-    box-shadow: 0 3px 0 #5B2A86;
+    box-shadow: 0 2px 0 #5B2A86;
     color: #5B2A86;
   }
 
@@ -395,5 +429,9 @@
 
 @keyframes consejo-aparece {
   from { transform: translateY(10px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
+  to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .compa-etapa, .compa-etapa-btn.llegando { animation: none; }
 }
