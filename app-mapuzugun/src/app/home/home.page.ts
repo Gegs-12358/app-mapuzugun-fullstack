@@ -335,6 +335,10 @@ export class HomePage implements OnInit, OnDestroy {
           this.xp = userData.xp;
           this.streak = userData.streak;
           this.avatarId = userData.avatar || this.avatarId;
+          try {
+            const guardado = JSON.parse(localStorage.getItem('mapu_user') || '{}');
+            localStorage.setItem('mapu_user', JSON.stringify({ ...guardado, avatar: this.avatarId }));
+          } catch {}
           this.lives = userData.lives;
           this.gems = userData.gems;
 

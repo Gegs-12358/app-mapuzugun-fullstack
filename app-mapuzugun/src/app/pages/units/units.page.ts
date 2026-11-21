@@ -175,10 +175,13 @@ export class UnitsPage implements OnInit {
       next: (u) => {
         this.racha = u.streak ?? 0;
         this.newen = u.lives ?? null;
+        // El compañero se puede cambiar desde otro dispositivo: manda el del servidor
+        if (u.avatar) this.avatarId = u.avatar;
         try {
           const guardado = JSON.parse(localStorage.getItem('mapu_user') || '{}');
           localStorage.setItem('mapu_user', JSON.stringify({
-            ...guardado, tiene_correo: u.tiene_correo, correo_requerido: u.correo_requerido
+            ...guardado, avatar: u.avatar || guardado.avatar,
+            tiene_correo: u.tiene_correo, correo_requerido: u.correo_requerido
           }));
         } catch {}
         // Cuentas sin correo: primero hay que agregarlo
