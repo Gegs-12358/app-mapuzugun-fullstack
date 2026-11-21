@@ -29,6 +29,7 @@ Quedan por definir con hablantes: la ortografía y el significado del nombre "Ki
 
 - Introducción de cuatro pantallas (bienvenida, compañeros, cómo funciona y nuestro acuerdo), que se muestra solo la primera vez. Se puede volver atrás deslizando o con el botón atrás de Android.
 - Registro e inicio de sesión. Mientras se escribe el nombre de usuario, la app avisa si está ocupado y sugiere otros. Al crear la cuenta se elige uno de seis compañeros animales (puma, cóndor, bandurria, monito del monte, pudú y ranita de Darwin), que se presenta y se puede cambiar después. Desde el panel del compañero (tocando la foto en el mapa) también se puede cambiar el nombre de usuario, con la contraseña; el progreso se mantiene.
+- **Correo para recuperar la contraseña:** cada cuenta debe tener un correo confirmado con un código de 6 números. Las cuentas que no lo tienen lo agregan al volver a entrar, antes de seguir jugando. En el inicio de sesión, "¿Olvidaste tu contraseña?" envía un código para elegir una nueva. Se exige solo cuando el servidor puede enviar correos (Brevo configurado).
 - Mapa con **niveles** (`src/app/niveles.ts`): 1 Primeros pasos, 2 Vida diaria y 3 Territorio y cosmovisión. Cada nivel agrupa unidades, cada unidad tiene etapas y cada etapa unas 5 preguntas. Una unidad se desbloquea al terminar la anterior. La unidad que toca brilla, el compañero se para a su lado y el pie del mapa dice qué sigue.
 - Cuatro tipos de ejercicio: selección múltiple, escritura, completar la frase y emparejamiento. El audio se reproduce desde la URL del ejercicio, cuando la tiene.
 - **Repaso**: cada respuesta se guarda, y el mapa ofrece repasar las palabras que más costaron. Una palabra sale del repaso al responderla bien dos veces seguidas. El repaso no gasta Newen.
@@ -146,6 +147,7 @@ WHERE id = 1;
 - **Base de datos:** PostgreSQL en Neon (plan gratuito).
 - **Servidor:** Render, servicio web `kimanke-api`. Variables de entorno en Render: las del `.env`, más `CORS_ORIGIN` con los orígenes de la app (`https://localhost` para la APK y `https://kimanke.onrender.com` para la web).
 - **Versión web:** Render, sitio estático `kimanke` (carpeta `app-mapuzugun`, build `npm ci && npx ng build`, publica `www/browser`, con una regla que reescribe `/*` a `/index.html`).
+- **Correos:** se envían con la API de Brevo (plan gratuito). Variables en `kimanke-api`: `BREVO_API_KEY` y `CORREO_REMITENTE` (el correo verificado en Brevo). Sin ellas, la app no pide correo a nadie.
 - **Servidor despierto:** el plan gratuito de Render se duerme tras 15 minutos sin uso. Una tarea en cron-job.org consulta `/api/salud` cada 10 minutos.
 - Cada cambio que llega a `main` en GitHub se publica solo en Render. La APK, en cambio, hay que compilarla y compartirla de nuevo.
 
@@ -179,7 +181,6 @@ Después, en Android Studio: Build → Build App Bundle(s) / APK(s) → Build AP
 
 - Validación del contenido y de los nombres con hablantes. Hay una planilla de revisión con todas las preguntas y notas, marcadas según la urgencia.
 - Rehacer con hablantes las preguntas retiradas (por ejemplo "no", pie, nueve, abuelo y abuela) y grabar audios con consentimiento.
-- Recuperar la contraseña con un correo opcional (necesita un servicio de envío de correos).
 - Generar una llave de firma nueva para publicar en Play Store y guardarla **fuera** del repositorio (`*.jks` está en `.gitignore`).
 
 ## Cómo colaborar

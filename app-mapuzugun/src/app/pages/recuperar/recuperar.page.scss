@@ -1,0 +1,47 @@
+ion-content {
+  --background: url('/assets/bg/login.webp') center / cover no-repeat;
+}
+
+.login-greeting { font-size: 30px; }
+
+.recuperar-nota {
+  margin: 0 4px 12px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #4B4560;
+}
+
+.entrada-codigo {
+  font-size: 22px;
+}
+
+.recuperar-enlaces {
+  margin-top: 12px;
+  text-align: center;
+
+  button {
+    padding: 6px 4px;
+    border: 0;
+    background: none;
+    color: #A61E2C;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}
+
+.login-footer {
+  margin: 18px 8px 0;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: var(--mapu-crema-3d);
+  box-shadow: var(--mapu-canto-crema);
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+  color: #5B2A86;
+
+  a { color: #A61E2C; font-weight: 700; }
+}

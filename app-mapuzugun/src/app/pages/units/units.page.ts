@@ -125,7 +125,20 @@ export class UnitsPage implements OnInit {
   cargarRacha() {
     if (!this.username) return;
     this.http.get<any>(`/api/user/${encodeURIComponent(this.username)}`).subscribe({
-      next: (u) => { this.racha = u.streak ?? 0; this.newen = u.lives ?? null; },
+      next: (u) => {
+        this.racha = u.streak ?? 0;
+        this.newen = u.lives ?? null;
+        try {
+          const guardado = JSON.parse(localStorage.getItem('mapu_user') || '{}');
+          localStorage.setItem('mapu_user', JSON.stringify({
+            ...guardado, tiene_correo: u.tiene_correo, correo_requerido: u.correo_requerido
+          }));
+        } catch {}
+        // Cuentas sin correo: primero hay que agregarlo
+        if (u.correo_requerido && u.tiene_correo === false) {
+          this.router.navigateByUrl('/correo', { replaceUrl: true });
+        }
+      },
       error: (err) => console.error('Error al cargar la racha:', err)
     });
   }
@@ -394,6 +407,11 @@ export class UnitsPage implements OnInit {
     localStorage.removeItem('mapu_token');
     this.router.navigateByUrl('/login', { replaceUrl: true });
   }
+  cambiarCorreo() {
+    this.selectorAbierto = false;
+    this.router.navigateByUrl('/correo?cambiar=1');
+  }
+
   // Cambiar el nombre de usuario: pide el nombre nuevo y la contraseña
   async cambiarNombre(sugerido = '') {
     const alerta = await this.alertCtrl.create({
