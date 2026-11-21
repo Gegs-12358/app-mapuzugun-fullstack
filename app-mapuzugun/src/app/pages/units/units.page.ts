@@ -10,6 +10,11 @@ import { addIcons } from 'ionicons';
 import { logOutOutline, checkmark, lockClosed, flame, informationCircleOutline } from 'ionicons/icons';
 import { AVATARES, imagenAvatar } from '../../avatars';
 import { CompaneroComponent, EstadoVisual } from '../../companero/companero.component';
+import { PiezaConfeti, crearConfeti } from '../../companero';
+import { NIVELES, Nivel, nivelDeUnidad } from '../../niveles';
+import {
+  AjustesRecordatorio, cambiarRecordatorio, leerAjustes, recordatorioDisponible
+} from '../../recordatorio';
 
 const CLAVE_UNIDAD_COMPANERO = 'kimanke_companero_unidad';
 
@@ -17,7 +22,7 @@ import { IconoRecursoComponent } from '../../icono-recurso/icono-recurso.compone
 @Component({
   selector: 'app-units',
   templateUrl: './units.page.html',
-  styleUrls: ['./units.page.scss'],
+  styleUrls: ['./units.page.scss', './units.niveles.scss'],
   standalone: true,
   imports: [
     CommonModule, IonHeader, IonToolbar, IonTitle, IonContent,
@@ -44,6 +49,18 @@ export class UnitsPage implements OnInit {
   estadoMapa: EstadoVisual = 'quieto';
   llegando = false;
 
+  // Repaso: cuántas palabras tiene pendientes la persona
+  repasoPendientes = 0;
+
+  // Celebración al completar un nivel
+  nivelCelebrado: Nivel | null = null;
+  confetiNivel: PiezaConfeti[] = [];
+
+  // Recordatorio diario (solo en la app de Android)
+  recordatorioNativo = recordatorioDisponible();
+  ajustesRecordatorio: AjustesRecordatorio = leerAjustes();
+  avisoRecordatorio = '';
+
   constructor(private http: HttpClient, private router: Router, private alertCtrl: AlertController) {
     addIcons({ logOutOutline, checkmark, lockClosed, flame, informationCircleOutline });
   }
@@ -62,6 +79,18 @@ export class UnitsPage implements OnInit {
 
     this.cargarRacha();
     this.cargarUnidades();
+    this.cargarRepaso();
+  }
+
+  cargarRepaso() {
+    this.http.get<{ total: number }>('/api/repaso').subscribe({
+      next: (r) => this.repasoPendientes = r.total ?? 0,
+      error: (err) => console.error('Error al cargar el repaso:', err)
+    });
+  }
+
+  irARepaso() {
+    this.router.navigateByUrl('/repaso');
   }
 
   cargarUnidades() {
@@ -90,6 +119,7 @@ export class UnitsPage implements OnInit {
     if (this.errorCarga) this.cargarUnidades();
     else if (!this.loading) this.cargarEtapas();
     this.cargarRacha();
+    this.cargarRepaso();
   }
 
   cargarRacha() {
@@ -111,6 +141,7 @@ export class UnitsPage implements OnInit {
         const actual = this.unidades.find(u => this.esActual(u.id));
         if (actual) this.unidadAbierta = actual.id;
         this.revisarLlegada();
+        this.revisarNiveles();
       },
       error: (err) => {
         console.error('Error al cargar etapas:', err);
@@ -168,6 +199,72 @@ export class UnitsPage implements OnInit {
 
   get totalUnidades(): number {
     return this.unidades.length;
+  }
+
+  // --- Niveles ---
+  // El nivel empieza en esta unidad si es la primera de su nivel en el camino
+  nivelQueEmpieza(i: number): Nivel | null {
+    const nivel = nivelDeUnidad(this.unidades[i].id);
+    if (i > 0 && nivelDeUnidad(this.unidades[i - 1].id).numero === nivel.numero) return null;
+    return nivel;
+  }
+
+  unidadesDelNivel(nivel: Nivel): any[] {
+    return this.unidades.filter(u => nivelDeUnidad(u.id).numero === nivel.numero);
+  }
+
+  unidadesCompletasDelNivel(nivel: Nivel): number {
+    return this.unidadesDelNivel(nivel).filter(u => this.estaCompletada(u.id)).length;
+  }
+
+  estadoNivel(nivel: Nivel): 'completado' | 'actual' | 'bloqueado' {
+    const unidades = this.unidadesDelNivel(nivel);
+    if (unidades.length && unidades.every(u => this.estaCompletada(u.id))) return 'completado';
+    return unidades.length && this.estaDesbloqueada(unidades[0].id) ? 'actual' : 'bloqueado';
+  }
+
+  // Si se completó un nivel desde la última visita, se celebra una vez.
+  // La primera vez que se usa esta versión solo se anota lo ya completado, sin celebrar.
+  private revisarNiveles() {
+    const clave = `kimanke_niveles_${this.username}`;
+    const completos = NIVELES.filter(n => this.estadoNivel(n) === 'completado').map(n => n.numero);
+    let anteriores: number[] | null = null;
+    try { anteriores = JSON.parse(localStorage.getItem(clave) || 'null'); } catch {}
+    try { localStorage.setItem(clave, JSON.stringify(completos)); } catch {}
+    if (!Array.isArray(anteriores)) return;
+
+    const nuevo = completos.filter(n => !anteriores!.includes(n)).pop();
+    if (nuevo !== undefined) {
+      this.nivelCelebrado = NIVELES.find(n => n.numero === nuevo) ?? null;
+      this.confetiNivel = crearConfeti();
+    }
+  }
+
+  cerrarCelebracion() {
+    this.nivelCelebrado = null;
+    this.confetiNivel = [];
+  }
+
+  get siguienteNivel(): Nivel | null {
+    if (!this.nivelCelebrado) return null;
+    return NIVELES.find(n => n.numero === this.nivelCelebrado!.numero + 1 && this.unidadesDelNivel(n).length) ?? null;
+  }
+
+  // --- Recordatorio diario ---
+  async alternarRecordatorio(activo: boolean) {
+    const ajustes = { ...this.ajustesRecordatorio, activo };
+    const ok = await cambiarRecordatorio(ajustes);
+    this.ajustesRecordatorio = leerAjustes();
+    this.avisoRecordatorio = !ok && activo
+      ? 'Para recibir el recordatorio, permite las notificaciones de Kimanke en los ajustes del teléfono.'
+      : (activo ? `Listo: te avisaremos cada día a las ${ajustes.hora}.` : '');
+  }
+
+  async cambiarHoraRecordatorio(hora: string) {
+    if (!/^\d{2}:\d{2}$/.test(hora)) return;
+    await cambiarRecordatorio({ ...this.ajustesRecordatorio, hora });
+    this.ajustesRecordatorio = leerAjustes();
+    if (this.ajustesRecordatorio.activo) this.avisoRecordatorio = `Listo: te avisaremos cada día a las ${hora}.`;
   }
 
   // --- Navegación ---
@@ -243,7 +340,11 @@ export class UnitsPage implements OnInit {
 
   // Lo que dice el compañero en el pie del mapa
   get guiaMapa(): string {
-    if (this.todoCompletado) return '¡Terminaste todas las unidades! Pronto habrá más lecciones.';
+    if (this.todoCompletado) {
+      return this.repasoPendientes > 0
+        ? '¡Terminaste todas las unidades! Mientras llegan más, repasemos lo que te costó.'
+        : '¡Terminaste todas las unidades! Pronto habrá más lecciones.';
+    }
     if (this.newen === 0) return 'Te quedaste sin Newen. Descansa unos minutos o practica para recuperarlo.';
     const s = this.siguienteEtapa;
     if (!s) return '';

@@ -63,6 +63,24 @@ const pool = new Pool({
   ssl: process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: true }
 });
 
+// ---------- PREPARAR LA BASE ----------
+// Crea lo que falte al arrancar, para no tener que correr SQL a mano en cada cambio.
+// Todo usa IF NOT EXISTS, así que correrlo varias veces no hace nada.
+async function prepararBase() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS user_errores (
+      user_id           INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      exercise_id       INT NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
+      fallos            INT NOT NULL DEFAULT 0,
+      aciertos_seguidos INT NOT NULL DEFAULT 0,
+      actualizado       TIMESTAMPTZ NOT NULL DEFAULT now(),
+      PRIMARY KEY (user_id, exercise_id)
+    )`);
+  // Fecha de creación de cada cuenta. Las cuentas antiguas quedan sin fecha (NULL).
+  await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS creado_en TIMESTAMPTZ');
+  await pool.query('ALTER TABLE users ALTER COLUMN creado_en SET DEFAULT now()');
+}
+
 // ---------- LÍMITES DE INTENTOS ----------
 // Máximo 10 intentos fallidos de login cada 15 minutos por conexión
 const limiteLogin = rateLimit({
@@ -561,6 +579,96 @@ app.post('/api/regen-lives', async (req, res) => {
   }
 });
 
+// ---------- REPASO ----------
+// Una palabra sale del repaso cuando se responde bien dos veces seguidas.
+const ACIERTOS_PARA_APRENDIDA = 2;
+const PREGUNTAS_POR_REPASO = 8;
+
+// Se registra cada respuesta. Un error suma un fallo; un acierto solo cuenta
+// si la palabra ya estaba en el repaso.
+app.post('/api/respuesta', async (req, res) => {
+  const { exerciseId, correcta } = req.body || {};
+  if (!Number.isInteger(exerciseId) || typeof correcta !== 'boolean') {
+    return res.status(400).json({ error: 'Datos inválidos' });
+  }
+  try {
+    if (correcta) {
+      await pool.query(
+        `UPDATE user_errores
+         SET aciertos_seguidos = aciertos_seguidos + 1, actualizado = now()
+         WHERE user_id = $1 AND exercise_id = $2`,
+        [req.user.id, exerciseId]
+      );
+    } else {
+      await pool.query(
+        `INSERT INTO user_errores (user_id, exercise_id, fallos, aciertos_seguidos)
+         SELECT $1, id, 1, 0 FROM exercises WHERE id = $2
+         ON CONFLICT (user_id, exercise_id)
+         DO UPDATE SET fallos = user_errores.fallos + 1, aciertos_seguidos = 0, actualizado = now()`,
+        [req.user.id, exerciseId]
+      );
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al guardar la respuesta' });
+  }
+});
+
+// Las palabras que más le han costado a la persona (solo contenido visible)
+app.get('/api/repaso', async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT e.id, e.unit_id, e.stage, e.type, e.question, e.correct_answer, e.options,
+              e.audio_url, e.cultural_note, e.estado, e.grafemario, e.variante,
+              COUNT(*) OVER()::int AS total
+       FROM user_errores r
+       JOIN exercises e ON e.id = r.exercise_id
+       WHERE r.user_id = $1 AND r.aciertos_seguidos < $2 AND ${soloAprobado('e')}
+       ORDER BY r.fallos DESC, r.actualizado DESC
+       LIMIT $3`,
+      [req.user.id, ACIERTOS_PARA_APRENDIDA, PREGUNTAS_POR_REPASO]
+    );
+    const total = result.rows[0]?.total ?? 0;
+    res.json({ total, ejercicios: result.rows.map(({ total, ...e }) => e) });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al cargar el repaso' });
+  }
+});
+
+// Terminar un repaso: suma Kimün y cuenta para la racha, sin Llankas
+app.post('/api/repaso/completar', async (req, res) => {
+  const { correct } = req.body || {};
+  if (!Number.isInteger(correct) || correct < 0) {
+    return res.status(400).json({ error: 'Datos inválidos' });
+  }
+  const aciertos = Math.min(correct, PREGUNTAS_POR_REPASO * 2);
+  const xpGanado = aciertos * XP_POR_REPASO;
+  try {
+    const user = await pool.query(
+      `UPDATE users
+       SET xp = xp + $1,
+           streak = CASE
+             WHEN last_played::date = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Santiago')::date
+               THEN GREATEST(streak, 1)
+             WHEN last_played::date = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Santiago')::date - 1
+               THEN streak + 1
+             ELSE 1
+           END,
+           last_played = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Santiago')::date
+       WHERE id = $2
+       RETURNING id, username, xp, streak, lives, gems`,
+      [xpGanado, req.user.id]
+    );
+    if (user.rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
+    res.json({ ...user.rows[0], xpGanado, gemasGanadas: 0, aciertos });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al guardar el repaso' });
+  }
+});
+
 // ---------- MANEJO DE ERRORES ----------
 // Evita que un JSON mal formado devuelva una página con rutas internas del servidor
 app.use((err, req, res, next) => {
@@ -575,6 +683,10 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`✅ Backend corriendo en http://localhost:${PORT}`);
-});
+prepararBase()
+  .catch(err => console.error('No se pudo preparar la base:', err.message))
+  .finally(() => {
+    app.listen(PORT, () => {
+      console.log(`✅ Backend corriendo en http://localhost:${PORT}`);
+    });
+  });

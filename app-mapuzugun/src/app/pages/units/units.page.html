@@ -31,6 +31,27 @@
       </button>
     </div>
 
+    <!-- Recordatorio diario para practicar -->
+    <div class="recordatorio">
+      <p class="recordatorio-titulo">🔔 Recordatorio diario</p>
+      <ng-container *ngIf="recordatorioNativo; else soloApp">
+        <label class="recordatorio-fila">
+          <input type="checkbox" [checked]="ajustesRecordatorio.activo"
+            (change)="alternarRecordatorio($any($event.target).checked)">
+          <span>Avísame para practicar</span>
+        </label>
+        <label class="recordatorio-fila" *ngIf="ajustesRecordatorio.activo">
+          <span>Hora</span>
+          <input type="time" [value]="ajustesRecordatorio.hora"
+            (change)="cambiarHoraRecordatorio($any($event.target).value)">
+        </label>
+        <p *ngIf="avisoRecordatorio" class="recordatorio-aviso">{{ avisoRecordatorio }}</p>
+      </ng-container>
+      <ng-template #soloApp>
+        <p class="recordatorio-aviso">Por ahora el recordatorio funciona solo en la app instalada en Android.</p>
+      </ng-template>
+    </div>
+
     <button type="button" class="btn-eliminar" (click)="eliminarCuenta()">Eliminar mi cuenta</button>
   </div>
 
@@ -66,10 +87,26 @@
   </div>
 
   <div class="path-container" *ngIf="!loading && !errorCarga">
-    <div *ngFor="let unidad of unidades; let i = index" class="path-node-container"
+    <ng-container *ngFor="let unidad of unidades; let i = index">
+
+    <!-- Título del nivel, donde empieza cada uno -->
+    <div *ngIf="nivelQueEmpieza(i) as nivel" class="nivel-banner" [ngClass]="'nivel-' + estadoNivel(nivel)">
+      <span class="nivel-numero">NIVEL {{ nivel.numero }}</span>
+      <strong class="nivel-nombre">{{ nivel.nombre }}</strong>
+      <small class="nivel-descripcion">{{ nivel.descripcion }}</small>
+      <span class="nivel-avance">
+        <ng-container *ngIf="estadoNivel(nivel) === 'completado'">✓ Completado</ng-container>
+        <ng-container *ngIf="estadoNivel(nivel) === 'actual'">
+          {{ unidadesCompletasDelNivel(nivel) }} de {{ unidadesDelNivel(nivel).length }} unidades
+        </ng-container>
+        <ng-container *ngIf="estadoNivel(nivel) === 'bloqueado'">🔒 Completa el nivel anterior</ng-container>
+      </span>
+    </div>
+
+    <div class="path-node-container"
       [ngClass]="{'left-align': i % 2 !== 0, 'right-align': i % 2 === 0}">
 
-      <div class="path-line" *ngIf="i !== 0"></div>
+      <div class="path-line" *ngIf="i !== 0 && !nivelQueEmpieza(i)"></div>
 
       <!-- Estrella con estado dinámico -->
       <div class="path-node" [ngClass]="[
@@ -124,6 +161,7 @@
         </button>
       </div>
     </div>
+    </ng-container>
   </div>
 
 </ion-content>
@@ -138,4 +176,30 @@
     (click)="irAEtapa(siguienteEtapa.unitId, siguienteEtapa.stage, siguienteEtapa.tituloUnidad, siguienteEtapa.tituloEtapa)">
     ▶ {{ hayProgreso ? 'CONTINUAR' : 'EMPEZAR' }}
   </ion-button>
+  <button type="button" *ngIf="repasoPendientes > 0" class="btn-repaso" [class.principal]="!siguienteEtapa"
+    (click)="irARepaso()">
+    🔁 Repasar {{ repasoPendientes === 1 ? '1 palabra' : repasoPendientes + ' palabras' }} que te costaron
+  </button>
 </ion-footer>
+
+<!-- Celebración al completar un nivel -->
+<div *ngIf="nivelCelebrado" class="celebra-nivel" role="dialog" aria-modal="true"
+  [attr.aria-label]="'Completaste el nivel ' + nivelCelebrado.numero">
+  <div class="confeti" aria-hidden="true">
+    <span *ngFor="let c of confetiNivel" [style.left.%]="c.izquierda" [style.background]="c.color"
+      [style.animation-delay.s]="c.retraso" [style.animation-duration.s]="c.duracion"
+      [style.transform]="'rotate(' + c.giro + 'deg)'"></span>
+  </div>
+  <div class="celebra-tarjeta">
+    <p class="celebra-sub">¡NIVEL {{ nivelCelebrado.numero }} COMPLETADO!</p>
+    <h2>{{ nivelCelebrado.nombre }}</h2>
+    <app-companero [avatarId]="avatarId" estado="celebra" [tamano]="120"></app-companero>
+    <p class="celebra-texto" *ngIf="siguienteNivel">
+      ¡Lo hicimos juntos! Se abre el nivel {{ siguienteNivel.numero }}: <strong>{{ siguienteNivel.nombre }}</strong>.
+    </p>
+    <p class="celebra-texto" *ngIf="!siguienteNivel">
+      ¡Lo hicimos juntos! Completaste todos los niveles que hay por ahora.
+    </p>
+    <ion-button expand="block" class="btn-continuar-mapa" (click)="cerrarCelebracion()">¡AMULEPE!</ion-button>
+  </div>
+</div>

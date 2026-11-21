@@ -1,0 +1,251 @@
+/* ===== Niveles, repaso, recordatorio y celebración del mapa ===== */
+
+/* Título de cada nivel sobre el camino: un cartel con volumen */
+.nivel-banner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  width: 86%;
+  max-width: 340px;
+  margin: 6px 0 34px;
+  padding: 10px 16px 12px;
+  border-radius: 18px;
+  border: 2px solid #B9C0CB;
+  background: var(--mapu-vidrio-3d);
+  box-shadow: var(--mapu-canto-vidrio);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  text-align: center;
+  color: #FFF4DA;
+
+  .nivel-numero {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--mapu-sol-3d);
+    box-shadow: 0 2px 0 #B87800;
+    color: #2A1640;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+  }
+
+  .nivel-nombre {
+    margin-top: 4px;
+    font-size: 19px;
+    font-weight: 900;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  }
+
+  .nivel-descripcion {
+    font-size: 13px;
+    color: #E9DDF6;
+  }
+
+  .nivel-avance {
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #FFD166;
+  }
+
+  /* Nivel superado: borde dorado, como las estrellas completadas */
+  &.nivel-completado {
+    border-color: #F2C230;
+    background: var(--mapu-brillo), linear-gradient(180deg, rgba(46, 154, 92, 0.85), rgba(30, 125, 71, 0.85));
+    box-shadow: 0 4px 0 #0F4A29, 0 8px 18px rgba(0, 0, 0, 0.25);
+
+    .nivel-descripcion { color: #DFF3E6; }
+    .nivel-avance { color: #FFF1B8; }
+  }
+
+  &.nivel-bloqueado {
+    filter: grayscale(0.6);
+    opacity: 0.85;
+  }
+}
+
+/* Botón de repaso en el pie del mapa */
+.btn-repaso {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 11px 14px;
+  border: 2px solid #5B2A86;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #FFFFFF, #EADFF6);
+  box-shadow: 0 4px 0 #5B2A86;
+  color: #5B2A86;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.08s ease-out;
+
+  &:active { transform: translateY(3px); box-shadow: 0 1px 0 #5B2A86; }
+
+  /* Cuando no queda nada nuevo, el repaso pasa a ser el botón principal */
+  &.principal {
+    margin-top: 0;
+    border-color: #B87800;
+    background: var(--mapu-sol-3d);
+    box-shadow: var(--mapu-canto-sol);
+    color: #2A1640;
+  }
+}
+
+/* Recordatorio diario, en el panel del compañero */
+.recordatorio {
+  margin: 14px 0 4px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--mapu-crema-3d);
+  box-shadow: var(--mapu-canto-crema);
+  text-align: left;
+
+  .recordatorio-titulo {
+    margin: 0 0 6px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #5B2A86;
+  }
+
+  .recordatorio-fila {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    font-size: 15px;
+    color: #2A1640;
+    cursor: pointer;
+
+    input[type='checkbox'] {
+      width: 22px;
+      height: 22px;
+      accent-color: #5B2A86;
+    }
+
+    input[type='time'] {
+      margin-left: auto;
+      padding: 6px 8px;
+      border: 2px solid #C9B8E0;
+      border-radius: 10px;
+      background: #FFFFFF;
+      color: #5B2A86;
+      font: inherit;
+      font-weight: 700;
+    }
+  }
+
+  .recordatorio-aviso {
+    margin: 6px 0 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #4B4560;
+  }
+}
+
+/* Celebración de nivel: tarjeta al centro sobre un velo */
+.celebra-nivel {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(42, 22, 64, 0.55);
+  animation: velo-aparece 0.25s ease-out;
+}
+
+.celebra-tarjeta {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 360px;
+  padding: 20px 18px 18px;
+  border: 3px solid #F2C230;
+  border-radius: 22px;
+  background: var(--mapu-crema-3d);
+  box-shadow: 0 6px 0 #B88A10, 0 18px 36px rgba(0, 0, 0, 0.35);
+  text-align: center;
+  animation: tarjeta-aparece 0.35s ease-out;
+
+  .celebra-sub {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: #A61E2C;
+  }
+
+  h2 {
+    margin: 4px 0 8px;
+    font-size: 26px;
+    font-weight: 900;
+    color: #5B2A86;
+  }
+
+  .celebra-texto {
+    margin: 10px 0 16px;
+    font-size: 16px;
+    line-height: 1.45;
+    color: #2A1640;
+  }
+
+  ion-button {
+    width: 100%;
+    --background: var(--mapu-sol-3d);
+    --color: #2A1640;
+    --border-radius: 14px;
+    --box-shadow: var(--mapu-canto-sol);
+    height: 52px;
+    font-weight: 900;
+    letter-spacing: 1px;
+  }
+}
+
+.celebra-nivel .confeti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+
+  span {
+    position: absolute;
+    top: -12px;
+    width: 9px;
+    height: 14px;
+    border-radius: 2px;
+    opacity: 0;
+    animation-name: caer-nivel;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+  }
+}
+
+@keyframes caer-nivel {
+  0%   { opacity: 1; transform: translateY(0) rotate(0); }
+  80%  { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(100vh) rotate(540deg); }
+}
+
+@keyframes velo-aparece {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes tarjeta-aparece {
+  from { transform: scale(0.85); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celebra-nivel, .celebra-tarjeta { animation: none; }
+  .celebra-nivel .confeti { display: none; }
+}
