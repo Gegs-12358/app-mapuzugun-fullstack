@@ -271,3 +271,72 @@ ion-footer ion-button.btn-comenzar-pie {
 @media (prefers-reduced-motion: reduce) {
   .portada, .portada-estrella { animation: none; }
 }
+
+/* ===== Pistas del compañero ===== */
+.btn-pista {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 6px 12px;
+  border: 2px solid #B87800;
+  border-radius: 12px;
+  background: var(--mapu-sol-3d);
+  box-shadow: 0 3px 0 #B87800;
+  color: #2A1640;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  animation: pista-llama 1.6s ease-in-out 2;
+
+  &:active { transform: translateY(2px); box-shadow: 0 1px 0 #B87800; }
+}
+
+@keyframes pista-llama {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+.pista-texto {
+  display: block;
+  font-weight: 700;
+  color: #5B2A86;
+  letter-spacing: 0.3px;
+}
+
+/* Alternativa descartada por la pista */
+ion-button.opcion-apagada {
+  opacity: 0.35;
+  text-decoration: line-through;
+}
+
+/* Pareja que la pista ilumina en «Empareja» */
+.pieza-match.pista-brilla {
+  border-color: #FFB703 !important;
+  box-shadow: 0 4px 0 #D39A00, 0 0 0 4px rgba(255, 183, 3, 0.45) !important;
+  animation: pista-llama 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-pista, .pieza-match.pista-brilla { animation: none; }
+}
+
+/* La forma de la palabra, sin cortarse entre líneas */
+.pista-forma {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  box-shadow: inset 0 2px 3px rgba(91, 42, 134, 0.15);
+  color: #A61E2C;
+  font-family: ui-monospace, 'DejaVu Sans Mono', monospace;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0;
+  white-space: pre;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* El globo no se estira más que la tarjeta: la forma larga se desliza dentro */
+.companero-arriba .companero-burbuja { min-width: 0; }
