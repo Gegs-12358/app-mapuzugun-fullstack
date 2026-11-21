@@ -22,60 +22,6 @@
 
 <ion-content class="ion-padding map-content">
 
-  <div class="avatar-panel" *ngIf="selectorAbierto">
-    <p>Elige tu compañero</p>
-    <div class="avatar-row">
-      <button type="button" *ngFor="let a of avatares" [class.selected]="a.id === avatarId"
-        [attr.aria-label]="a.nombre + ' (' + a.animal + ')'" (click)="cambiarAvatar(a.id)">
-        <img [src]="a.img" [alt]="a.animal" width="56" height="56">
-      </button>
-    </div>
-
-    <!-- Accesibilidad -->
-    <div class="ajuste-panel">
-      <p class="ajuste-titulo" id="titulo-letra">🔤 Tamaño de letra</p>
-      <div class="tamanos" role="radiogroup" aria-labelledby="titulo-letra">
-        <button type="button" *ngFor="let t of tamanos; let n = index" role="radio"
-          [attr.aria-checked]="accesibilidad.letra === t.id" [class.elegido]="accesibilidad.letra === t.id"
-          [ngClass]="'tamano-' + n" (click)="cambiarLetra(t.id)">
-          <span class="muestra" aria-hidden="true">Aa</span>{{ t.nombre }}
-        </button>
-      </div>
-      <label class="recordatorio-fila">
-        <input type="checkbox" [checked]="accesibilidad.menosMovimiento"
-          (change)="cambiarMovimiento($any($event.target).checked)">
-        <span>Menos movimiento <small>(sin animaciones ni confeti)</small></span>
-      </label>
-    </div>
-
-    <!-- Recordatorio diario para practicar -->
-    <div class="recordatorio">
-      <p class="recordatorio-titulo">🔔 Recordatorio diario</p>
-      <ng-container *ngIf="recordatorioNativo; else soloApp">
-        <label class="recordatorio-fila">
-          <input type="checkbox" [checked]="ajustesRecordatorio.activo"
-            (change)="alternarRecordatorio($any($event.target).checked)">
-          <span>Avísame para practicar</span>
-        </label>
-        <label class="recordatorio-fila" *ngIf="ajustesRecordatorio.activo">
-          <span>Hora</span>
-          <input type="time" [value]="ajustesRecordatorio.hora"
-            (change)="cambiarHoraRecordatorio($any($event.target).value)">
-        </label>
-        <p *ngIf="avisoRecordatorio" class="recordatorio-aviso">{{ avisoRecordatorio }}</p>
-      </ng-container>
-      <ng-template #soloApp>
-        <p class="recordatorio-aviso">Por ahora el recordatorio funciona solo en la app instalada en Android.</p>
-      </ng-template>
-    </div>
-
-    <div class="acciones-cuenta">
-      <button type="button" class="btn-cambiar-nombre" (click)="cambiarNombre()">✏️ Cambiar mi nombre</button>
-      <button type="button" class="btn-cambiar-nombre" (click)="cambiarCorreo()">✉️ Cambiar mi correo</button>
-      <button type="button" class="btn-eliminar" (click)="eliminarCuenta()">Eliminar mi cuenta</button>
-    </div>
-  </div>
-
   <div *ngIf="loading" class="estado-espera" role="status">
     <app-companero [avatarId]="avatarId" estado="quieto" [tamano]="96"></app-companero>
     <p>Cargando el camino<span class="puntitos" aria-hidden="true"><i></i><i></i><i></i></span></p>
@@ -245,4 +191,48 @@
     </p>
     <ion-button expand="block" class="btn-continuar-mapa" (click)="cerrarCelebracion()">¡AMULEPE!</ion-button>
   </div>
+</div>
+
+<!-- Panel del compañero: flota sobre el mapa, así se ve aunque el mapa esté más abajo -->
+<div class="capa-ajustes" *ngIf="selectorAbierto" (click)="selectorAbierto = false">
+    <div class="avatar-panel" role="dialog" aria-label="Tu compañero y ajustes" (click)="$event.stopPropagation()">
+      <p>Elige tu compañero</p>
+      <div class="avatar-row">
+        <button type="button" *ngFor="let a of avatares" [class.selected]="a.id === avatarId"
+          [attr.aria-label]="a.nombre + ' (' + a.animal + ')'" (click)="cambiarAvatar(a.id)">
+          <img [src]="a.img" [alt]="a.animal" width="56" height="56">
+        </button>
+      </div>
+
+      <!-- Accesibilidad -->
+      <app-ajustes-lectura></app-ajustes-lectura>
+
+      <!-- Recordatorio diario para practicar -->
+      <div class="recordatorio">
+        <p class="recordatorio-titulo">🔔 Recordatorio diario</p>
+        <ng-container *ngIf="recordatorioNativo; else soloApp">
+          <label class="recordatorio-fila">
+            <input type="checkbox" [checked]="ajustesRecordatorio.activo"
+              (change)="alternarRecordatorio($any($event.target).checked)">
+            <span>Avísame para practicar</span>
+          </label>
+          <label class="recordatorio-fila" *ngIf="ajustesRecordatorio.activo">
+            <span>Hora</span>
+            <input type="time" [value]="ajustesRecordatorio.hora"
+              (change)="cambiarHoraRecordatorio($any($event.target).value)">
+          </label>
+          <p *ngIf="avisoRecordatorio" class="recordatorio-aviso">{{ avisoRecordatorio }}</p>
+        </ng-container>
+        <ng-template #soloApp>
+          <p class="recordatorio-aviso">Por ahora el recordatorio funciona solo en la app instalada en Android.</p>
+        </ng-template>
+      </div>
+
+      <div class="acciones-cuenta">
+        <button type="button" class="btn-cambiar-nombre" (click)="cambiarNombre()">✏️ Cambiar mi nombre</button>
+        <button type="button" class="btn-cambiar-nombre" (click)="cambiarCorreo()">✉️ Cambiar mi correo</button>
+        <button type="button" class="btn-eliminar" (click)="eliminarCuenta()">Eliminar mi cuenta</button>
+      </div>
+      <button type="button" class="btn-listo-ajustes" (click)="selectorAbierto = false">Listo</button>
+    </div>
 </div>

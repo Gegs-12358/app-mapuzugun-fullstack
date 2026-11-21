@@ -1,0 +1,68 @@
+:host { display: block; }
+
+.ajuste-panel {
+  margin: 14px 0 4px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--mapu-crema-3d);
+  box-shadow: var(--mapu-canto-crema);
+  text-align: left;
+}
+
+.ajuste-titulo {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #5B2A86;
+}
+
+.fila {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  margin-top: 6px;
+  font-size: 15px;
+  color: #2A1640;
+  cursor: pointer;
+
+  input[type='checkbox'] { width: 22px; height: 22px; accent-color: #5B2A86; flex: 0 0 auto; }
+  small { color: #4B4560; }
+}
+
+.tamanos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+
+  button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-height: 56px;
+    padding: 6px 4px;
+    border: 2px solid #C9CFD8;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #FFFFFF, #F1EAF9);
+    box-shadow: 0 3px 0 #A9B1BD;
+    color: #5B2A86;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+
+    .muestra { font-weight: 900; line-height: 1; }
+
+    &.tamano-0 .muestra { font-size: 16px; }
+    &.tamano-1 .muestra { font-size: 20px; }
+    &.tamano-2 .muestra { font-size: 24px; }
+
+    /* Elegido: borde dorado, como lo superado en el mapa */
+    &.elegido {
+      border-color: #F2C230;
+      background: var(--mapu-crema-3d);
+      box-shadow: 0 3px 0 #B88A10;
+    }
+  }
+}
