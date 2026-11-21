@@ -464,3 +464,29 @@ html.menos-movimiento *::after {
 }
 html.menos-movimiento .confeti { display: none !important; }
 
+/* ===== Paneles flotantes de ajustes (mapa y lección) ===== */
+.capa-ajustes {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: calc(var(--ion-safe-area-top, 0px) + 70px) 14px 14px;
+  background: rgba(42, 22, 64, 0.45);
+}
+
+.btn-listo-ajustes {
+  margin-top: 12px;
+  min-width: 140px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #8A4FC0, #5B2A86);
+  box-shadow: 0 4px 0 #3A1660;
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}

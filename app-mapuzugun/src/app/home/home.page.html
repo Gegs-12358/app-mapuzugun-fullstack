@@ -6,7 +6,10 @@
 
     <ion-title>
       <div class="titulo-leccion">
-        <img [src]="avatarImg" alt="" width="38" height="38">
+        <button type="button" class="btn-ajustes-cabecera" (click)="ajustesAbiertos = !ajustesAbiertos"
+          aria-label="Ajustes de lectura: tamaño de letra y animaciones" [attr.aria-expanded]="ajustesAbiertos">
+          <img [src]="avatarImg" alt="" width="38" height="38">
+        </button>
         <span class="titulo-principal">{{ tituloUnidad || ('Unidad ' + unitId) }}</span>
       </div>
     </ion-title>
@@ -358,3 +361,12 @@
     Une todas las parejas para continuar
   </p>
 </ion-footer>
+
+<!-- Ajustes de lectura: se abren al tocar el compañero de la cabecera -->
+<div class="capa-ajustes" *ngIf="ajustesAbiertos" (click)="ajustesAbiertos = false">
+  <div class="panel-ajustes" role="dialog" aria-label="Ajustes de lectura" (click)="$event.stopPropagation()">
+    <p class="panel-ajustes-titulo">Ajustes de lectura</p>
+    <app-ajustes-lectura></app-ajustes-lectura>
+    <button type="button" class="btn-listo-ajustes" (click)="ajustesAbiertos = false">Listo</button>
+  </div>
+</div>

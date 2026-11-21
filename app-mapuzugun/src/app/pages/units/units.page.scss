@@ -309,14 +309,16 @@
 }
 
 .avatar-panel {
-  margin: 0 0 12px;
+  width: 100%;
+  max-width: 400px;
+  max-height: calc(100% - 10px);
+  overflow-y: auto;
+  margin: 0;
   padding: 10px 12px 12px;
   border-radius: 18px;
-  background: var(--mapu-claro-3d);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  box-shadow: var(--mapu-canto-claro);
+  background: #FBF7FF;
+  border: 2px solid #fff;
+  box-shadow: var(--mapu-canto-claro), 0 12px 30px rgba(0, 0, 0, 0.3);
   text-align: center;
 
   p {

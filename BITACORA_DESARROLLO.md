@@ -382,3 +382,7 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - Las pistas aparecen a los 10 segundos (antes 15).
 - Correo ya usado en otra cuenta: la app responde igual que siempre ("te enviamos un código") y a ese correo le llega un aviso en vez del código, con el nombre de la cuenta dueña y cómo recuperar la contraseña. Así nadie puede averiguar qué correos tienen cuenta en Kimanke.
 
+- El mapa toma el compañero del servidor: si se cambiaba en otro dispositivo, seguía mostrando el antiguo.
+- En las lecciones, la pregunta va justo encima de las respuestas (antes estaba arriba y el compañero quedaba en medio, así que se perdía al bajar).
+- Ajustes de lectura desde cualquier lección: al tocar el compañero de la cabecera se abre un panel con el tamaño de letra y "Menos movimiento" (componente `app-ajustes-lectura`, compartido con el mapa).
+- El panel del compañero del mapa ahora flota sobre la pantalla. Antes se abría arriba de todo el mapa y, como el mapa se abre en la unidad actual, parecía que el botón no hacía nada.

@@ -12,9 +12,8 @@ import { AVATARES, imagenAvatar } from '../../avatars';
 import { CompaneroComponent, EstadoVisual } from '../../companero/companero.component';
 import { PiezaConfeti, crearConfeti } from '../../companero';
 import { NIVELES, Nivel, nivelDeUnidad } from '../../niveles';
-import {
-  AjustesAccesibilidad, TAMANOS, TamanoLetra, guardarAccesibilidad, leerAccesibilidad
-} from '../../accesibilidad';
+import { leerAccesibilidad } from '../../accesibilidad';
+import { AjustesLecturaComponent } from '../../ajustes-lectura/ajustes-lectura.component';
 import {
   AjustesRecordatorio, cambiarRecordatorio, leerAjustes, recordatorioDisponible
 } from '../../recordatorio';
@@ -51,7 +50,7 @@ import { IconoRecursoComponent } from '../../icono-recurso/icono-recurso.compone
   standalone: true,
   imports: [
     CommonModule, IonHeader, IonToolbar, IonTitle, IonContent,
-    IonIcon, IonButtons, IonButton, IonFooter, CompaneroComponent, IconoRecursoComponent
+    IonIcon, IonButtons, IonButton, IonFooter, CompaneroComponent, IconoRecursoComponent, AjustesLecturaComponent
   ]
 })
 export class UnitsPage implements OnInit {
@@ -92,8 +91,6 @@ export class UnitsPage implements OnInit {
   private indiceConsejoPractica = -1;
 
   // Accesibilidad: tamaño de letra y menos movimiento
-  tamanos = TAMANOS;
-  accesibilidad: AjustesAccesibilidad = leerAccesibilidad();
 
   constructor(private http: HttpClient, private router: Router, private alertCtrl: AlertController) {
     addIcons({ logOutOutline, checkmark, lockClosed, flame, informationCircleOutline });
@@ -360,7 +357,6 @@ export class UnitsPage implements OnInit {
   verConsejo() {
     this.marcarConsejoVisto();
     this.selectorAbierto = true;
-    this.contenido?.scrollToTop(300);
   }
 
   cerrarConsejo() {
@@ -368,16 +364,6 @@ export class UnitsPage implements OnInit {
   }
 
   // --- Accesibilidad ---
-  cambiarLetra(letra: TamanoLetra) {
-    this.accesibilidad = { ...this.accesibilidad, letra };
-    guardarAccesibilidad(this.accesibilidad);
-  }
-
-  cambiarMovimiento(menos: boolean) {
-    this.accesibilidad = { ...this.accesibilidad, menosMovimiento: menos };
-    guardarAccesibilidad(this.accesibilidad);
-  }
-
   // --- Recordatorio diario ---
   async alternarRecordatorio(activo: boolean) {
     const ajustes = { ...this.ajustesRecordatorio, activo };

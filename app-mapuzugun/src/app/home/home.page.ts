@@ -10,6 +10,7 @@ import {
 } from '@ionic/angular/standalone';
 import { AVATARES, imagenAvatar } from '../avatars';
 import { CompaneroComponent, EstadoVisual } from '../companero/companero.component';
+import { AjustesLecturaComponent } from '../ajustes-lectura/ajustes-lectura.component';
 import { EstadoCompanero, FRASES, PiezaConfeti, crearConfeti, fraseAlAzar } from '../companero';
 import { enlaceReporte } from '../version';
 import { IconoRecursoComponent } from '../icono-recurso/icono-recurso.component';
@@ -26,7 +27,7 @@ import { marcarPracticaDeHoy } from '../recordatorio';
     CommonModule, FormsModule, RouterLink,
     IonHeader, IonToolbar, IonTitle, IonButtons, IonButton,
     IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent,
-    IonProgressBar, IonBackButton, IonInput, IonFooter, CompaneroComponent, IconoRecursoComponent
+    IonProgressBar, IonBackButton, IonInput, IonFooter, CompaneroComponent, IconoRecursoComponent, AjustesLecturaComponent
   ]
 })
 export class HomePage implements OnInit, OnDestroy {
@@ -42,6 +43,7 @@ export class HomePage implements OnInit, OnDestroy {
   gems = 0;
   username = '';
   avatarId = 'puma';
+  ajustesAbiertos = false;
   nextLifeInMinutes = 0;
 
   // Variables de estado
