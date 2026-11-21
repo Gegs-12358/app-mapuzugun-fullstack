@@ -142,10 +142,14 @@
 }
 
 /* === ESTADOS DE LAS UNIDADES === */
-/* Completada: dorada y tranquila */
+/* Completada: verde («listo») con borde blanco, para que no se pierda en el camino dorado */
 .state-completada .star-shape {
-  background: linear-gradient(135deg, #FFE08A, #E09B00) !important;
-  filter: drop-shadow(0px 6px 0px rgba(160, 100, 0, 0.45));
+  background: linear-gradient(135deg, #3DBB6F, #146B3A) !important;
+  filter:
+    drop-shadow(0 0 0 #fff)
+    drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff)
+    drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff)
+    drop-shadow(0 6px 4px rgba(20, 60, 30, 0.35));
 }
 
 .node-icon-check {
