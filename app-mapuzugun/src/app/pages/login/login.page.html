@@ -42,6 +42,10 @@
             </button>
           </ion-item>
 
+          <div class="olvide">
+            <a routerLink="/recuperar">¿Olvidaste tu contraseña?</a>
+          </div>
+
           <div class="login-error" role="alert" *ngIf="errorMsg">{{ errorMsg }}</div>
 
           <ion-button expand="block" type="submit" class="btn-principal" [disabled]="loading">

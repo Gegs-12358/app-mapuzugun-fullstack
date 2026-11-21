@@ -345,7 +345,21 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - La app solo envía la sesión a la API, nunca a otros servidores.
 - Encabezado Permissions-Policy en la API.
 
-**Por verificar en producción**
-- Que el límite de intentos distinga a cada persona detrás del proxy de Render y Cloudflare (`trust proxy`).
-- Que `JWT_SECRET` en Render sea largo (48 bytes aleatorios o más).
+**Verificado en producción**
+- El límite de intentos distingue a cada persona detrás del proxy de Render y Cloudflare: tras bloquear un celular con datos móviles, el computador con wifi entró sin problema.
+- `JWT_SECRET` en Render es larga y aleatoria.
+
+### Actualización 21 de noviembre de 2026 (correo y recuperación de contraseña)
+
+**Hecho**
+- Cada cuenta tiene un correo confirmado con un código de 6 números (columna `users.email`, única sin distinguir mayúsculas). Las cuentas que no lo tienen pasan por la pantalla `/correo` antes de seguir jugando; las nuevas, justo después de crear la cuenta. Desde el panel del compañero se puede cambiar.
+- "¿Olvidaste tu contraseña?" (`/recuperar`): con el usuario o el correo llega un código para elegir una contraseña nueva.
+- Los códigos se guardan como huella (HMAC), vencen en 15 minutos y admiten 5 intentos; pedir uno nuevo anula el anterior. Máximo 5 pedidos cada 15 minutos por conexión y 1 por minuto por cuenta. La respuesta de recuperación es la misma exista o no la cuenta.
+- Envío con la API de Brevo. La exigencia del correo se activa solo si el servidor tiene `BREVO_API_KEY` y `CORREO_REMITENTE`, para no bloquear a nadie mientras no se pueda enviar. `CORREO_PRUEBA=true` (solo desarrollo) muestra los códigos en el registro del servidor.
+- Política de privacidad actualizada: ahora se guarda el correo, solo para recuperar la contraseña, y Brevo aparece como servicio externo.
+
+**Decisiones**
+- Un correo por cuenta, para que la recuperación por correo no sea ambigua.
+- Código en vez de enlace, porque funciona igual en la APK y en la web.
+- La APK que ya está instalada no tiene esta pantalla: se exige el correo en la web desde ya, y en la APK cuando se instale la versión nueva.
 

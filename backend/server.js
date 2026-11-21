@@ -25,6 +25,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const crypto = require('crypto');
 
 if (!process.env.JWT_SECRET) {
   console.error('Falta JWT_SECRET en el archivo .env');
@@ -102,6 +103,21 @@ async function prepararBase() {
   // Fecha de creación de cada cuenta. Las cuentas antiguas quedan sin fecha (NULL).
   await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS creado_en TIMESTAMPTZ');
   await pool.query('ALTER TABLE users ALTER COLUMN creado_en SET DEFAULT now()');
+  // Correo para recuperar la contraseña (verificado con un código). Uno por cuenta.
+  await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT');
+  await pool.query('CREATE UNIQUE INDEX IF NOT EXISTS users_email_unico ON users (LOWER(email))');
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS codigos_correo (
+      id          SERIAL PRIMARY KEY,
+      user_id     INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      proposito   TEXT NOT NULL CHECK (proposito IN ('verificar', 'recuperar')),
+      email       TEXT NOT NULL,
+      codigo_hash TEXT NOT NULL,
+      intentos    INT NOT NULL DEFAULT 0,
+      expira      TIMESTAMPTZ NOT NULL,
+      creado      TIMESTAMPTZ NOT NULL DEFAULT now()
+    )`);
+  await pool.query('CREATE INDEX IF NOT EXISTS codigos_correo_usuario ON codigos_correo (user_id, proposito)');
   // El progreso apunta al nombre de usuario: al cambiar el nombre, el progreso lo sigue
   await pool.query(`
     DO $$
@@ -158,6 +174,15 @@ const limiteCompletar = rateLimit({
   message: { error: 'Has terminado muchas lecciones seguidas. Descansa un rato y sigue después.' }
 });
 
+// Envío de códigos por correo: máximo 5 cada 15 minutos por conexión
+const limiteCodigos = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: 'Pediste muchos códigos seguidos. Espera unos minutos.' }
+});
+
 // ---------- NOMBRES DE USUARIO ----------
 // Se comparan sin distinguir mayúsculas: «Gabriel» y «gabriel» son el mismo nombre
 // exceptoId: al cambiar el nombre, la propia cuenta no cuenta como ocupada
@@ -204,6 +229,91 @@ async function sugerirNombres(nombre, avatar) {
   );
   const usados = new Set(ocupados.rows.map(r => r.u));
   return candidatos.filter(c => !usados.has(c.toLowerCase())).slice(0, 3);
+}
+
+// ---------- CORREO ----------
+// Los correos se envían con la API de Brevo (plan gratuito, 300 al día).
+// Sin BREVO_API_KEY no se pide correo a nadie: así, publicar este código antes de
+// configurar Brevo no deja a nadie bloqueado. CORREO_PRUEBA=true (solo desarrollo)
+// muestra los códigos en el registro del servidor en vez de enviarlos.
+const CORREO_PRUEBA = process.env.CORREO_PRUEBA === 'true';
+const CORREO_DISPONIBLE = !!(process.env.BREVO_API_KEY && process.env.CORREO_REMITENTE) || CORREO_PRUEBA;
+const MINUTOS_CODIGO = 15;
+const INTENTOS_CODIGO = 5;
+
+function normalizarCorreo(email) {
+  return typeof email === 'string' ? email.trim().toLowerCase() : '';
+}
+
+function correoValido(email) {
+  return email.length <= 254 && /^[^\s@<>()",;:]+@[^\s@<>()",;:]+\.[a-z]{2,}$/i.test(email);
+}
+
+// Código de 6 dígitos. Se guarda solo su huella, nunca el código.
+function nuevoCodigo() {
+  return String(crypto.randomInt(0, 1_000_000)).padStart(6, '0');
+}
+function huellaCodigo(codigo) {
+  return crypto.createHmac('sha256', process.env.JWT_SECRET).update(String(codigo)).digest('hex');
+}
+function mismoCodigo(codigo, huella) {
+  const a = Buffer.from(huellaCodigo(codigo), 'hex');
+  const b = Buffer.from(huella, 'hex');
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+async function enviarCorreo(para, asunto, texto) {
+  if (CORREO_PRUEBA && !process.env.BREVO_API_KEY) {
+    console.log(`[correo de prueba] Para: ${para} · ${asunto}\n${texto}`);
+    return;
+  }
+  const r = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: { 'api-key': process.env.BREVO_API_KEY, 'content-type': 'application/json', accept: 'application/json' },
+    body: JSON.stringify({
+      sender: { name: 'Kimanke', email: process.env.CORREO_REMITENTE },
+      to: [{ email: para }],
+      subject: asunto,
+      textContent: texto
+    })
+  });
+  if (!r.ok) throw new Error(`Brevo respondió ${r.status}: ${(await r.text()).slice(0, 200)}`);
+}
+
+// Crea un código nuevo (anula los anteriores del mismo tipo) y lo envía
+async function enviarCodigo(userId, proposito, email, nombre) {
+  const codigo = nuevoCodigo();
+  await pool.query('DELETE FROM codigos_correo WHERE user_id = $1 AND proposito = $2', [userId, proposito]);
+  await pool.query(
+    `INSERT INTO codigos_correo (user_id, proposito, email, codigo_hash, expira)
+     VALUES ($1, $2, $3, $4, now() + make_interval(mins => $5))`,
+    [userId, proposito, email, huellaCodigo(codigo), MINUTOS_CODIGO]
+  );
+  const motivo = proposito === 'verificar'
+    ? 'Para confirmar este correo en tu cuenta de Kimanke, escribe este código en la app:'
+    : 'Pediste recuperar tu contraseña de Kimanke. Escribe este código en la app para elegir una nueva:';
+  await enviarCorreo(email, `Tu código de Kimanke: ${codigo}`,
+    `Mari mari, ${nombre}.\n\n${motivo}\n\n${codigo}\n\nVence en ${MINUTOS_CODIGO} minutos. ` +
+    'Si no lo pediste tú, ignora este correo: tu cuenta sigue segura.\n\nKimanke');
+}
+
+// Revisa un código. Devuelve la fila si es correcto; si no, suma un intento.
+async function revisarCodigo(userId, proposito, codigo) {
+  const r = await pool.query(
+    `SELECT * FROM codigos_correo
+     WHERE user_id = $1 AND proposito = $2 AND expira > now() AND intentos < $3
+     ORDER BY creado DESC LIMIT 1`,
+    [userId, proposito, INTENTOS_CODIGO]
+  );
+  const fila = r.rows[0];
+  if (!fila) return { error: 'El código venció o ya no es válido. Pide uno nuevo.' };
+  if (!/^\d{6}$/.test(String(codigo ?? '')) || !mismoCodigo(codigo, fila.codigo_hash)) {
+    await pool.query('UPDATE codigos_correo SET intentos = intentos + 1 WHERE id = $1', [fila.id]);
+    const quedan = INTENTOS_CODIGO - fila.intentos - 1;
+    return { error: quedan > 1 ? `Código incorrecto. Te quedan ${quedan} intentos.` : quedan === 1 ? 'Código incorrecto. Te queda 1 intento.' : 'Código incorrecto. Pide uno nuevo.' };
+  }
+  await pool.query('DELETE FROM codigos_correo WHERE user_id = $1 AND proposito = $2', [userId, proposito]);
+  return { fila };
 }
 
 // ---------- AUTENTICACIÓN ----------
@@ -263,7 +373,7 @@ app.post('/api/register', limiteRegistro, async (req, res) => {
     );
 
     const user = newUser.rows[0];
-    res.json({ ...user, token: crearToken(user) });
+    res.json({ ...user, tiene_correo: false, correo_requerido: CORREO_DISPONIBLE, token: crearToken(user) });
   } catch (err) {
     // Dos registros simultáneos con el mismo nombre: gana uno, el otro choca con UNIQUE
     if (err.code === '23505') {
@@ -328,8 +438,72 @@ app.post('/api/login', limiteLogin, async (req, res) => {
       streak: user.streak,
       lives: user.lives,
       gems: user.gems,
+      tiene_correo: !!user.email,
+      correo_requerido: CORREO_DISPONIBLE,
       token: crearToken(user)
     });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+});
+
+// ---------- RECUPERAR LA CONTRASEÑA ----------
+// Se busca por nombre de usuario o por correo. La respuesta es siempre la misma,
+// exista o no la cuenta, para no revelar quién usa Kimanke.
+app.post('/api/recuperar/pedir', limiteCodigos, async (req, res) => {
+  const dato = typeof req.body.usuario === 'string' ? req.body.usuario.trim() : '';
+  if (dato.length < 3 || dato.length > 254) return res.status(400).json({ error: 'Escribe tu usuario o tu correo' });
+  const respuesta = { ok: true, mensaje: 'Si existe una cuenta con ese usuario o correo, te enviamos un código. Revisa también la carpeta de spam.' };
+  if (!CORREO_DISPONIBLE) return res.status(503).json({ error: 'La recuperación por correo todavía no está disponible.' });
+  try {
+    const r = await pool.query(
+      `SELECT id, username, email FROM users
+       WHERE email IS NOT NULL AND (LOWER(username) = LOWER($1) OR LOWER(email) = LOWER($1))
+       LIMIT 1`,
+      [dato]
+    );
+    const user = r.rows[0];
+    if (user) {
+      // Un código por minuto como máximo para la misma cuenta
+      const reciente = await pool.query(
+        `SELECT 1 FROM codigos_correo WHERE user_id = $1 AND proposito = 'recuperar' AND creado > now() - interval '1 minute'`,
+        [user.id]
+      );
+      if (reciente.rows.length === 0) await enviarCodigo(user.id, 'recuperar', user.email, user.username);
+    }
+    res.json(respuesta);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'No pudimos enviar el código. Inténtalo más tarde.' });
+  }
+});
+
+app.post('/api/recuperar/cambiar', limiteLogin, async (req, res) => {
+  const { codigo, password } = req.body;
+  const dato = typeof req.body.usuario === 'string' ? req.body.usuario.trim() : '';
+  if (!dato || typeof password !== 'string') return res.status(400).json({ error: 'Datos inválidos' });
+  const errorClave = errorDeContrasena(password);
+  if (errorClave) return res.status(400).json({ error: errorClave });
+  try {
+    const r = await pool.query(
+      `SELECT id FROM users
+       WHERE email IS NOT NULL AND (LOWER(username) = LOWER($1) OR LOWER(email) = LOWER($1))
+       LIMIT 1`,
+      [dato]
+    );
+    if (r.rows.length === 0) return res.status(400).json({ error: 'El código venció o ya no es válido. Pide uno nuevo.' });
+    const revision = await revisarCodigo(r.rows[0].id, 'recuperar', codigo);
+    if (revision.error) return res.status(400).json({ error: revision.error });
+
+    const hash = await bcrypt.hash(password, 10);
+    const u = await pool.query(
+      `UPDATE users SET password = $1 WHERE id = $2
+       RETURNING id, username, avatar, xp, streak, lives, gems`,
+      [hash, r.rows[0].id]
+    );
+    const user = u.rows[0];
+    res.json({ ...user, tiene_correo: true, correo_requerido: CORREO_DISPONIBLE, token: crearToken(user) });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error en el servidor' });
@@ -405,6 +579,37 @@ app.put('/api/username', limiteLogin, async (req, res) => {
     res.json({ ...user, token: crearToken(user) });
   } catch (err) {
     if (err.code === '23505') return res.status(409).json({ error: 'Ese nombre ya está en uso', sugerencias: [] });
+    console.error(err);
+    res.status(500).json({ error: 'Error en el servidor' });
+  }
+});
+
+// ---------- CORREO DE LA CUENTA ----------
+// Paso 1: la persona escribe su correo y le llega un código
+app.post('/api/correo/enviar', limiteCodigos, async (req, res) => {
+  const email = normalizarCorreo(req.body.email);
+  if (!correoValido(email)) return res.status(400).json({ error: 'Revisa el correo: parece que está mal escrito' });
+  if (!CORREO_DISPONIBLE) return res.status(503).json({ error: 'El envío de correos todavía no está disponible.' });
+  try {
+    const usado = await pool.query('SELECT 1 FROM users WHERE LOWER(email) = $1 AND id <> $2', [email, req.user.id]);
+    if (usado.rows.length) return res.status(409).json({ error: 'Ese correo ya está en otra cuenta de Kimanke' });
+    await enviarCodigo(req.user.id, 'verificar', email, req.user.username);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'No pudimos enviar el código. Revisa el correo o inténtalo más tarde.' });
+  }
+});
+
+// Paso 2: con el código correcto, el correo queda guardado en la cuenta
+app.post('/api/correo/verificar', limiteLogin, async (req, res) => {
+  try {
+    const revision = await revisarCodigo(req.user.id, 'verificar', req.body.codigo);
+    if (revision.error) return res.status(400).json({ error: revision.error });
+    await pool.query('UPDATE users SET email = $1 WHERE id = $2', [revision.fila.email, req.user.id]);
+    res.json({ ok: true, tiene_correo: true });
+  } catch (err) {
+    if (err.code === '23505') return res.status(409).json({ error: 'Ese correo ya está en otra cuenta de Kimanke' });
     console.error(err);
     res.status(500).json({ error: 'Error en el servidor' });
   }
@@ -506,13 +711,14 @@ app.get('/api/user/:username', async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT id, username, avatar, xp, lives, gems, last_life_regen,
+        (email IS NOT NULL) AS tiene_correo, $2::boolean AS correo_requerido,
         CASE
           WHEN last_played::date >= (CURRENT_TIMESTAMP AT TIME ZONE 'America/Santiago')::date - 1
             THEN streak
           ELSE 0
         END AS streak
         FROM users WHERE id = $1`,
-      [req.user.id]
+      [req.user.id, CORREO_DISPONIBLE]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
     res.json(result.rows[0]);

@@ -1,0 +1,81 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="barra-kimanke">
+    <ion-title class="ion-text-center" style="font-weight: 800;">Kimanke <span class="etiqueta-beta">beta</span></ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="login-wrapper">
+
+    <!-- El compañero explica para qué es el correo -->
+    <div class="correo-guia">
+      <img [src]="avatarImg" [alt]="nombreCompanero" width="84" height="84">
+      <div class="correo-burbuja">
+        <strong>{{ nombreCompanero }}</strong>
+        <p *ngIf="paso !== 'listo'">
+          {{ modoCambiar ? 'Cambiemos tu correo.' : '¡Mari mari' + (username ? ', ' + username : '') + '!' }}
+          Con un correo podrás recuperar tu contraseña si la olvidas, y no perderás tu avance.
+        </p>
+        <p *ngIf="paso === 'listo'">¡Listo! Si algún día olvidas tu contraseña, te enviaremos un código a ese correo.</p>
+      </div>
+    </div>
+
+    <ion-card class="login-card">
+      <ion-card-header>
+        <ion-card-title>{{ modoCambiar ? 'Cambiar mi correo' : 'Agrega tu correo' }}</ion-card-title>
+        <ion-card-subtitle *ngIf="paso === 'correo'">Solo para recuperar tu contraseña</ion-card-subtitle>
+        <ion-card-subtitle *ngIf="paso === 'codigo'">Revisa tu correo</ion-card-subtitle>
+        <ion-card-subtitle *ngIf="paso === 'listo'">Correo confirmado ✓</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <!-- Paso 1: el correo -->
+        <form *ngIf="paso === 'correo'" (ngSubmit)="enviarCodigo()">
+          <ion-item lines="none" class="campo">
+            <ion-input name="email" type="email" label="Correo" labelPlacement="floating" autocomplete="email"
+              inputmode="email" [(ngModel)]="email"></ion-input>
+          </ion-item>
+          <p class="correo-nota">No lo mostramos a nadie y no enviamos publicidad. Te llegará un código de 6 números
+            para confirmar que el correo es tuyo.</p>
+          <div class="login-error" role="alert" *ngIf="errorMsg">{{ errorMsg }}</div>
+          <ion-button expand="block" type="submit" class="btn-principal" [disabled]="loading">
+            <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+            <span *ngIf="!loading">ENVIAR CÓDIGO</span>
+          </ion-button>
+        </form>
+
+        <!-- Paso 2: el código -->
+        <form *ngIf="paso === 'codigo'" (ngSubmit)="confirmar()">
+          <p class="correo-nota">Te enviamos un código a <strong>{{ email }}</strong>. Si no lo ves en unos minutos,
+            revisa la carpeta de spam o correo no deseado.</p>
+          <ion-item lines="none" class="campo">
+            <ion-input name="codigo" label="Código de 6 números" labelPlacement="floating" inputmode="numeric"
+              autocomplete="one-time-code" maxlength="6" [(ngModel)]="codigo" class="entrada-codigo"></ion-input>
+          </ion-item>
+          <div class="login-error" role="alert" *ngIf="errorMsg">{{ errorMsg }}</div>
+          <ion-button expand="block" type="submit" class="btn-principal" [disabled]="loading">
+            <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+            <span *ngIf="!loading">CONFIRMAR</span>
+          </ion-button>
+          <div class="correo-enlaces">
+            <button type="button" (click)="enviarCodigo()" [disabled]="esperaReenvio > 0 || loading">
+              {{ esperaReenvio > 0 ? 'Reenviar código (' + esperaReenvio + ' s)' : 'Reenviar código' }}
+            </button>
+            <button type="button" (click)="otroCorreo()">Usar otro correo</button>
+          </div>
+        </form>
+
+        <!-- Listo -->
+        <ion-button *ngIf="paso === 'listo'" expand="block" class="btn-principal" (click)="irAlMapa()">
+          ¡A JUGAR!
+        </ion-button>
+
+        <div class="ion-text-center" *ngIf="paso !== 'listo'">
+          <ion-button *ngIf="modoCambiar" fill="clear" class="btn-cambio" (click)="irAlMapa()">Volver al mapa</ion-button>
+          <ion-button *ngIf="!modoCambiar" fill="clear" class="btn-cambio" (click)="cerrarSesion()">Cerrar sesión</ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+</ion-content>

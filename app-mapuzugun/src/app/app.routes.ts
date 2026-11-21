@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard, invitadoGuard } from './auth.guard';
+import { authGuard, correoGuard, invitadoGuard } from './auth.guard';
 
 export const routes: Routes = [
   {
@@ -23,19 +23,30 @@ export const routes: Routes = [
   },
   {
     path: 'units',
-    canActivate: [authGuard],
+    canActivate: [authGuard, correoGuard],
     loadComponent: () => import('./pages/units/units.page').then(m => m.UnitsPage)
   },
   {
     path: 'home/:unitId/:stage',
-    canActivate: [authGuard],
+    canActivate: [authGuard, correoGuard],
     loadComponent: () => import('./home/home.page').then(m => m.HomePage)
   },
   {
     // Repaso de las palabras que más le han costado a la persona (usa la misma pantalla de lección)
     path: 'repaso',
-    canActivate: [authGuard],
+    canActivate: [authGuard, correoGuard],
     loadComponent: () => import('./home/home.page').then(m => m.HomePage)
+  },
+  {
+    // Agregar o cambiar el correo de la cuenta
+    path: 'correo',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/correo/correo.page').then(m => m.CorreoPage)
+  },
+  {
+    path: 'recuperar',
+    canActivate: [invitadoGuard],
+    loadComponent: () => import('./pages/recuperar/recuperar.page').then(m => m.RecuperarPage)
   },
   {
     path: 'acerca',

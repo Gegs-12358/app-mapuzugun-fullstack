@@ -1,0 +1,73 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="barra-kimanke">
+    <ion-title class="ion-text-center" style="font-weight: 800;">Kimanke <span class="etiqueta-beta">beta</span></ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="login-wrapper">
+    <div class="login-hero">
+      <h1 class="login-greeting">¿Olvidaste tu contraseña?</h1>
+      <p class="login-tagline">Te enviamos un código al correo de tu cuenta.</p>
+    </div>
+
+    <ion-card class="login-card">
+      <ion-card-header>
+        <ion-card-title>Recuperar contraseña</ion-card-title>
+        <ion-card-subtitle>{{ paso === 'pedir' ? 'Paso 1 de 2' : 'Paso 2 de 2' }}</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <!-- Paso 1: quién es -->
+        <form *ngIf="paso === 'pedir'" (ngSubmit)="pedirCodigo()">
+          <ion-item lines="none" class="campo">
+            <ion-input name="usuario" label="Tu usuario o tu correo" labelPlacement="floating" autocomplete="username"
+              [(ngModel)]="usuario"></ion-input>
+          </ion-item>
+          <div class="login-error" role="alert" *ngIf="errorMsg">{{ errorMsg }}</div>
+          <ion-button expand="block" type="submit" class="btn-principal" [disabled]="loading">
+            <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+            <span *ngIf="!loading">ENVIAR CÓDIGO</span>
+          </ion-button>
+        </form>
+
+        <!-- Paso 2: código y contraseña nueva -->
+        <form *ngIf="paso === 'cambiar'" (ngSubmit)="cambiar()">
+          <p class="recuperar-nota">{{ mensaje }}</p>
+          <ion-item lines="none" class="campo">
+            <ion-input name="codigo" label="Código de 6 números" labelPlacement="floating" inputmode="numeric"
+              autocomplete="one-time-code" maxlength="6" [(ngModel)]="codigo" class="entrada-codigo"></ion-input>
+          </ion-item>
+          <ion-item lines="none" class="campo">
+            <ion-input name="password" label="Contraseña nueva" labelPlacement="floating"
+              [type]="showPassword ? 'text' : 'password'" autocomplete="new-password" [(ngModel)]="password">
+            </ion-input>
+            <button slot="end" type="button" class="toggle-pass" (click)="showPassword = !showPassword">
+              {{ showPassword ? 'Ocultar' : 'Mostrar' }}
+            </button>
+          </ion-item>
+          <p class="recuperar-nota">Al menos 8 caracteres.</p>
+          <div class="login-error" role="alert" *ngIf="errorMsg">{{ errorMsg }}</div>
+          <ion-button expand="block" type="submit" class="btn-principal" [disabled]="loading">
+            <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+            <span *ngIf="!loading">CAMBIAR CONTRASEÑA</span>
+          </ion-button>
+          <div class="recuperar-enlaces">
+            <button type="button" (click)="volverAPedir()">No me llegó: pedir otro código</button>
+          </div>
+        </form>
+
+        <div class="ion-text-center">
+          <ion-button fill="clear" class="btn-cambio" routerLink="/login" routerDirection="back">
+            Volver a iniciar sesión
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <p class="login-footer">
+      ¿Tu cuenta no tiene correo? Escríbeme desde
+      <a routerLink="/acerca">Acerca de Kimanke</a> y te ayudo a recuperarla.
+    </p>
+  </div>
+</ion-content>

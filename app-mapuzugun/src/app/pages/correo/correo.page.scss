@@ -1,0 +1,79 @@
+ion-content {
+  --background: url('/assets/bg/login.webp') center / cover no-repeat;
+}
+
+/* El compañero con su globo, sobre la tarjeta */
+.correo-guia {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 8px 4px 16px;
+
+  img {
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    padding: 4px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 30%, #FFFFFF 0%, #FFF4DA 55%, #F2DDB0 100%);
+    box-shadow: 0 3px 0 #D9BD84, 0 6px 10px rgba(0, 0, 0, 0.25);
+    object-fit: contain;
+  }
+}
+
+.correo-burbuja {
+  position: relative;
+  flex: 1;
+  padding: 10px 14px;
+  border: 2px solid #7B4FB0;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #FAF6FD, #E9DDF6);
+  box-shadow: 0 4px 0 #7B4FB0, 0 8px 14px rgba(91, 42, 134, 0.15);
+  color: #2A1640;
+
+  strong { display: block; font-size: 14px; color: #5B2A86; }
+  p { margin: 2px 0 0; font-size: 15px; line-height: 1.4; }
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -9px;
+    top: 20px;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-right: 8px solid #7B4FB0;
+  }
+}
+
+.correo-nota {
+  margin: 0 4px 14px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #4B4560;
+
+  strong { color: #5B2A86; word-break: break-all; }
+}
+
+.entrada-codigo {
+  font-size: 22px;
+}
+
+.correo-enlaces {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+
+  button {
+    padding: 6px 4px;
+    border: 0;
+    background: none;
+    color: #A61E2C;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:disabled { color: #8A8496; text-decoration: none; cursor: default; }
+  }
+}
