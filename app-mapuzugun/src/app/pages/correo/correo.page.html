@@ -46,8 +46,9 @@
 
         <!-- Paso 2: el código -->
         <form *ngIf="paso === 'codigo'" (ngSubmit)="confirmar()">
-          <p class="correo-nota">Te enviamos un código a <strong>{{ email }}</strong>. Si no lo ves en unos minutos,
-            revisa la carpeta de spam o correo no deseado.</p>
+          <p class="correo-nota">Te enviamos un código a <strong>{{ email }}</strong>. ¿Está bien escrito? Si no lo ves
+            en unos minutos, revisa la carpeta de spam. Si ese correo ya está en otra cuenta, en vez del código te
+            llegará un aviso.</p>
           <ion-item lines="none" class="campo">
             <ion-input name="codigo" label="Código de 6 números" labelPlacement="floating" inputmode="numeric"
               autocomplete="one-time-code" maxlength="6" [(ngModel)]="codigo" class="entrada-codigo"></ion-input>
