@@ -177,6 +177,8 @@ export class UnitsPage implements OnInit {
         this.revisarLlegada();
         this.revisarNiveles();
         this.elegirConsejo();
+        // Esperar a que el camino se dibuje antes de bajar hasta la unidad actual
+        setTimeout(() => this.irAUnidadActual(), 80);
       },
       error: (err) => {
         console.error('Error al cargar etapas:', err);
@@ -283,6 +285,22 @@ export class UnitsPage implements OnInit {
   get siguienteNivel(): Nivel | null {
     if (!this.nivelCelebrado) return null;
     return NIVELES.find(n => n.numero === this.nivelCelebrado!.numero + 1 && this.unidadesDelNivel(n).length) ?? null;
+  }
+
+  // --- Mostrar el mapa desde donde vas ---
+  // Baja el camino hasta la unidad en la que vas (o la última, si terminaste todo)
+  // y la deja al centro. En la primera unidad no se mueve, para que se vea el resumen.
+  private async irAUnidadActual() {
+    if (!this.contenido || this.selectorAbierto) return;
+    const destino = this.unidadCompanero;
+    if (destino === null || destino === this.unidades[0]?.id) return;
+    const nodo = document.getElementById(`unidad-${destino}`);
+    if (!nodo) return;
+    const caja = await this.contenido.getScrollElement();
+    const arriba = nodo.getBoundingClientRect().top - caja.getBoundingClientRect().top + caja.scrollTop;
+    const y = Math.max(0, arriba - caja.clientHeight / 2 + 70);
+    const suave = !leerAccesibilidad().menosMovimiento;
+    this.contenido.scrollToPoint(0, y, suave ? 500 : 0);
   }
 
   // --- Consejos del compañero ---
