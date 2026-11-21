@@ -5,7 +5,7 @@ export const ETAPA_APP = 'beta';
 export const VERSION_COMPLETA = `v${VERSION_APP} ${ETAPA_APP}`;
 
 // Contacto del proyecto (el mismo que aparece en «Acerca de Kimanke»)
-export const CORREO_CONTACTO = 'ga.ed.gonzalezs@gmail.com';
+export const CORREO_CONTACTO = 'kimankeapp@gmail.com';
 export const WHATSAPP_CONTACTO = '56998117750';
 
 // Datos que ayudan a reproducir un problema. No incluye nada personal.
