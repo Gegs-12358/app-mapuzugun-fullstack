@@ -42,6 +42,10 @@ app.use(helmet({
   contentSecurityPolicy: { directives: { defaultSrc: ["'none'"], frameAncestors: ["'none'"] } },
   crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
+app.use((req, res, next) => {
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=()');
+  next();
+});
 app.disable('x-powered-by');
 
 // ---------- CORS ----------
@@ -60,6 +64,15 @@ app.use(cors({
 }));
 
 app.use(express.json({ limit: '10kb' }));
+// Sin cuerpo JSON (o con otro tipo de contenido), req.body queda como objeto vacío
+// en vez de undefined, para que las validaciones respondan 400 y no un error 500.
+app.use((req, res, next) => {
+  if (req.body === undefined || req.body === null || typeof req.body !== 'object') req.body = {};
+  next();
+});
+
+// Enteros válidos para ids de unidad, etapa y ejercicio (evita desbordar el INT de Postgres)
+const esId = (n) => Number.isInteger(n) && n > 0 && n < 1_000_000;
 
 // ---------- BASE DE DATOS ----------
 const pool = new Pool({
@@ -134,6 +147,17 @@ const limiteDisponible = rateLimit({
   message: { error: 'Demasiadas consultas. Espera unos minutos.' }
 });
 
+// Terminar lecciones y repasos: máximo 40 por hora por persona (no por conexión),
+// para que nadie sume puntos mandando la misma petición en un ciclo
+const limiteCompletar = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 40,
+  keyGenerator: (req) => `usuario-${req.user?.id}`,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: 'Has terminado muchas lecciones seguidas. Descansa un rato y sigue después.' }
+});
+
 // ---------- NOMBRES DE USUARIO ----------
 // Se comparan sin distinguir mayúsculas: «Gabriel» y «gabriel» son el mismo nombre
 // exceptoId: al cambiar el nombre, la propia cuenta no cuenta como ocupada
@@ -149,6 +173,16 @@ async function nombreOcupado(nombre, exceptoId = null) {
 function errorDeNombre(username) {
   if (username.length < 3 || username.length > 50) return 'El usuario debe tener entre 3 y 50 caracteres';
   if (username.includes('@')) return 'Usa un apodo, no tu correo';
+  // Letras (con tildes, ñ y ü), números, espacio, punto, guion y guion bajo.
+  // Así no se cuelan etiquetas HTML ni caracteres invisibles para suplantar a alguien.
+  if (!/^[\p{L}\p{N}._\- ]+$/u.test(username)) return 'Usa solo letras, números, espacios, punto, guion o guion bajo';
+  return null;
+}
+
+// bcrypt solo considera los primeros 72 bytes de la contraseña
+function errorDeContrasena(password) {
+  if (password.length < 8) return 'La contraseña debe tener al menos 8 caracteres';
+  if (Buffer.byteLength(password, 'utf8') > 72) return 'La contraseña es demasiado larga (máximo 72 caracteres)';
   return null;
 }
 
@@ -177,7 +211,7 @@ function crearToken(user) {
   return jwt.sign(
     { id: user.id, username: user.username },
     process.env.JWT_SECRET,
-    { expiresIn: '7d' }
+    { expiresIn: '7d', algorithm: 'HS256' }
   );
 }
 
@@ -187,7 +221,7 @@ function requireAuth(req, res, next) {
   if (!token) return res.status(401).json({ error: 'Sesión no iniciada' });
 
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET); // { id, username }
+    req.user = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] }); // { id, username }
     next();
   } catch (err) {
     return res.status(401).json({ error: 'Sesión expirada o inválida' });
@@ -208,9 +242,8 @@ app.post('/api/register', limiteRegistro, async (req, res) => {
   }
   const errorNombre = errorDeNombre(username);
   if (errorNombre) return res.status(400).json({ error: errorNombre });
-  if (password.length < 8) {
-    return res.status(400).json({ error: 'La contraseña debe tener al menos 8 caracteres' });
-  }
+  const errorClave = errorDeContrasena(password);
+  if (errorClave) return res.status(400).json({ error: errorClave });
 
   try {
     if (await nombreOcupado(username)) {
@@ -257,6 +290,8 @@ app.get('/api/usuario-disponible', limiteDisponible, async (req, res) => {
   if (nombre.length < 3 || nombre.length > 50 || nombre.includes('@')) {
     return res.json({ disponible: false, sugerencias: [] });
   }
+  const errorNombre = errorDeNombre(nombre);
+  if (errorNombre) return res.json({ disponible: false, sugerencias: [], error: errorNombre });
   try {
     if (!(await nombreOcupado(nombre))) return res.json({ disponible: true, sugerencias: [] });
     res.json({ disponible: false, sugerencias: await sugerirNombres(nombre, avatar) });
@@ -416,10 +451,10 @@ app.delete('/api/account', limiteLogin, async (req, res) => {
 });
 
 app.get('/api/exercises', async (req, res) => {
-  const unitId = parseInt(req.query.unitId, 10);
-  const stage = req.query.stage !== undefined ? parseInt(req.query.stage, 10) : null;
+  const unitId = Number(req.query.unitId);
+  const stage = req.query.stage !== undefined ? Number(req.query.stage) : null;
 
-  if (!Number.isInteger(unitId) || (stage !== null && !Number.isInteger(stage))) {
+  if (!esId(unitId) || (stage !== null && !esId(stage))) {
     return res.status(400).json({ error: 'Datos inválidos' });
   }
 
@@ -524,9 +559,35 @@ app.post('/api/buy-lives', async (req, res) => {
   }
 });
 
-app.post('/api/lessons/complete', async (req, res) => {
+// ¿Puede esta persona jugar esta etapa? Misma regla que el mapa: la primera unidad
+// está abierta; una unidad se abre al completar todas las etapas de la anterior;
+// y dentro de la unidad, una etapa se abre al completar la anterior.
+async function etapaDisponible(client, username, unitId, stage) {
+  const visibles = await client.query(
+    `SELECT DISTINCT unit_id, stage FROM exercises WHERE ${soloAprobado()} ORDER BY unit_id, stage`
+  );
+  const hechas = await client.query(
+    'SELECT unit_id, stage FROM user_progress WHERE username = $1 AND completed',
+    [username]
+  );
+  const completa = new Set(hechas.rows.map(r => `${r.unit_id}-${r.stage}`));
+  if (completa.has(`${unitId}-${stage}`)) return true;          // repetir siempre se puede
+
+  const unidades = [...new Set(visibles.rows.map(r => r.unit_id))];
+  const i = unidades.indexOf(unitId);
+  if (i < 0) return false;
+  if (i > 0) {
+    const anterior = unidades[i - 1];
+    const etapasAnterior = visibles.rows.filter(r => r.unit_id === anterior);
+    if (!etapasAnterior.every(r => completa.has(`${anterior}-${r.stage}`))) return false;
+  }
+  const hayAnterior = visibles.rows.some(r => r.unit_id === unitId && r.stage === stage - 1);
+  return !hayAnterior || completa.has(`${unitId}-${stage - 1}`);
+}
+
+app.post('/api/lessons/complete', limiteCompletar, async (req, res) => {
   const { unitId, stage, correct } = req.body;
-  if (!Number.isInteger(unitId) || !Number.isInteger(stage) || !Number.isInteger(correct) || correct < 0) {
+  if (!esId(unitId) || !esId(stage) || !Number.isInteger(correct) || correct < 0) {
     return res.status(400).json({ error: 'Datos inválidos' });
   }
 
@@ -539,6 +600,9 @@ app.post('/api/lessons/complete', async (req, res) => {
     );
     const total = totalRes.rows[0].total;
     if (total === 0) return res.status(404).json({ error: 'Etapa no encontrada' });
+    if (!(await etapaDisponible(client, req.user.username, unitId, stage))) {
+      return res.status(403).json({ error: 'Esta etapa todavía está bloqueada' });
+    }
 
     // El servidor limita los aciertos al número real de ejercicios
     const aciertos = Math.min(correct, total);
@@ -664,6 +728,14 @@ app.post('/api/regen-lives', async (req, res) => {
 const ACIERTOS_PARA_APRENDIDA = 2;
 const PREGUNTAS_POR_REPASO = 8;
 
+// Cada vez que se pide un repaso se anota cuántas preguntas se entregaron. Al
+// terminarlo, los aciertos se limitan a ese número y la sesión se usa una sola vez,
+// así no se puede sumar Kimün enviando «repaso terminado» sin haber repasado.
+// Vive en memoria: si el servidor se reinicia a mitad de un repaso, ese repaso no
+// suma Kimün, pero sí cuenta para la racha.
+const sesionesRepaso = new Map(); // id de usuario -> { preguntas, hasta }
+const MS_SESION_REPASO = 2 * 60 * 60 * 1000;
+
 // Se registra cada respuesta. Un error suma un fallo; un acierto solo cuenta
 // si la palabra ya estaba en el repaso.
 app.post('/api/respuesta', async (req, res) => {
@@ -710,6 +782,9 @@ app.get('/api/repaso', async (req, res) => {
       [req.user.id, ACIERTOS_PARA_APRENDIDA, PREGUNTAS_POR_REPASO]
     );
     const total = result.rows[0]?.total ?? 0;
+    if (result.rows.length) {
+      sesionesRepaso.set(req.user.id, { preguntas: result.rows.length, hasta: Date.now() + MS_SESION_REPASO });
+    }
     res.json({ total, ejercicios: result.rows.map(({ total, ...e }) => e) });
   } catch (err) {
     console.error(err);
@@ -718,12 +793,15 @@ app.get('/api/repaso', async (req, res) => {
 });
 
 // Terminar un repaso: suma Kimün y cuenta para la racha, sin Llankas
-app.post('/api/repaso/completar', async (req, res) => {
+app.post('/api/repaso/completar', limiteCompletar, async (req, res) => {
   const { correct } = req.body || {};
   if (!Number.isInteger(correct) || correct < 0) {
     return res.status(400).json({ error: 'Datos inválidos' });
   }
-  const aciertos = Math.min(correct, PREGUNTAS_POR_REPASO * 2);
+  const sesion = sesionesRepaso.get(req.user.id);
+  sesionesRepaso.delete(req.user.id);
+  const valida = sesion && sesion.hasta > Date.now();
+  const aciertos = valida ? Math.min(correct, sesion.preguntas) : 0;
   const xpGanado = aciertos * XP_POR_REPASO;
   try {
     const user = await pool.query(

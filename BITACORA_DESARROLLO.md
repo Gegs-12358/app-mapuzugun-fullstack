@@ -328,3 +328,24 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - El contenido original de las notas reemplazadas y de las preguntas retiradas queda en la planilla de revisión para hablantes.
 - Cambio de nombre de usuario desde el panel del compañero, con la contraseña y sugerencias si el nombre está ocupado. Para que el progreso siga al nombre, el servidor cambia al arrancar la relación de `user_progress` con `users` a `ON UPDATE CASCADE`. Las rutas protegidas leen el nombre actual desde la base por el id del token, así una sesión abierta en otro dispositivo sigue guardando bien.
 - Seguridad: securityheaders.com dio nota D al sitio web. Se agregaron encabezados al servidor con `helmet` y, para el sitio estático, se configuran en Render (Content-Security-Policy, X-Frame-Options, Referrer-Policy y Permissions-Policy). Para que la política de contenido no rompa los estilos se desactivó `inlineCritical` en `angular.json`: Angular cargaba el CSS con un `onload` en línea, que la política bloquea.
+
+### Actualización 21 de noviembre de 2026 (revisión de seguridad)
+
+**Resultado de las pruebas**
+- Encabezados: A+ en securityheaders.com y en Mozilla Observatory, tanto para el sitio web como para la API.
+- gitleaks: no hay secretos en los 65 commits del historial (las llaves `.jks` antiguas son binarias y ya se dan por expuestas).
+- Pruebas de ataque en la copia local: los tokens falsos, alterados o vencidos se rechazan; nadie puede ver datos de otra persona; no hay inyección SQL; las compras simultáneas de Newen no gastan dos veces; una cuenta borrada deja de funcionar al tiro.
+
+**Arreglado**
+- Se podían completar por la API etapas bloqueadas (y ganar Llankas sin jugar). Ahora el servidor aplica la misma regla de desbloqueo que el mapa.
+- Se podía sumar Kimün sin límite enviando «repaso terminado» o repitiendo una etapa en un ciclo. Ahora cada repaso se valida contra lo que se entregó, y terminar lecciones o repasos tiene un tope de 40 por hora por persona.
+- Un id enorme o una petición sin JSON causaban un error 500; ahora responden 400.
+- Nombres de usuario: solo letras (con tildes, ñ y ü), números, espacio, punto, guion y guion bajo, para evitar HTML y caracteres invisibles. Contraseñas de hasta 72 bytes, el máximo que bcrypt considera.
+- El token JWT se firma y verifica solo con HS256.
+- La app solo envía la sesión a la API, nunca a otros servidores.
+- Encabezado Permissions-Policy en la API.
+
+**Por verificar en producción**
+- Que el límite de intentos distinga a cada persona detrás del proxy de Render y Cloudflare (`trust proxy`).
+- Que `JWT_SECRET` en Render sea largo (48 bytes aleatorios o más).
+

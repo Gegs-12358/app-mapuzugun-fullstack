@@ -28,7 +28,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     token = localStorage.getItem('mapu_token');
   } catch {}
 
-  if (token) {
+  // La sesión solo viaja a nuestra API, nunca a otros servidores
+  if (token && esApi) {
     req = req.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
   }
 

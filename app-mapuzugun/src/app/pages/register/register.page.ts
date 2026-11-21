@@ -58,11 +58,13 @@ export class RegisterPage implements OnDestroy {
       debounceTime(500),
       switchMap(nombre => nombre.length < 3 || nombre.length > 50
         ? of(null)
-        : this.http.get<{ disponible: boolean; sugerencias: string[] }>('/api/usuario-disponible', {
+        : this.http.get<{ disponible: boolean; sugerencias: string[]; error?: string }>('/api/usuario-disponible', {
             params: { nombre, avatar: this.avatar ?? '' }
           }).pipe(catchError(() => of(null))))
     ).subscribe(res => {
       if (!res) { if (this.estadoNombre !== 'correo') this.estadoNombre = 'nada'; return; }
+      // Nombre con caracteres no permitidos: se explica en vez de decir «ocupado»
+      if (res.error) { this.estadoNombre = 'nada'; this.sugerencias = []; this.errorMsg = res.error; return; }
       this.nombreRevisado = this.username.trim();
       this.estadoNombre = res.disponible ? 'libre' : 'ocupado';
       this.sugerencias = res.sugerencias ?? [];
