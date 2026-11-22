@@ -142,12 +142,17 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   // Lo máximo que se puede ganar (mismas reglas que el servidor)
+  // El emparejamiento de calentamiento no da puntos
+  private get preguntasConPuntos(): number {
+    return this.ejercicios.filter(e => !e.calentamiento).length;
+  }
+
   get kimunPosible(): number {
-    return this.ejercicios.length * (this.modoRepaso || this.etapaYaCompletada ? 5 : 20);
+    return this.preguntasConPuntos * (this.modoRepaso || this.etapaYaCompletada ? 5 : 20);
   }
 
   get llankasPosibles(): number {
-    return this.modoRepaso || this.etapaYaCompletada ? 0 : this.ejercicios.length * 2;
+    return this.modoRepaso || this.etapaYaCompletada ? 0 : this.preguntasConPuntos * 2;
   }
 
   // Color de la estrella de la unidad, el mismo que en el mapa
@@ -276,6 +281,12 @@ export class HomePage implements OnInit, OnDestroy {
   get enlaceReporteEjercicio(): string {
     const e = this.ejercicioActual;
     if (!e) return enlaceReporte();
+    if (e.calentamiento) {
+      return enlaceReporte(
+        `Unidad ${e.unit_id ?? this.unitId} · Etapa ${e.stage ?? this.stage} · Emparejamiento armado con las palabras de la etapa\n` +
+        e.options.map((p: any) => `${p.mapuche} = ${p.spanish}`).join('\n')
+      );
+    }
     return enlaceReporte(
       `Unidad ${e.unit_id ?? this.unitId} · Etapa ${e.stage ?? this.stage} · Ejercicio #${e.id}\nPregunta: ${e.question}\nRespuesta esperada: ${e.correct_answer ?? '(emparejar)'}`
     );
@@ -464,6 +475,24 @@ export class HomePage implements OnInit, OnDestroy {
       ];
     }
     this.palabras = palabrasDeEtapa(this.ejercicios);
+    // Si la etapa no trae emparejamiento, se arma uno con sus mismas palabras
+    // (no inventa contenido). Es de calentamiento: no suma ni resta puntos.
+    if (!this.modoRepaso && !this.ejercicios.some(e => e.type === 'match') && this.palabras.length >= 2) {
+      const base = this.ejercicios[0] ?? {};
+      this.ejercicios.unshift({
+        id: null,
+        calentamiento: true,
+        unit_id: base.unit_id,
+        stage: base.stage,
+        type: 'match',
+        question: 'Empareja las palabras',
+        correct_answer: 'COMPLETE',
+        options: this.palabras.slice(0, 5).map(p => ({ mapuche: p.mapu, spanish: p.es })),
+        estado: base.estado,
+        grafemario: base.grafemario,
+        variante: base.variante,
+      });
+    }
     this.loading = false;
     this.initMatchGame();
     // El compañero saluda al aparecer la portada
@@ -529,8 +558,10 @@ export class HomePage implements OnInit, OnDestroy {
         if (this.matchedLeft.length === this.ejercicioActual.options.length) {
           this.isAnswered = true;
           this.isCorrect = true;
-          this.aciertos++;
-          this.xp += 20;
+          if (!this.ejercicioActual.calentamiento) {
+            this.aciertos++;
+            this.xp += 20;
+          }
           this.playCorrectSound();
           this.reaccionar('feliz', FRASES.feliz);
           // Un par equivocado se perdona; dos o más cuentan como error para el repaso
