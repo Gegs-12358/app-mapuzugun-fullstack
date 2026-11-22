@@ -489,3 +489,17 @@ ion-button.opcion-apagada {
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* Completar la frase: la frase con el espacio a llenar */
+.frase-completar {
+  margin: 0 0 15px;
+  padding: 12px 14px;
+  border: 2px dashed #C9B8E0;
+  border-radius: 14px;
+  background: #fff;
+  color: #2A1640;
+  font-size: 1.3em;
+  font-weight: 800;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}

@@ -11,7 +11,7 @@ import {
 import { AVATARES, imagenAvatar } from '../avatars';
 import { CompaneroComponent, EstadoVisual } from '../companero/companero.component';
 import { AjustesLecturaComponent } from '../ajustes-lectura/ajustes-lectura.component';
-import { Palabra, palabrasDeEtapa } from '../palabras';
+import { Palabra, ejerciciosDePractica, palabrasDeEtapa, sinTildes } from '../palabras';
 import { EstadoCompanero, FRASES, PiezaConfeti, crearConfeti, fraseAlAzar } from '../companero';
 import { enlaceReporte } from '../version';
 import { IconoRecursoComponent } from '../icono-recurso/icono-recurso.component';
@@ -283,8 +283,10 @@ export class HomePage implements OnInit, OnDestroy {
     if (!e) return enlaceReporte();
     if (e.calentamiento) {
       return enlaceReporte(
-        `Unidad ${e.unit_id ?? this.unitId} · Etapa ${e.stage ?? this.stage} · Emparejamiento armado con las palabras de la etapa\n` +
-        e.options.map((p: any) => `${p.mapuche} = ${p.spanish}`).join('\n')
+        `Unidad ${e.unit_id ?? this.unitId} · Etapa ${e.stage ?? this.stage} · Ejercicio de práctica armado con las palabras de la etapa\n` +
+        (e.type === 'match'
+          ? e.options.map((p: any) => `${p.mapuche} = ${p.spanish}`).join('\n')
+          : `Pregunta: ${e.frase ?? e.question}\nRespuesta esperada: ${e.correct_answer}`)
       );
     }
     return enlaceReporte(
@@ -475,23 +477,27 @@ export class HomePage implements OnInit, OnDestroy {
       ];
     }
     this.palabras = palabrasDeEtapa(this.ejercicios);
-    // Si la etapa no trae emparejamiento, se arma uno con sus mismas palabras
-    // (no inventa contenido). Es de calentamiento: no suma ni resta puntos.
-    if (!this.modoRepaso && !this.ejercicios.some(e => e.type === 'match') && this.palabras.length >= 2) {
-      const base = this.ejercicios[0] ?? {};
-      this.ejercicios.unshift({
-        id: null,
-        calentamiento: true,
-        unit_id: base.unit_id,
-        stage: base.stage,
-        type: 'match',
-        question: 'Empareja las palabras',
-        correct_answer: 'COMPLETE',
-        options: this.palabras.slice(0, 5).map(p => ({ mapuche: p.mapu, spanish: p.es })),
-        estado: base.estado,
-        grafemario: base.grafemario,
-        variante: base.variante,
-      });
+    // Si a la etapa le falta emparejar, escribir o completar la frase, se arman
+    // con sus mismas palabras (no inventan contenido). Son de práctica: no dan
+    // ni quitan puntos. El emparejamiento va primero; los otros, en cualquier lugar.
+    if (!this.modoRepaso) {
+      for (const extra of ejerciciosDePractica(this.ejercicios, this.palabras)) {
+        if (extra.type === 'match') this.ejercicios.unshift(extra);
+        else {
+          // En cualquier lugar después del emparejamiento, pero no pegado a
+          // otra pregunta sobre la misma palabra
+          const desde = this.ejercicios[0]?.type === 'match' ? 1 : 0;
+          const palabra = String(extra.palabra ?? '').toLowerCase();
+          const nombra = (e: any) => !!e && e.type !== 'match' && !!palabra &&
+            `${e.question} ${e.correct_answer} ${JSON.stringify(e.options ?? [])}`.toLowerCase().includes(palabra);
+          let pos = desde;
+          for (let intento = 0; intento < 12; intento++) {
+            pos = desde + Math.floor(Math.random() * (this.ejercicios.length - desde + 1));
+            if (!nombra(this.ejercicios[pos - 1]) && !nombra(this.ejercicios[pos])) break;
+          }
+          this.ejercicios.splice(pos, 0, extra);
+        }
+      }
     }
     this.loading = false;
     this.initMatchGame();
@@ -584,7 +590,8 @@ export class HomePage implements OnInit, OnDestroy {
 
     if (this.ejercicioActual.type === 'write' || this.ejercicioActual.type === 'fill_blank') {
       if (!this.writtenAnswer.trim()) return;
-      this.isCorrect = normalizarRespuesta(this.writtenAnswer) === normalizarRespuesta(this.ejercicioActual.correct_answer);
+      const comparar = (t: string) => this.ejercicioActual.sinTildes ? sinTildes(normalizarRespuesta(t)) : normalizarRespuesta(t);
+      this.isCorrect = comparar(this.writtenAnswer) === comparar(this.ejercicioActual.correct_answer);
     } else if (this.ejercicioActual.type === 'multiple_choice') {
       if (!this.selectedOption) return;
       this.isCorrect = this.selectedOption === this.ejercicioActual.correct_answer;
@@ -597,16 +604,20 @@ export class HomePage implements OnInit, OnDestroy {
     this.ofrecerPista = false;
     this.registrarRespuesta(this.ejercicioActual, this.isCorrect);
 
+    const practica = !!this.ejercicioActual.calentamiento;
     if (this.isCorrect) {
       this.playCorrectSound();
       this.reaccionar('feliz', FRASES.feliz);
-      this.xp += 20;
-      this.aciertos++;
+      if (!practica) {
+        this.xp += 20;
+        this.aciertos++;
+      }
     } else {
       this.playWrongSound();
       this.reaccionar('animando', FRASES.animando);
-      if (!this.modoRepaso) this.restarVida();
-      const yaEstaEnRepaso = this.ejercicios.slice(this.currentIndex + 1).some(e => e.id === this.ejercicioActual.id);
+      if (!this.modoRepaso && !practica) this.restarVida();
+      const yaEstaEnRepaso = this.ejercicios.slice(this.currentIndex + 1)
+        .some(e => e.id === this.ejercicioActual.id && (e.id !== null || e.question === this.ejercicioActual.question));
       if (!yaEstaEnRepaso) {
         this.ejercicios.push({ ...this.ejercicioActual, isReview: true });
       }

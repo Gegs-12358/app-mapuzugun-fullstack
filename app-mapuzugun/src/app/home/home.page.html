@@ -311,9 +311,7 @@
 
       <!-- NUEVO: MODO COMPLETAR LA FRASE (FILL BLANK) -->
       <div *ngIf="ejercicioActual.type === 'fill_blank'" style="margin-top: 20px;">
-        <p style="font-size: 1.3em; color: #5B2A86; font-weight: bold; margin-bottom: 15px; line-height: 1.5;">
-          {{ ejercicioActual.question }}
-        </p>
+        <p class="frase-completar" lang="arn">{{ ejercicioActual.frase || ejercicioActual.question }}</p>
         <ion-input [(ngModel)]="writtenAnswer" [disabled]="isAnswered" placeholder="Escribe la palabra que falta..."
           class="campo-respuesta">
         </ion-input>
