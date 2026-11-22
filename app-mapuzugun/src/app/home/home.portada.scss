@@ -373,27 +373,67 @@ ion-button.opcion-apagada {
 
 /* ===== Conocer las palabras antes de empezar ===== */
 .btn-ver-palabras {
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   gap: 12px;
   width: 100%;
-  margin: 0 0 12px;
-  padding: 12px 14px;
-  border: 2px solid #C9B8E0;
-  border-radius: 16px;
-  background: linear-gradient(180deg, #FFFFFF, #F1EAF9);
-  box-shadow: 0 4px 0 #A58BC8;
-  color: #5B2A86;
+  margin: 2px 0 14px;
+  padding: 14px 16px;
+  border: 3px solid #FFE08A;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #2FC48A 0%, #18A06E 55%, #11865B 100%);
+  box-shadow: 0 5px 0 #0B5E40, 0 0 0 0 rgba(47, 196, 138, 0.6);
+  color: #fff;
   font: inherit;
   text-align: left;
   cursor: pointer;
+  animation: palabras-latido 2.2s ease-in-out infinite;
 
-  .icono { font-size: 28px; line-height: 1; }
+  .icono {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #FFF6D6;
+    box-shadow: 0 3px 0 #C99A1A;
+    font-size: 26px;
+    line-height: 1;
+  }
   .textos { display: flex; flex-direction: column; gap: 2px; }
-  b { font-size: 16px; font-weight: 800; }
-  small { font-size: 13px; color: #4B4560; }
+  b { font-size: 18px; font-weight: 900; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.2); }
+  small { font-size: 13px; font-weight: 600; color: #EFFFF7; }
+  .flecha { margin-left: auto; font-size: 34px; font-weight: 900; line-height: 1; }
 
-  &:active { transform: translateY(3px); box-shadow: 0 1px 0 #A58BC8; }
+  /* Destello que cruza el botón */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+    transform: skewX(-20deg);
+    animation: palabras-destello 3.2s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  &:active { transform: translateY(4px); box-shadow: 0 1px 0 #0B5E40; }
+  &:focus-visible { outline: 3px solid #FFB703; outline-offset: 3px; }
+}
+
+@keyframes palabras-latido {
+  0%, 100% { box-shadow: 0 5px 0 #0B5E40, 0 0 0 0 rgba(47, 196, 138, 0.55); }
+  50% { box-shadow: 0 5px 0 #0B5E40, 0 0 0 10px rgba(47, 196, 138, 0); }
+}
+
+@keyframes palabras-destello {
+  0%, 55% { left: -60%; }
+  100% { left: 130%; }
 }
 
 .panel-palabras {

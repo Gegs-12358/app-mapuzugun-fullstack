@@ -188,7 +188,7 @@
         <strong>{{ nombreCompanero }}</strong>
         <p *ngIf="!modoRepaso">
           ¡Mari mari! {{ tituloUnidad ? 'Practiquemos «' + tituloUnidad + '».' : 'Practiquemos paso a paso.' }}
-          ¡Vamos de a poco!
+          {{ palabras.length ? 'Mira primero las palabras aquí abajo 👇' : '¡Vamos de a poco!' }}
         </p>
         <p *ngIf="modoRepaso">Practiquemos las palabras que más te han costado. Aquí no se gasta Newen.</p>
       </div>
@@ -199,8 +199,9 @@
       <span class="icono" aria-hidden="true">📖</span>
       <span class="textos">
         <b>Conocer las palabras</b>
-        <small>{{ palabras.length }} {{ palabras.length === 1 ? 'palabra' : 'palabras' }} de esta etapa, antes de empezar</small>
+        <small>Mira las {{ palabras.length }} {{ palabras.length === 1 ? 'palabra' : 'palabras' }} de esta etapa antes de empezar</small>
       </span>
+      <span class="flecha" aria-hidden="true">›</span>
     </button>
 
     <!-- Qué trae la etapa y cuánto se puede ganar -->
