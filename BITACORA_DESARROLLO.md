@@ -399,3 +399,5 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
   - Al terminar una etapa decía "Has ganado 0 puntos" y, al volver enseguida, el mapa mostraba la etapa sin completar (al recargar sí aparecía). Era una carrera: la pantalla final se mostraba antes de que el servidor confirmara, y con Render lento se alcanzaba a volver. Ahora dice "Guardando tu avance…", el botón espera a que termine, hay "Reintentar" si falla, y el mapa se actualiza solo cuando termina de guardarse aunque se haya salido con la flecha.
   - El registro avisa que después se pedirá un correo para recuperar la contraseña.
   - "Acerca de" ya no dice que no hay recuperación de contraseña.
+- Newen más amable al empezar. En el Nivel 1 (unidades 1 a 3), fallar una pregunta por primera vez no gasta Newen; se repite al final y fallar esa repetición sí gasta. El compañero lo explica la primera vez. En los niveles 2 y 3 sigue como antes.
+- Cuando queda 1 Newen (según el servidor), el compañero avisa: "Ojo: me queda solo 1 Newen. Tómate tu tiempo y pide una pista si la necesitas". También al empezar una etapa con 1 Newen.

@@ -11,6 +11,7 @@ import {
 import { AVATARES, imagenAvatar } from '../avatars';
 import { CompaneroComponent, EstadoVisual } from '../companero/companero.component';
 import { AjustesLecturaComponent } from '../ajustes-lectura/ajustes-lectura.component';
+import { nivelDeUnidad } from '../niveles';
 import { Palabra, ejerciciosDePractica, palabrasDeEtapa, sinTildes } from '../palabras';
 import { EstadoCompanero, FRASES, PiezaConfeti, crearConfeti, fraseAlAzar } from '../companero';
 import { enlaceReporte } from '../version';
@@ -45,6 +46,7 @@ export class HomePage implements OnInit, OnDestroy {
   username = '';
   avatarId = 'puma';
   ajustesAbiertos = false;
+  private avisoPrimerIntento = false;  // ya se explicó que el primer error no gasta Newen
 
   // Las palabras de la etapa, para conocerlas antes de empezar
   palabras: Palabra[] = [];
@@ -172,6 +174,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.mostrarPortada = false;
     this.fraseCompanero = fraseAlAzar(FRASES.inicio);
     this.tonoFrase = '';
+    if (!this.modoRepaso) this.avisarPocoNewen();
     this.iniciarPista();
   }
 
@@ -617,12 +620,34 @@ export class HomePage implements OnInit, OnDestroy {
     } else {
       this.playWrongSound();
       this.reaccionar('animando', FRASES.animando);
-      if (!this.modoRepaso && !practica) this.restarVida();
+      if (!this.modoRepaso && !practica) {
+        if (this.primerIntentoGratis) {
+          // Nivel 1: equivocarse la primera vez no gasta Newen; fallar la repetición sí
+          if (!this.avisoPrimerIntento) {
+            this.avisoPrimerIntento = true;
+            this.fraseCompanero = 'Tranquilidad: en el Nivel 1, el primer intento no gasta Newen. Te la vuelvo a preguntar al final.';
+          }
+        } else {
+          this.restarVida();
+        }
+      }
       const yaEstaEnRepaso = this.ejercicios.slice(this.currentIndex + 1)
         .some(e => e.id === this.ejercicioActual.id && (e.id !== null || e.question === this.ejercicioActual.question));
       if (!yaEstaEnRepaso) {
         this.ejercicios.push({ ...this.ejercicioActual, isReview: true });
       }
+    }
+  }
+
+  // En el Nivel 1, una pregunta fallada por primera vez no cuesta Newen
+  get primerIntentoGratis(): boolean {
+    return !this.ejercicioActual?.isReview && nivelDeUnidad(Number(this.unitId)).numero === 1;
+  }
+
+  // Cuando queda 1 de Newen, el compañero avisa antes de que se acabe
+  private avisarPocoNewen() {
+    if (this.lives === 1 && !this.gameOver) {
+      this.fraseCompanero = 'Ojo: me queda solo 1 Newen. Tómate tu tiempo y pide una pista si la necesitas.';
     }
   }
 
@@ -638,6 +663,7 @@ export class HomePage implements OnInit, OnDestroy {
       next: (res: any) => {
         this.lives = res.lives;
         this.gems = res.gems;
+        this.avisarPocoNewen();
 
         const userStr = localStorage.getItem('mapu_user');
         if (userStr) {
