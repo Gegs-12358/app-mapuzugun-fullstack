@@ -401,3 +401,6 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
   - "Acerca de" ya no dice que no hay recuperación de contraseña.
 - Newen más amable al empezar. En el Nivel 1 (unidades 1 a 3), fallar una pregunta por primera vez no gasta Newen; se repite al final y fallar esa repetición sí gasta. El compañero lo explica la primera vez. En los niveles 2 y 3 sigue como antes.
 - Cuando queda 1 Newen (según el servidor), el compañero avisa: "Ojo: me queda solo 1 Newen. Tómate tu tiempo y pide una pista si la necesitas". También al empezar una etapa con 1 Newen.
+- Chequeo en producción con juanito (unidad 5, etapa 3, repaso, ajustes y "Acerca de"): todo lo nuevo funciona (emparejar primero, palabras, pista a los 10 s, práctica sin puntos, Newen en Nivel 2, "Guardando", mapa al día). Dos ajustes:
+  - Al empezar la etapa con la portada bajada, la pregunta quedaba con el compañero fuera de la pantalla. Ahora cada pregunta parte desde arriba.
+  - El botón "Sí, una pista" quedaba pegado al texto en pantallas anchas; ahora va en su propia línea.
