@@ -11,6 +11,7 @@ import {
 import { AVATARES, imagenAvatar } from '../avatars';
 import { CompaneroComponent, EstadoVisual } from '../companero/companero.component';
 import { AjustesLecturaComponent } from '../ajustes-lectura/ajustes-lectura.component';
+import { Palabra, palabrasDeEtapa } from '../palabras';
 import { EstadoCompanero, FRASES, PiezaConfeti, crearConfeti, fraseAlAzar } from '../companero';
 import { enlaceReporte } from '../version';
 import { IconoRecursoComponent } from '../icono-recurso/icono-recurso.component';
@@ -44,6 +45,10 @@ export class HomePage implements OnInit, OnDestroy {
   username = '';
   avatarId = 'puma';
   ajustesAbiertos = false;
+
+  // Las palabras de la etapa, para conocerlas antes de empezar
+  palabras: Palabra[] = [];
+  verPalabras = false;
   nextLifeInMinutes = 0;
 
   // Variables de estado
@@ -156,6 +161,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   comenzar() {
+    this.verPalabras = false;
     this.mostrarPortada = false;
     this.fraseCompanero = fraseAlAzar(FRASES.inicio);
     this.tonoFrase = '';
@@ -449,6 +455,15 @@ export class HomePage implements OnInit, OnDestroy {
       }
       return ejercicio;
     });
+    // El emparejamiento va primero: muestra de una vez todas las parejas de la
+    // etapa y sirve para conocer las palabras antes de las demás preguntas.
+    if (!this.modoRepaso) {
+      this.ejercicios = [
+        ...this.ejercicios.filter(e => e.type === 'match'),
+        ...this.ejercicios.filter(e => e.type !== 'match'),
+      ];
+    }
+    this.palabras = palabrasDeEtapa(this.ejercicios);
     this.loading = false;
     this.initMatchGame();
     // El compañero saluda al aparecer la portada

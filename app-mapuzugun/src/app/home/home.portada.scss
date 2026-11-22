@@ -370,3 +370,82 @@ ion-button.opcion-apagada {
     color: #5B2A86;
   }
 }
+
+/* ===== Conocer las palabras antes de empezar ===== */
+.btn-ver-palabras {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border: 2px solid #C9B8E0;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #FFFFFF, #F1EAF9);
+  box-shadow: 0 4px 0 #A58BC8;
+  color: #5B2A86;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  .icono { font-size: 28px; line-height: 1; }
+  .textos { display: flex; flex-direction: column; gap: 2px; }
+  b { font-size: 16px; font-weight: 800; }
+  small { font-size: 13px; color: #4B4560; }
+
+  &:active { transform: translateY(3px); box-shadow: 0 1px 0 #A58BC8; }
+}
+
+.panel-palabras {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 400px;
+  max-height: calc(100% - 10px);
+  padding: 14px 14px 16px;
+  border-radius: 20px;
+  background: #FBF7FF;
+  border: 2px solid #fff;
+  box-shadow: var(--mapu-canto-claro), 0 12px 30px rgba(0, 0, 0, 0.3);
+  text-align: center;
+
+  .panel-ajustes-titulo { margin: 0; font-size: 17px; font-weight: 800; color: #5B2A86; }
+  .palabras-ayuda { margin: 4px 0 10px; font-size: 14px; color: #4B4560; }
+  .palabras-revision { margin: 8px 0 0; font-size: 12px; font-weight: 700; color: #8B5E00; }
+}
+
+.lista-palabras {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0 0 8px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: var(--mapu-crema-3d);
+    box-shadow: var(--mapu-canto-crema);
+  }
+
+  .mapu { font-size: 20px; font-weight: 800; color: #2A1640; }
+  .es { font-size: 15px; color: #5B2A86; }
+}
+
+.btn-cerrar-palabras {
+  margin-top: 8px;
+  padding: 8px;
+  border: 0;
+  background: none;
+  color: #5B2A86;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}

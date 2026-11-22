@@ -194,6 +194,15 @@
       </div>
     </div>
 
+    <!-- Conocer las palabras antes de empezar -->
+    <button type="button" class="btn-ver-palabras" *ngIf="!modoRepaso && palabras.length > 0" (click)="verPalabras = true">
+      <span class="icono" aria-hidden="true">📖</span>
+      <span class="textos">
+        <b>Conocer las palabras</b>
+        <small>{{ palabras.length }} {{ palabras.length === 1 ? 'palabra' : 'palabras' }} de esta etapa, antes de empezar</small>
+      </span>
+    </button>
+
     <!-- Qué trae la etapa y cuánto se puede ganar -->
     <div class="portada-info">
       <p class="info-titulo">{{ ejercicios.length === 1 ? '1 pregunta' : ejercicios.length + ' preguntas' }}</p>
@@ -368,5 +377,22 @@
     <p class="panel-ajustes-titulo">Ajustes de lectura</p>
     <app-ajustes-lectura></app-ajustes-lectura>
     <button type="button" class="btn-listo-ajustes" (click)="ajustesAbiertos = false">Listo</button>
+  </div>
+</div>
+
+<!-- Palabras de la etapa -->
+<div class="capa-ajustes" *ngIf="verPalabras" (click)="verPalabras = false">
+  <div class="panel-palabras" role="dialog" aria-labelledby="titulo-palabras" (click)="$event.stopPropagation()">
+    <p class="panel-ajustes-titulo" id="titulo-palabras">📖 Palabras de esta etapa</p>
+    <p class="palabras-ayuda">Míralas con calma. Después las vas a practicar.</p>
+    <ul class="lista-palabras">
+      <li *ngFor="let p of palabras">
+        <span class="mapu" lang="arn">{{ p.mapu }}</span>
+        <span class="es">{{ p.es }}</span>
+      </li>
+    </ul>
+    <p class="palabras-revision">⚠️ En revisión con hablantes</p>
+    <button type="button" class="btn-listo-ajustes" (click)="comenzar()">▶ Empezar a practicar</button>
+    <button type="button" class="btn-cerrar-palabras" (click)="verPalabras = false">Volver</button>
   </div>
 </div>
