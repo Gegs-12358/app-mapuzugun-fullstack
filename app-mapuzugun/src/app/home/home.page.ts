@@ -67,6 +67,8 @@ export class HomePage implements OnInit, OnDestroy {
   notaEnRevision = true;
   aciertos = 0;
   xpGanado = 0;
+  // Guardado del avance al terminar: 'guardando' hasta que responde el servidor
+  estadoGuardado: 'guardando' | 'listo' | 'error' = 'listo';
   gemasGanadas = 0;
 
   letrasEspeciales = LETRAS_ESPECIALES;
@@ -680,9 +682,13 @@ export class HomePage implements OnInit, OnDestroy {
           correct: this.aciertos
         });
 
+    this.estadoGuardado = 'guardando';
     guardar.subscribe({
       next: (res: any) => {
+        this.estadoGuardado = 'listo';
         marcarPracticaDeHoy();
+        // Por si ya se volvió al mapa antes de que terminara de guardarse
+        window.dispatchEvent(new CustomEvent('kimanke:avance-guardado'));
         this.xp = res.xp;
         this.streak = res.streak;
         this.gems = res.gems;
@@ -697,7 +703,10 @@ export class HomePage implements OnInit, OnDestroy {
           localStorage.setItem('mapu_user', JSON.stringify(user));
         }
       },
-      error: (err) => console.error('Error al guardar la lección:', err)
+      error: (err) => {
+        console.error('Error al guardar la lección:', err);
+        this.estadoGuardado = 'error';
+      }
     });
   }
 

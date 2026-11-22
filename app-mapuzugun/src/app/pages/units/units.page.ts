@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -53,7 +53,7 @@ import { IconoRecursoComponent } from '../../icono-recurso/icono-recurso.compone
     IonIcon, IonButtons, IonButton, IonFooter, CompaneroComponent, IconoRecursoComponent, AjustesLecturaComponent
   ]
 })
-export class UnitsPage implements OnInit {
+export class UnitsPage implements OnInit, OnDestroy {
   unidades: any[] = [];
   unidadesTodas: any[] = [];
   etapas: any[] = [];            // { unit_id, stage, ejercicios, title, completed, score }
@@ -100,7 +100,19 @@ export class UnitsPage implements OnInit {
     return imagenAvatar(this.avatarId);
   }
 
+  // El avance de una lección puede terminar de guardarse después de volver al mapa
+  private alGuardarAvance = () => {
+    this.cargarEtapas();
+    this.cargarRacha();
+    this.cargarRepaso();
+  };
+
+  ngOnDestroy() {
+    window.removeEventListener('kimanke:avance-guardado', this.alGuardarAvance);
+  }
+
   ngOnInit() {
+    window.addEventListener('kimanke:avance-guardado', this.alGuardarAvance);
     const userStr = localStorage.getItem('mapu_user');
     if (userStr) {
       const user = JSON.parse(userStr);

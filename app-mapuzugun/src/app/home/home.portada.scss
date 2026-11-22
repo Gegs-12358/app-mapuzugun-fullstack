@@ -503,3 +503,15 @@ ion-button.opcion-apagada {
   line-height: 1.5;
   white-space: pre-wrap;
 }
+
+/* Fin de la lección: mientras se guarda o si falla */
+.ganado.guardando { justify-content: center; color: #5B2A86; font-weight: 700; }
+.guardado-error {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #FDECEC;
+  color: #8A1C1C;
+  font-weight: 700;
+  p { margin: 0 0 6px; }
+}
