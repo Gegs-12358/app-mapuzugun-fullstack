@@ -390,3 +390,8 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - El botón "Conocer las palabras" es verde, con un halo que late y un destello que lo cruza (con "Menos movimiento" queda quieto). El compañero de la portada invita a mirarlo.
 - El emparejamiento va primero en cada etapa (antes salía en cualquier lugar, porque las preguntas se mezclan). Así se ven todas las parejas al comienzo. El repaso no cambia.
 - Todas las etapas empiezan con un emparejamiento. Las 6 que no traían uno (1-3, 2-2, 4-2, 5-2, 6-2, 7-3) arman uno con las mismas palabras de la etapa (hasta 5 parejas). Es de calentamiento: no suma Kimün ni Llankas, no gasta Newen y no se guarda para el repaso. Su enlace de "Reportar error" lleva las parejas, porque no tiene número de ejercicio.
+- Toda etapa tiene al menos un ejercicio de cada tipo: emparejar, alternativas, escribir y completar la frase. Los que faltan se arman con las palabras de la misma etapa (`ejerciciosDePractica` en `palabras.ts`):
+  - Escribir: "Escribe «Sí» en mapuzugun", con la palabra más corta que la etapa no pide escribir ya.
+  - Completar la frase: si hay una expresión de varias palabras, se completa la última ("Chaltu ___ (Gracias)" → mai). Si no, "«Weza» significa ___", en castellano y sin exigir tildes, de preferencia con una palabra que la etapa pregunta al revés.
+  - Son de práctica: no suman puntos, no gastan Newen y no van al repaso; si se fallan, se repiten al final. No quedan pegados a otra pregunta sobre la misma palabra.
+  - Ninguna etapa traía "completar la frase", así que ahora todas tienen uno armado. Conviene pedir a los hablantes frases reales para reemplazarlos.
