@@ -395,3 +395,7 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
   - Completar la frase: si hay una expresión de varias palabras, se completa la última ("Chaltu ___ (Gracias)" → mai). Si no, "«Weza» significa ___", en castellano y sin exigir tildes, de preferencia con una palabra que la etapa pregunta al revés.
   - Son de práctica: no suman puntos, no gastan Newen y no van al repaso; si se fallan, se repiten al final. No quedan pegados a otra pregunta sobre la misma palabra.
   - Ninguna etapa traía "completar la frase", así que ahora todas tienen uno armado. Conviene pedir a los hablantes frases reales para reemplazarlos.
+- Prueba externa con una cuenta nueva. Hallazgos corregidos:
+  - Al terminar una etapa decía "Has ganado 0 puntos" y, al volver enseguida, el mapa mostraba la etapa sin completar (al recargar sí aparecía). Era una carrera: la pantalla final se mostraba antes de que el servidor confirmara, y con Render lento se alcanzaba a volver. Ahora dice "Guardando tu avance…", el botón espera a que termine, hay "Reintentar" si falla, y el mapa se actualiza solo cuando termina de guardarse aunque se haya salido con la flecha.
+  - El registro avisa que después se pedirá un correo para recuperar la contraseña.
+  - "Acerca de" ya no dice que no hay recuperación de contraseña.

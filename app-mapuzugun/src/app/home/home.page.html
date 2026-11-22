@@ -116,11 +116,21 @@
         role="img" [attr.aria-label]="nombreCompanero + ' celebra contigo'"></app-companero>
       <p class="celebracion-frase">¡Lo hicimos juntos!</p>
     </div>
-    <p class="ganado"><app-icono-recurso nombre="kimun" [tamano]="24"></app-icono-recurso>
-      <span>Has ganado {{ xpGanado }} puntos de <strong>Kimün</strong> (conocimiento).</span></p>
-    <p *ngIf="gemasGanadas > 0" class="ganado"><app-icono-recurso nombre="llanka" [tamano]="24"></app-icono-recurso>
-      <span>Y <strong>{{ gemasGanadas }} Llankas</strong> para recargar Newen.</span>
+    <!-- El premio se muestra cuando el servidor confirma que guardó el avance -->
+    <p *ngIf="estadoGuardado === 'guardando'" class="ganado guardando" role="status">
+      Guardando tu avance<span class="puntitos" aria-hidden="true"><i></i><i></i><i></i></span>
     </p>
+    <ng-container *ngIf="estadoGuardado === 'listo'">
+      <p class="ganado"><app-icono-recurso nombre="kimun" [tamano]="24"></app-icono-recurso>
+        <span>Has ganado {{ xpGanado }} puntos de <strong>Kimün</strong> (conocimiento).</span></p>
+      <p *ngIf="gemasGanadas > 0" class="ganado"><app-icono-recurso nombre="llanka" [tamano]="24"></app-icono-recurso>
+        <span>Y <strong>{{ gemasGanadas }} Llankas</strong> para recargar Newen.</span>
+      </p>
+    </ng-container>
+    <div *ngIf="estadoGuardado === 'error'" class="guardado-error" role="alert">
+      <p>No pudimos guardar tu avance. Revisa tu conexión e inténtalo de nuevo.</p>
+      <ion-button expand="block" class="btn-3d" (click)="terminarLeccion()">Reintentar</ion-button>
+    </div>
 
     <!-- El compañero ya celebra arriba: aquí la nota usa todo el ancho -->
     <div *ngIf="notaCultural" class="dato dato-solo">
@@ -131,8 +141,9 @@
       </div>
     </div>
 
-    <ion-button expand="block" routerLink="/units" routerDirection="back" class="btn-3d btn-copihue">
-      VOLVER AL MENÚ
+    <ion-button expand="block" routerLink="/units" routerDirection="back" class="btn-3d btn-copihue"
+      [disabled]="estadoGuardado === 'guardando'">
+      {{ estadoGuardado === 'guardando' ? 'GUARDANDO…' : 'VOLVER AL MENÚ' }}
     </ion-button>
   </ion-card>
 
