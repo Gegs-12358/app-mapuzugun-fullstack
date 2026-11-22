@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ViewChild, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -46,6 +46,7 @@ export class HomePage implements OnInit, OnDestroy {
   username = '';
   avatarId = 'puma';
   ajustesAbiertos = false;
+  @ViewChild(IonContent) private contenido?: IonContent;
   private avisoPrimerIntento = false;  // ya se explicó que el primer error no gasta Newen
 
   // Las palabras de la etapa, para conocerlas antes de empezar
@@ -169,9 +170,15 @@ export class HomePage implements OnInit, OnDestroy {
     return e.completed ? 'completada' : 'pendiente';
   }
 
+  // Cada pregunta empieza arriba, con el compañero y la pregunta a la vista
+  private subirAlInicio() {
+    this.contenido?.scrollToTop(0);
+  }
+
   comenzar() {
     this.verPalabras = false;
     this.mostrarPortada = false;
+    this.subirAlInicio();
     this.fraseCompanero = fraseAlAzar(FRASES.inicio);
     this.tonoFrase = '';
     if (!this.modoRepaso) this.avisarPocoNewen();
@@ -686,6 +693,7 @@ export class HomePage implements OnInit, OnDestroy {
     }
 
     this.currentIndex++;
+    this.subirAlInicio();
     this.fraseCompanero = '';
     this.tonoFrase = '';
     this.estadoCompanero = 'quieto';
