@@ -424,3 +424,4 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 
 **Decisiones**
 - Los avisos web los manda el servidor, porque el navegador no puede programar avisos con la app cerrada. La APK sigue con los recordatorios locales; las novedades por ahora llegan solo a la web.
+- Arreglo: al entrar a una etapa con 0 Newen guardado, se mostraba "¡Te has quedado sin Newen!" aunque la recarga por tiempo lo subiera a 5 enseguida (la barra decía 5 y no dejaba seguir). Ahora, si la recarga devuelve Newen, la pantalla se quita sola. Además, con esa pantalla abierta, cada minuto se revisa si ya volvió un Newen y se deja seguir sin tocar nada.
