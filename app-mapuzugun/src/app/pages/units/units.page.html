@@ -49,6 +49,8 @@
       <div class="progress-bar-fill" [style.width.%]="(completadas / totalUnidades) * 100"></div>
     </div>
 
+    <button type="button" class="btn-mis-palabras" (click)="irAPalabras()">📖 Mis palabras</button>
+
     <div class="racha" [class.racha-activa]="racha > 0">
       <app-icono-recurso nombre="kutral" [tamano]="22"></app-icono-recurso>
       <span *ngIf="racha > 0">{{ racha }} {{ racha === 1 ? 'día' : 'días' }} de racha</span>
@@ -167,7 +169,7 @@
   </ion-button>
   <button type="button" *ngIf="repasoPendientes > 0" class="btn-repaso" [class.principal]="!siguienteEtapa"
     (click)="irARepaso()">
-    🔁 Repasar {{ repasoPendientes === 1 ? '1 palabra' : repasoPendientes + ' palabras' }} que te costaron
+    🔁 Repasar {{ repasoPendientes === 1 ? '1 palabra' : repasoPendientes + ' palabras' }}
   </button>
 </ion-footer>
 

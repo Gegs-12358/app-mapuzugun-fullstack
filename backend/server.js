@@ -134,6 +134,34 @@ async function prepararBase() {
     )`);
   await pool.query('CREATE INDEX IF NOT EXISTS intentos_etapa_usuario ON intentos_etapa (user_id, unit_id, stage)');
   await avisos.prepararTablas(pool);
+  // Repaso espaciado: cada palabra (ejercicio) está en una caja de 0 a 5. Al acertar
+  // sube de caja y vuelve más tarde (1, 3, 7, 15 o 30 días); al fallar vuelve a la 0.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS palabras_usuario (
+      user_id     INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      exercise_id INT NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
+      caja        INT NOT NULL DEFAULT 0,
+      proxima     DATE NOT NULL,
+      aciertos    INT NOT NULL DEFAULT 0,
+      fallos      INT NOT NULL DEFAULT 0,
+      actualizado TIMESTAMPTZ NOT NULL DEFAULT now(),
+      PRIMARY KEY (user_id, exercise_id)
+    )`);
+  // Lo que ya se había jugado antes de esta tabla: las palabras falladas y las
+  // de las etapas terminadas. No toca lo que ya está.
+  await pool.query(`
+    INSERT INTO palabras_usuario (user_id, exercise_id, caja, proxima, aciertos, fallos)
+    SELECT user_id, exercise_id, 0, (now() AT TIME ZONE 'America/Santiago')::date, aciertos_seguidos, fallos
+    FROM user_errores
+    ON CONFLICT DO NOTHING`);
+  await pool.query(`
+    INSERT INTO palabras_usuario (user_id, exercise_id, caja, proxima, aciertos)
+    SELECT u.id, e.id, 1, (p.completed_at + interval '1 day')::date, 1
+    FROM user_progress p
+    JOIN users u ON u.username = p.username
+    JOIN exercises e ON e.unit_id = p.unit_id AND e.stage = p.stage
+    WHERE p.completed AND e.estado <> 'retirado'
+    ON CONFLICT DO NOTHING`);
   // El progreso apunta al nombre de usuario: al cambiar el nombre, el progreso lo sigue
   await pool.query(`
     DO $$
@@ -1034,6 +1062,22 @@ app.post('/api/respuesta', async (req, res) => {
     return res.status(400).json({ error: 'Datos inválidos' });
   }
   try {
+    // Repaso espaciado: acertar sube de caja; fallar vuelve a la primera
+    await pool.query(
+      `INSERT INTO palabras_usuario (user_id, exercise_id, caja, proxima, aciertos, fallos)
+       SELECT $1, id, CASE WHEN $3 THEN 1 ELSE 0 END,
+              (now() AT TIME ZONE 'America/Santiago')::date + 1,
+              CASE WHEN $3 THEN 1 ELSE 0 END, CASE WHEN $3 THEN 0 ELSE 1 END
+       FROM exercises WHERE id = $2
+       ON CONFLICT (user_id, exercise_id) DO UPDATE SET
+         caja = CASE WHEN $3 THEN LEAST(palabras_usuario.caja + 1, 5) ELSE 0 END,
+         proxima = (now() AT TIME ZONE 'America/Santiago')::date +
+           CASE WHEN $3 THEN (ARRAY[1, 1, 3, 7, 15, 30])[LEAST(palabras_usuario.caja + 1, 5) + 1] ELSE 1 END,
+         aciertos = palabras_usuario.aciertos + CASE WHEN $3 THEN 1 ELSE 0 END,
+         fallos = palabras_usuario.fallos + CASE WHEN $3 THEN 0 ELSE 1 END,
+         actualizado = now()`,
+      [req.user.id, exerciseId, correcta]
+    );
     if (correcta) {
       await pool.query(
         `UPDATE user_errores
@@ -1060,14 +1104,24 @@ app.post('/api/respuesta', async (req, res) => {
 // Las palabras que más le han costado a la persona (solo contenido visible)
 app.get('/api/repaso', async (req, res) => {
   try {
+    // Primero las palabras que costaron; después, las que ya se sabían y les toca
+    // volver hoy según el repaso espaciado
     const result = await pool.query(
-      `SELECT e.id, e.unit_id, e.stage, e.type, e.question, e.correct_answer, e.options,
+      `WITH pendientes AS (
+         SELECT exercise_id, 0 AS grupo, fallos AS orden FROM user_errores
+         WHERE user_id = $1 AND aciertos_seguidos < $2
+       ), tocan AS (
+         SELECT exercise_id, 1 AS grupo, -caja AS orden FROM palabras_usuario
+         WHERE user_id = $1 AND proxima <= (now() AT TIME ZONE 'America/Santiago')::date
+           AND exercise_id NOT IN (SELECT exercise_id FROM pendientes)
+       ), todas AS (SELECT * FROM pendientes UNION ALL SELECT * FROM tocan)
+       SELECT e.id, e.unit_id, e.stage, e.type, e.question, e.correct_answer, e.options,
               e.audio_url, e.cultural_note, e.estado, e.grafemario, e.variante,
               COUNT(*) OVER()::int AS total
-       FROM user_errores r
-       JOIN exercises e ON e.id = r.exercise_id
-       WHERE r.user_id = $1 AND r.aciertos_seguidos < $2 AND ${soloAprobado('e')}
-       ORDER BY r.fallos DESC, r.actualizado DESC
+       FROM todas t
+       JOIN exercises e ON e.id = t.exercise_id
+       WHERE ${soloAprobado('e')}
+       ORDER BY t.grupo, t.orden DESC, random()
        LIMIT $3`,
       [req.user.id, ACIERTOS_PARA_APRENDIDA, PREGUNTAS_POR_REPASO]
     );
@@ -1079,6 +1133,27 @@ app.get('/api/repaso', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error al cargar el repaso' });
+  }
+});
+
+// Mis palabras: todo lo que la persona ya vio, con su caja del repaso espaciado
+app.get('/api/mis-palabras', async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT e.id, e.unit_id, e.stage, e.type, e.question, e.correct_answer, e.options, e.estado,
+              p.caja, p.aciertos, p.fallos, p.proxima,
+              COALESCE(r.aciertos_seguidos < $2, false) AS pendiente
+       FROM palabras_usuario p
+       JOIN exercises e ON e.id = p.exercise_id
+       LEFT JOIN user_errores r ON r.user_id = p.user_id AND r.exercise_id = p.exercise_id
+       WHERE p.user_id = $1 AND ${soloAprobado('e')}
+       ORDER BY e.unit_id, e.stage, e.id`,
+      [req.user.id, ACIERTOS_PARA_APRENDIDA]
+    );
+    res.json(r.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al cargar tus palabras' });
   }
 });
 

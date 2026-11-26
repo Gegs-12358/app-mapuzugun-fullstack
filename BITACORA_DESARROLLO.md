@@ -430,3 +430,14 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
   - El ícono chico del aviso salía como un cuadro blanco, porque Android pinta ese ícono de un solo color. Ahora usa `badge-96.png`, la misma silueta del globo con la ü que usa la APK (`scripts/crear_icono_notificacion.py --web`).
   - Al tocar el aviso se abre el mapa y el compañero repite el mensaje en su globo («Te mandé este aviso: …»), porque en el celular la notificación se lee chica.
 - Al escribir, el botón azul del teclado (✓, "Listo", "Ir" o Enter) solo cierra el teclado, para ver la pantalla completa. No comprueba la respuesta: así un toque sin querer no gasta Newen, y la persona revisa y toca COMPROBAR. Además, el campo ya no corrige ni pone mayúscula solo, porque el corrector cambiaba palabras en mapuzugun.
+
+### Actualización 26 de noviembre de 2026 (repaso espaciado y Mis palabras)
+
+**Hecho**
+- Repaso espaciado (cajas de Leitner): cada palabra respondida queda en una caja de 0 a 5 (`palabras_usuario`). Al acertar sube de caja y vuelve al repaso en 1, 3, 7, 15 o 30 días; al fallar vuelve a la caja 0. El repaso trae primero las palabras que costaron y después las que ya se sabían y les toca hoy, hasta 8 por vez.
+- Al arrancar, el servidor llena la tabla con lo jugado antes: las palabras falladas (caja 0) y las de las etapas terminadas (caja 1, para el día siguiente de terminarlas).
+- "Mis palabras" (`/palabras`, botón en el resumen de arriba del mapa): todas las palabras vistas, en tres grupos (te cuestan, aprendiendo, dominadas), con cinco puntitos de avance y un botón para repasar. Las palabras salen de las mismas preguntas (`palabrasDeEtapa`).
+- El botón del mapa ahora dice "Repasar N palabras" (ya no solo las que costaron).
+
+**Decisiones**
+- El repaso espaciado es un método publicado y libre (caja de Leitner, años 70). Los nombres y el diseño son propios de Kimanke.

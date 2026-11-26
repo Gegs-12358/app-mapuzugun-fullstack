@@ -141,6 +141,10 @@ export class UnitsPage implements OnInit, OnDestroy {
     });
   }
 
+  irAPalabras() {
+    this.router.navigateByUrl('/palabras');
+  }
+
   irARepaso() {
     this.router.navigateByUrl('/repaso');
   }
