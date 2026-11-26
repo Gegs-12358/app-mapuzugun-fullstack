@@ -429,3 +429,4 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - Recordatorio probado en producción: salió a la 1:30 para una cuenta con hora 01:20 y sonó en el celular. Dos ajustes después de verlo:
   - El ícono chico del aviso salía como un cuadro blanco, porque Android pinta ese ícono de un solo color. Ahora usa `badge-96.png`, la misma silueta del globo con la ü que usa la APK (`scripts/crear_icono_notificacion.py --web`).
   - Al tocar el aviso se abre el mapa y el compañero repite el mensaje en su globo («Te mandé este aviso: …»), porque en el celular la notificación se lee chica.
+- Al escribir, el botón azul del teclado (✓, "Listo", "Ir" o Enter) solo cierra el teclado, para ver la pantalla completa. No comprueba la respuesta: así un toque sin querer no gasta Newen, y la persona revisa y toca COMPROBAR. Además, el campo ya no corrige ni pone mayúscula solo, porque el corrector cambiaba palabras en mapuzugun.
