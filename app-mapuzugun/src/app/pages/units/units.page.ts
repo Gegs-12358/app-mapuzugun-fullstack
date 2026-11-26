@@ -17,7 +17,7 @@ import { AjustesLecturaComponent } from '../../ajustes-lectura/ajustes-lectura.c
 import {
   AjustesRecordatorio, cambiarRecordatorio, leerAjustes, recordatorioDisponible
 } from '../../recordatorio';
-import { AjustesAvisosWeb, cambiarAvisosWeb, estadoAvisosWeb, leerAvisosWeb, sincronizarAvisosWeb } from '../../avisos-web';
+import { AjustesAvisosWeb, apagarAvisosAlSalir, cambiarAvisosWeb, estadoAvisosWeb, leerAvisosWeb, sincronizarAvisosWeb } from '../../avisos-web';
 
 const CLAVE_UNIDAD_COMPANERO = 'kimanke_companero_unidad';
 const CLAVE_CONSEJOS = 'kimanke_consejos_vistos';
@@ -568,7 +568,9 @@ export class UnitsPage implements OnInit, OnDestroy {
     this.router.navigateByUrl('/acerca');
   }
 
-  cerrarSesion() {
+  async cerrarSesion() {
+    // Primero se apagan los avisos de esta cuenta en este navegador (necesita la sesión)
+    await apagarAvisosAlSalir(this.http);
     localStorage.removeItem('mapu_user');
     localStorage.removeItem('mapu_token');
     this.router.navigateByUrl('/login', { replaceUrl: true });

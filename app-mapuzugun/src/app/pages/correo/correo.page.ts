@@ -9,6 +9,7 @@ import {
   IonItem, IonInput, IonButton, IonSpinner
 } from '@ionic/angular/standalone';
 import { AVATARES, imagenAvatar } from '../../avatars';
+import { apagarAvisosAlSalir } from '../../avisos-web';
 
 // Agregar (o cambiar) el correo de la cuenta, confirmándolo con un código.
 // Si la cuenta no tiene correo, esta pantalla es obligatoria antes de seguir jugando.
@@ -124,7 +125,9 @@ export class CorreoPage implements OnInit, OnDestroy {
     this.router.navigateByUrl('/units', { replaceUrl: true });
   }
 
-  cerrarSesion() {
+  async cerrarSesion() {
+    // Primero se apagan los avisos de esta cuenta en este navegador (necesita la sesión)
+    await apagarAvisosAlSalir(this.http);
     localStorage.removeItem('mapu_user');
     localStorage.removeItem('mapu_token');
     this.router.navigateByUrl('/login', { replaceUrl: true });
