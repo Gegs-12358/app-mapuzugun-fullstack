@@ -315,7 +315,8 @@
           class="campo-respuesta">
         </ion-input>
         <div class="letras-especiales" *ngIf="!isAnswered">
-          <button *ngFor="let letra of letrasEspeciales" type="button" class="btn-letra"
+          <span class="ayuda-letra" aria-hidden="true">Letras del mapuzugun que no están en tu teclado:</span>
+          <button *ngFor="let letra of letrasEspeciales" type="button" class="btn-letra" [class.btn-letra-aviso]="avisoU"
             (click)="insertarLetra(letra)" [attr.aria-label]="'Escribir la letra ' + letra">{{ letra }}</button>
         </div>
       </div>
@@ -327,7 +328,8 @@
           class="campo-respuesta">
         </ion-input>
         <div class="letras-especiales" *ngIf="!isAnswered">
-          <button *ngFor="let letra of letrasEspeciales" type="button" class="btn-letra"
+          <span class="ayuda-letra" aria-hidden="true">Letras del mapuzugun que no están en tu teclado:</span>
+          <button *ngFor="let letra of letrasEspeciales" type="button" class="btn-letra" [class.btn-letra-aviso]="avisoU"
             (click)="insertarLetra(letra)" [attr.aria-label]="'Escribir la letra ' + letra">{{ letra }}</button>
         </div>
       </div>

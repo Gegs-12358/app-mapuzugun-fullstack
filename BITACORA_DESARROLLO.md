@@ -404,3 +404,7 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - Chequeo en producción con juanito (unidad 5, etapa 3, repaso, ajustes y "Acerca de"): todo lo nuevo funciona (emparejar primero, palabras, pista a los 10 s, práctica sin puntos, Newen en Nivel 2, "Guardando", mapa al día). Dos ajustes:
   - Al empezar la etapa con la portada bajada, la pregunta quedaba con el compañero fuera de la pantalla. Ahora cada pregunta parte desde arriba.
   - El botón "Sí, una pista" quedaba pegado al texto en pantallas anchas; ahora va en su propia línea.
+- La ü, que es de lo que más se falla al escribir (Küme, Kelü, Küla):
+  - El botón ü tiene al lado "Letras del mapuzugun que no están en tu teclado".
+  - Si la respuesta está bien salvo que lleva "u" donde va "ü", la primera vez no cuenta como error: el compañero avisa "¡Casi! Esta palabra lleva ü", el botón se destaca y, al tocarlo, la ü se pone donde corresponde. Si vuelve a pasar, sí cuenta.
+  - La primera pista de una palabra con ü lo dice: "Lleva ü: usa el botón de abajo".

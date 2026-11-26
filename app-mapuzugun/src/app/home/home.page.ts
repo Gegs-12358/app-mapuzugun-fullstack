@@ -17,7 +17,7 @@ import { EstadoCompanero, FRASES, PiezaConfeti, crearConfeti, fraseAlAzar } from
 import { enlaceReporte } from '../version';
 import { IconoRecursoComponent } from '../icono-recurso/icono-recurso.component';
 import { IdRecurso, Recurso, recurso } from '../recursos';
-import { LETRAS_ESPECIALES, nombreGrafemario, normalizarRespuesta, partirPregunta } from '../escritura';
+import { LETRAS_ESPECIALES, nombreGrafemario, normalizarRespuesta, partirPregunta, soloFaltaDieresis } from '../escritura';
 import { marcarPracticaDeHoy } from '../recordatorio';
 
 @Component({
@@ -46,6 +46,7 @@ export class HomePage implements OnInit, OnDestroy {
   username = '';
   avatarId = 'puma';
   ajustesAbiertos = false;
+  avisoU = false;  // ya se avisó en esta pregunta que falta la ü
   @ViewChild(IonContent) private contenido?: IonContent;
   private avisoPrimerIntento = false;  // ya se explicó que el primer error no gasta Newen
 
@@ -265,7 +266,8 @@ export class HomePage implements OnInit, OnDestroy {
       return primera + (this.nivelPista === 2 ? ' Apagué una opción que no es.' : ' Quedan solo dos opciones.');
     }
     // Escribir o completar: la forma de la palabra va aparte (formaPista)
-    if (this.nivelPista === 1) return primera + aviso;
+    const conU = /ü/i.test(resp) ? ' Lleva ü: usa el botón de abajo.' : '';
+    if (this.nivelPista === 1) return primera + conU + aviso;
     if (this.nivelPista === 2) return `${primera} Tiene esta forma:`;
     return 'Primera y última letra de cada palabra:';
   }
@@ -318,6 +320,17 @@ export class HomePage implements OnInit, OnDestroy {
   // Agrega una letra que no está en el teclado (por ejemplo la ü)
   insertarLetra(letra: string) {
     if (this.isAnswered) return;
+    // Si ya se avisó que falta la ü, se pone donde corresponde en lo que escribió
+    const correcta = String(this.ejercicioActual?.correct_answer ?? '');
+    if (letra === 'ü' && this.avisoU && soloFaltaDieresis(this.writtenAnswer, correcta)) {
+      const escrito = this.writtenAnswer.normalize('NFC').trim().replace(/\s+/g, ' ');
+      const modelo = normalizarRespuesta(correcta);
+      const corregido = [...escrito].map((c, i) => modelo[i] === 'ü' ? (c === 'U' ? 'Ü' : 'ü') : c).join('');
+      // ion-input no siempre redibuja si el texto cambia por dentro; se vacía y se vuelve a poner
+      this.writtenAnswer = '';
+      setTimeout(() => this.writtenAnswer = corregido);
+      return;
+    }
     this.writtenAnswer = (this.writtenAnswer ?? '') + letra;
   }
 
@@ -604,6 +617,15 @@ export class HomePage implements OnInit, OnDestroy {
       if (!this.writtenAnswer.trim()) return;
       const comparar = (t: string) => this.ejercicioActual.sinTildes ? sinTildes(normalizarRespuesta(t)) : normalizarRespuesta(t);
       this.isCorrect = comparar(this.writtenAnswer) === comparar(this.ejercicioActual.correct_answer);
+      // Casi: escribió "u" donde va "ü". La primera vez no cuenta como error,
+      // se avisa y se deja intentar de nuevo.
+      if (!this.isCorrect && !this.avisoU && soloFaltaDieresis(this.writtenAnswer, this.ejercicioActual.correct_answer)) {
+        this.avisoU = true;
+        this.fraseCompanero = '¡Casi! Esta palabra lleva ü. Toca el botón ü para escribirla y vuelve a comprobar.';
+        this.tonoFrase = '';
+        this.reaccionar('animando');
+        return;
+      }
     } else if (this.ejercicioActual.type === 'multiple_choice') {
       if (!this.selectedOption) return;
       this.isCorrect = this.selectedOption === this.ejercicioActual.correct_answer;
@@ -693,6 +715,7 @@ export class HomePage implements OnInit, OnDestroy {
     }
 
     this.currentIndex++;
+    this.avisoU = false;
     this.subirAlInicio();
     this.fraseCompanero = '';
     this.tonoFrase = '';

@@ -515,3 +515,17 @@ ion-button.opcion-apagada {
   font-weight: 700;
   p { margin: 0 0 6px; }
 }
+
+/* La ü: con una explicación al lado, y destacada cuando falta en la respuesta */
+.letras-especiales { align-items: center; flex-wrap: wrap; }
+.ayuda-letra { font-size: 13px; font-weight: 700; color: #4B4560; text-align: right; max-width: 60%; }
+.btn-letra-aviso {
+  border-color: #FFB703 !important;
+  background: #FFF1C7 !important;
+  box-shadow: 0 3px 0 #C99A1A !important;
+  animation: letra-latido 1.2s ease-in-out infinite;
+}
+@keyframes letra-latido {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
