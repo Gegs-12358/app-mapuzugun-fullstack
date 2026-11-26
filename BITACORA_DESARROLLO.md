@@ -420,6 +420,7 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
   - Probado en local con un receptor falso: el recordatorio sale una sola vez al día, la suscripción muerta se borra, la novedad llega solo a quien la aceptó, y un secreto incorrecto responde 403. En modo incógnito Chrome no permite avisos: la app lo explica y desmarca las casillas.
 - "Acerca de" cuenta que se guarda hasta qué pregunta se llega y los datos de los avisos.
 - En Brave los avisos vienen apagados (no usa el servicio de Google para repartirlos). La app lo detecta y explica cómo activarlos en brave://settings/privacy. Probado en producción con juanito en Brave: después de activarlo, la suscripción quedó guardada.
+- La primera suscripción de Brave venció apenas se usó (el servicio respondió 410 y el servidor la borró). Ahora, al activar los avisos siempre se crea una suscripción nueva; y al abrir el mapa, si la persona tiene avisos activados y el servidor ya no tiene su suscripción, se crea otra sola, sin pedir nada. El servidor anota en el registro cuando borra una vencida y el detalle de cualquier otro error.
 
 **Decisiones**
 - Los avisos web los manda el servidor, porque el navegador no puede programar avisos con la app cerrada. La APK sigue con los recordatorios locales; las novedades por ahora llegan solo a la web.
