@@ -10,16 +10,19 @@ self.addEventListener('push', (event) => {
   event.waitUntil(self.registration.showNotification(titulo, {
     body: datos.body || '',
     icon: '/assets/icon/icon-192.png',
-    badge: '/assets/icon/icon-192.png',
+    badge: '/assets/icon/badge-96.png',   // silueta blanca: Android pinta este ícono de un solo color
     lang: 'es',
-    data: { url: datos.url || '/units' },
+    data: { url: datos.url || '/units', texto: datos.body || '' },
   }));
 });
 
 // Al tocar el aviso: si la app ya está abierta, se trae al frente; si no, se abre
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const url = (event.notification.data && event.notification.data.url) || '/units';
+  const datos = event.notification.data || {};
+  // El mensaje viaja en la dirección para que el compañero lo repita en el mapa
+  let url = datos.url || '/units';
+  if (datos.texto) url += (url.includes('?') ? '&' : '?') + 'aviso=' + encodeURIComponent(datos.texto);
   event.waitUntil((async () => {
     const ventanas = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     for (const v of ventanas) {
