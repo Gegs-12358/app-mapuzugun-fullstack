@@ -81,9 +81,13 @@ export async function cambiarAvisosWeb(http: HttpClient, ajustes: AjustesAvisosW
 
     const { disponible, clave } = await firstValueFrom(http.get<{ disponible: boolean; clave: string }>('/api/push/clave'));
     if (!disponible) return 'Los avisos todavía no están activos en el servidor. Prueba más tarde.';
-    if (!sub) {
-      sub = await registro.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: claveABytes(clave) as BufferSource });
+    // Siempre una suscripción nueva: una antigua puede haber vencido sin que el navegador lo sepa
+    // (pasa en Brave si se creó antes de activar su servicio de avisos)
+    if (sub) {
+      await firstValueFrom(http.delete('/api/push/suscripcion', { body: { endpoint: sub.endpoint } })).catch(() => {});
+      await sub.unsubscribe().catch(() => false);
     }
+    sub = await registro.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: claveABytes(clave) as BufferSource });
     await firstValueFrom(http.post('/api/push/suscripcion', { suscripcion: sub.toJSON(), ...ajustes }));
     guardar(ajustes);
     return '';
@@ -95,5 +99,29 @@ export async function cambiarAvisosWeb(http: HttpClient, ajustes: AjustesAvisosW
       return 'Brave trae los avisos apagados. Escribe brave://settings/privacy en la barra de direcciones, activa «Usar los servicios de Google para la mensajería push», cierra y vuelve a abrir Brave, y prueba de nuevo.';
     }
     return 'No se pudieron activar los avisos en este navegador. En modo incógnito no funcionan; prueba en una ventana normal.';
+  }
+}
+
+/**
+ * Al abrir el mapa: si la persona tiene avisos activados y ya dio permiso, se
+ * vuelve a guardar su suscripción en el servidor (por si se borró porque venció).
+ * No pide permiso ni muestra nada.
+ */
+export async function sincronizarAvisosWeb(http: HttpClient) {
+  const ajustes = leerAvisosWeb();
+  if (!(ajustes.recordatorio || ajustes.novedades)) return;
+  if (estadoAvisosWeb() !== 'si' || Notification.permission !== 'granted') return;
+  try {
+    const registro = await navigator.serviceWorker.register('/sw.js');
+    await navigator.serviceWorker.ready;
+    const sub = await registro.pushManager.getSubscription();
+    if (sub) {
+      const r = await firstValueFrom(http.post<{ nueva: boolean }>('/api/push/suscripcion', { suscripcion: sub.toJSON(), ...ajustes }));
+      if (!r.nueva) return;                         // el servidor ya la tenía: todo bien
+      // El servidor la había borrado (venció): se crea una nueva
+    }
+    await cambiarAvisosWeb(http, ajustes);
+  } catch (err) {
+    console.error('No se pudieron revisar los avisos:', err);
   }
 }

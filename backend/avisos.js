@@ -63,9 +63,10 @@ async function enviar(pool, fila, datos) {
     return true;
   } catch (err) {
     if (err.statusCode === 404 || err.statusCode === 410) {
+      console.log(`Suscripción vencida (${err.statusCode}), se borra`);
       await pool.query('DELETE FROM push_suscripciones WHERE id = $1', [fila.id]);
     } else {
-      console.error('Aviso no enviado:', err.statusCode || err.message);
+      console.error('Aviso no enviado:', err.statusCode || '', String(err.body || err.message).slice(0, 200));
     }
     return false;
   }
@@ -141,13 +142,15 @@ function rutasProtegidas(app, pool) {
       return res.status(400).json({ error: 'Datos inválidos' });
     }
     try {
-      await pool.query(`
+      const r = await pool.query(`
         INSERT INTO push_suscripciones (user_id, endpoint, p256dh, auth, recordatorio, hora, novedades)
         VALUES ($1, $2, $3, $4, $5, $6, $7)
         ON CONFLICT (endpoint) DO UPDATE SET user_id = $1, p256dh = $3, auth = $4,
-          recordatorio = $5, hora = $6, novedades = $7, actualizado = now()`,
+          recordatorio = $5, hora = $6, novedades = $7, actualizado = now()
+        RETURNING (xmax = 0) AS nueva`,
         [req.user.id, endpoint, p256dh, auth, recordatorio, hora, novedades]);
-      res.json({ ok: true });
+      // nueva: el servidor no la tenía (o se borró porque venció)
+      res.json({ ok: true, nueva: r.rows[0].nueva });
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: 'Error al guardar los avisos' });

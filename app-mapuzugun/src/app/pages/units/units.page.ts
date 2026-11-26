@@ -17,7 +17,7 @@ import { AjustesLecturaComponent } from '../../ajustes-lectura/ajustes-lectura.c
 import {
   AjustesRecordatorio, cambiarRecordatorio, leerAjustes, recordatorioDisponible
 } from '../../recordatorio';
-import { AjustesAvisosWeb, cambiarAvisosWeb, estadoAvisosWeb, leerAvisosWeb } from '../../avisos-web';
+import { AjustesAvisosWeb, cambiarAvisosWeb, estadoAvisosWeb, leerAvisosWeb, sincronizarAvisosWeb } from '../../avisos-web';
 
 const CLAVE_UNIDAD_COMPANERO = 'kimanke_companero_unidad';
 const CLAVE_CONSEJOS = 'kimanke_consejos_vistos';
@@ -130,6 +130,7 @@ export class UnitsPage implements OnInit, OnDestroy {
     this.cargarRacha();
     this.cargarUnidades();
     this.cargarRepaso();
+    sincronizarAvisosWeb(this.http);
   }
 
   cargarRepaso() {
