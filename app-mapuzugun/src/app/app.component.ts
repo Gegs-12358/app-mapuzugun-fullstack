@@ -31,6 +31,21 @@ export class AppComponent {
     // En la web, el service worker guarda la app y lo ya abierto para usarla sin internet
     if (!Capacitor.isNativePlatform() && 'serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').catch(() => {});
+      // Lo que ya se cargó se manda a guardar; si el service worker recién toma el
+      // control (primera visita a una versión nueva), además se avisa para que el
+      // mapa vuelva a pedir sus datos y queden guardados.
+      const guardarLoCargado = () => {
+        const urls = performance.getEntriesByType('resource').map(e => e.name)
+          .filter(u => u.startsWith(location.origin));
+        navigator.serviceWorker.controller?.postMessage({ tipo: 'guardar', urls: [location.origin + '/index.html', ...urls] });
+      };
+      if (navigator.serviceWorker.controller) {
+        setTimeout(guardarLoCargado, 5000);
+      }
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        guardarLoCargado();
+        window.dispatchEvent(new CustomEvent('kimanke:sw-listo'));
+      });
     }
 
     // Lo jugado sin conexión se envía al abrir la app y cada vez que vuelve internet

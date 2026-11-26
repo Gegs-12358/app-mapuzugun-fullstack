@@ -661,6 +661,8 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   // --- LÓGICA GENERAL DE RESPUESTA ---
+  get enLinea(): boolean { return navigator.onLine; }
+
   // --- RESUMEN AL TERMINAR ---
   // Preguntas distintas de la etapa (sin contar las repetidas al final)
   get preguntasDistintas(): number {

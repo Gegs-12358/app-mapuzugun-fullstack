@@ -47,8 +47,15 @@
   <!-- Sin conexión -->
   <div *ngIf="!loading && errorCarga" class="estado-tarjeta" role="alert">
     <app-companero [avatarId]="avatarId" estado="durmiendo" [tamano]="104"></app-companero>
-    <h2>No pudimos cargar esta etapa</h2>
-    <p>Revisa tu conexión a internet e inténtalo de nuevo. A veces el servidor tarda un poco en despertar.</p>
+    <ng-container *ngIf="enLinea; else etapaSinConexion">
+      <h2>No pudimos cargar esta etapa</h2>
+      <p>Revisa tu conexión a internet e inténtalo de nuevo. A veces el servidor tarda un poco en despertar.</p>
+    </ng-container>
+    <ng-template #etapaSinConexion>
+      <h2>Sin conexión</h2>
+      <p>Esta etapa todavía no está guardada en el teléfono. Se guardan las que abres con internet y la que sigue
+        en el mapa. Prueba con otra o vuelve a intentarlo con internet.</p>
+    </ng-template>
     <ion-button expand="block" class="btn-comenzar" (click)="cargarEjercicios()">REINTENTAR</ion-button>
     <ion-button expand="block" fill="clear" class="btn-volver" routerLink="/units" routerDirection="back">Volver al mapa</ion-button>
   </div>
