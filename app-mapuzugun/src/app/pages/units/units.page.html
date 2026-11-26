@@ -133,7 +133,7 @@
               <strong>{{ nombreCompanero }}</strong>
               <p>{{ mensajeCompanero }}</p>
               <div class="compa-botones" *ngIf="consejoActual">
-                <button type="button" class="consejo-ver" (click)="verConsejo()">Ver cómo</button>
+                <button type="button" class="consejo-ver" (click)="verConsejo()">{{ consejoActual.boton || 'Ver cómo' }}</button>
                 <button type="button" class="consejo-cerrar" (click)="cerrarConsejo()">Entendido</button>
               </div>
               <small *ngIf="!consejoActual" class="compa-pista">Tócame para otro consejo</small>
