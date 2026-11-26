@@ -22,7 +22,7 @@ import { AjustesAvisosWeb, apagarAvisosAlSalir, cambiarAvisosWeb, estadoAvisosWe
 const CLAVE_UNIDAD_COMPANERO = 'kimanke_companero_unidad';
 const CLAVE_CONSEJOS = 'kimanke_consejos_vistos';
 
-interface Consejo { id: string; icono: string; texto: string; soloApp?: boolean; }
+interface Consejo { id: string; icono: string; texto: string; soloApp?: boolean; ir?: string; boton?: string; }
 
 // Consejos para practicar: al tocar al compañero en el mapa va diciendo uno distinto.
 // Son sobre cómo aprender y cómo usar la app, no sobre la lengua o la cultura
@@ -31,6 +31,7 @@ const CONSEJOS_PRACTICA: string[] = [
   'Un ratito cada día ayuda más que mucho de una sola vez.',
   'Di las palabras en voz alta mientras practicas.',
   'Si te equivocas, no pasa nada: esa palabra vuelve en el repaso.',
+  'En «Mis palabras», arriba en el mapa, ves cómo vas con cada palabra.',
   '¿Ves algo raro en una pregunta? Toca la banderita y nos llega el aviso.',
   'Si tu teclado no tiene la ü, usa el botón ü en los ejercicios.',
   'Practicar con alguien que habla mapuzugun es lo mejor de todo.',
@@ -38,6 +39,8 @@ const CONSEJOS_PRACTICA: string[] = [
 
 // Lo que el compañero cuenta sobre opciones que no están a la vista
 const CONSEJOS: Consejo[] = [
+  { id: 'palabras', icono: '📖', texto: 'En «Mis palabras» puedes ver todas las palabras que has aprendido y cómo vas con cada una.',
+    ir: '/palabras', boton: 'Ver mis palabras' },
   { id: 'letra', icono: '🔤', texto: '¿Te cuesta leer? Puedes agrandar la letra o quitar las animaciones.' },
   { id: 'recordatorio', icono: '🔔', texto: 'Puedo recordarte practicar cada día, a la hora que elijas.', soloApp: true },
   { id: 'cuenta', icono: '✏️', texto: 'Si quieres, puedes cambiar tu compañero, tu nombre o tu correo.' },
@@ -382,8 +385,10 @@ export class UnitsPage implements OnInit, OnDestroy {
   }
 
   verConsejo() {
+    const ir = this.consejoActual?.ir;
     this.marcarConsejoVisto();
-    this.selectorAbierto = true;
+    if (ir) this.router.navigateByUrl(ir);
+    else this.selectorAbierto = true;
   }
 
   cerrarConsejo() {
