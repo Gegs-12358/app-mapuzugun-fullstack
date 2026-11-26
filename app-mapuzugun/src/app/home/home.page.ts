@@ -203,7 +203,15 @@ export class HomePage implements OnInit, OnDestroy {
       .subscribe({ error: () => {} });
   }
 
+  // Con la pantalla de "sin Newen" abierta, cada minuto se revisa si ya volvió uno
+  private relojNewen = setInterval(() => {
+    if (!this.gameOver) return;
+    if (this.nextLifeInMinutes > 1) this.nextLifeInMinutes--;
+    this.regenerarVidasPorTiempo();
+  }, 60_000);
+
   ngOnDestroy() {
+    clearInterval(this.relojNewen);
     clearTimeout(this.relojPista);
   }
 
@@ -834,6 +842,8 @@ export class HomePage implements OnInit, OnDestroy {
       next: (res: any) => {
         if (res.regened > 0) {
           this.lives = res.lives;
+          // Si la pantalla de "sin Newen" estaba por el valor anterior, se quita
+          if (this.lives > 0) this.gameOver = false;
           if (this.lives < 5) {
             this.nextLifeInMinutes = 10;
           }
