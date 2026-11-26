@@ -419,6 +419,7 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
   - El servidor (`backend/avisos.js`) guarda la suscripción de cada navegador. Una tarea de cron-job.org llama cada 15 minutos a `/api/avisos/recordatorios`: manda el aviso a quien ya llegó a su hora, no lo recibió hoy y no ha practicado hoy. Las novedades se mandan con `/api/avisos/novedad`. Ambas rutas piden un secreto. Las suscripciones que el navegador ya no acepta se borran solas.
   - Probado en local con un receptor falso: el recordatorio sale una sola vez al día, la suscripción muerta se borra, la novedad llega solo a quien la aceptó, y un secreto incorrecto responde 403. En modo incógnito Chrome no permite avisos: la app lo explica y desmarca las casillas.
 - "Acerca de" cuenta que se guarda hasta qué pregunta se llega y los datos de los avisos.
+- En Brave los avisos vienen apagados (no usa el servicio de Google para repartirlos). La app lo detecta y explica cómo activarlos en brave://settings/privacy. Probado en producción con juanito en Brave: después de activarlo, la suscripción quedó guardada.
 
 **Decisiones**
 - Los avisos web los manda el servidor, porque el navegador no puede programar avisos con la app cerrada. La APK sigue con los recordatorios locales; las novedades por ahora llegan solo a la web.

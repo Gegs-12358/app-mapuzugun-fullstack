@@ -89,6 +89,11 @@ export async function cambiarAvisosWeb(http: HttpClient, ajustes: AjustesAvisosW
     return '';
   } catch (err) {
     console.error('No se pudieron activar los avisos:', err);
+    // Brave trae apagado el servicio que reparte los avisos
+    const esBrave = !!(navigator as any).brave;
+    if (esBrave) {
+      return 'Brave trae los avisos apagados. Escribe brave://settings/privacy en la barra de direcciones, activa «Usar los servicios de Google para la mensajería push», cierra y vuelve a abrir Brave, y prueba de nuevo.';
+    }
     return 'No se pudieron activar los avisos en este navegador. En modo incógnito no funcionan; prueba en una ventana normal.';
   }
 }
