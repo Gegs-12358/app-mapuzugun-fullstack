@@ -1,6 +1,6 @@
 // Versión que ve la persona que usa la app.
 // Al publicar un APK nuevo, súbela aquí y en android/app/build.gradle (versionName).
-export const VERSION_APP = '0.9.0';
+export const VERSION_APP = '0.10.0';
 export const ETAPA_APP = 'beta';
 export const VERSION_COMPLETA = `v${VERSION_APP} ${ETAPA_APP}`;
 

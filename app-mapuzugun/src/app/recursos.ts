@@ -27,13 +27,13 @@ export const RECURSOS: Recurso[] = [
     id: 'llanka',
     palabra: 'Llanka',
     significado: 'piedra verde preciosa',
-    uso: 'Las ganas al completar una etapa por primera vez. Sirven para recargar tu Newen.',
+    uso: 'Las ganas al completar una etapa por primera vez. Se canjean por Newen o por un Kütral de reserva. Nunca se pagan con dinero.',
   },
   {
     id: 'newen',
     palabra: 'Newen',
     significado: 'fuerza',
-    uso: 'Son tus vidas. Pierdes una al equivocarte y se recupera una cada 10 minutos.',
+    uso: 'Son tus vidas. Pierdes una al equivocarte (en el Nivel 1, el primer intento no cuenta) y se recupera una cada 10 minutos.',
   },
 ];
 
