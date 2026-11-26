@@ -7,6 +7,8 @@ pinta este ícono de un solo color, por eso no lleva colores.
 Uso (desde la raíz del repositorio, con Pillow instalado y después de
 `npx cap add android` o `npx cap sync android`):
     python3 scripts/crear_icono_notificacion.py
+Para los avisos web (badge-96.png en src/assets/icon):
+    python3 scripts/crear_icono_notificacion.py --web
 
 Escribe ic_stat_kimanke.png en las carpetas drawable de app-mapuzugun/android.
 capacitor.config.ts ya le dice al plugin de notificaciones que use ese ícono.
@@ -37,8 +39,14 @@ def dibujar():
 
 
 def main():
+    import sys
     if not os.path.exists(FUENTE):
         raise SystemExit('Falta la fuente Nunito. Corre primero: cd app-mapuzugun && npm install')
+    if '--web' in sys.argv:
+        destino = os.path.join(RAIZ, 'src', 'assets', 'icon', 'badge-96.png')
+        dibujar().resize((96, 96), Image.LANCZOS).save(destino)
+        print('Listo:', destino)
+        return
     if not os.path.isdir(RES):
         raise SystemExit('No está la carpeta android. Corre primero: cd app-mapuzugun && npx cap sync android')
     icono = dibujar()

@@ -120,6 +120,7 @@ export class UnitsPage implements OnInit, OnDestroy {
 
   ngOnInit() {
     window.addEventListener('kimanke:avance-guardado', this.alGuardarAvance);
+    this.leerAvisoDeLaUrl();
     const userStr = localStorage.getItem('mapu_user');
     if (userStr) {
       const user = JSON.parse(userStr);
@@ -167,6 +168,7 @@ export class UnitsPage implements OnInit, OnDestroy {
 
   // Se ejecuta cada vez que se vuelve a esta pantalla (por ejemplo, al terminar una lección)
   ionViewWillEnter() {
+    this.leerAvisoDeLaUrl();
     if (this.errorCarga) this.cargarUnidades();
     else if (!this.loading) this.cargarEtapas();
     this.cargarRacha();
@@ -471,6 +473,7 @@ export class UnitsPage implements OnInit, OnDestroy {
   }
 
   tocarCompaneroMapa() {
+    if (this.mensajeAviso) { this.mensajeAviso = ''; return; }
     if (this.todoCompletado) return;
     this.reaccionarMapa('saltito');
     // Cada toque, un consejo distinto (si no está mostrando uno de las opciones)
@@ -490,7 +493,18 @@ export class UnitsPage implements OnInit, OnDestroy {
   }
 
   // Lo que dice el compañero junto a la etapa
+  // Si se abrió la app tocando un aviso, el compañero repite el mensaje en su globo
+  mensajeAviso = '';
+
+  private leerAvisoDeLaUrl() {
+    const aviso = new URLSearchParams(location.search).get('aviso');
+    if (!aviso) return;
+    this.mensajeAviso = `Te mandé este aviso: «${aviso.slice(0, 200)}»`;
+    this.router.navigateByUrl('/units', { replaceUrl: true });
+  }
+
   get mensajeCompanero(): string {
+    if (this.mensajeAviso) return this.mensajeAviso;
     if (this.consejoActual) return this.consejoActual.texto;
     if (this.indiceConsejoPractica >= 0) return CONSEJOS_PRACTICA[this.indiceConsejoPractica];
     if (this.newen === 0) return 'Me quedé sin Newen. Descansemos unos minutos o practiquemos para recuperarlo.';
