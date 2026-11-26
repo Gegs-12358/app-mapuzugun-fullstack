@@ -864,7 +864,7 @@ export class HomePage implements OnInit, OnDestroy {
     });
   }
 
-  comprarVidas() {
+  canjearVidas() {
     this.http.post('/api/buy-lives', {}).subscribe({
       next: (res: any) => {
         this.lives = res.lives;
@@ -880,7 +880,7 @@ export class HomePage implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        this.avisar(err.error?.error || 'Error al comprar vidas');
+        this.avisar(err.error?.error || 'No se pudo canjear el Newen');
       }
     });
   }

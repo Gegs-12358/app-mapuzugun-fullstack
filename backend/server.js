@@ -887,7 +887,7 @@ app.post('/api/lose-life', async (req, res) => {
   }
 });
 
-// Comprar un Kütral de reserva con Llankas (hasta RESERVAS_KUTRAL_MAX)
+// Canjear Llankas por un Kütral de reserva (hasta RESERVAS_KUTRAL_MAX)
 app.post('/api/kutral/reserva', async (req, res) => {
   try {
     const r = await pool.query(
