@@ -209,7 +209,7 @@
 
       <!-- Recordatorio diario para practicar -->
       <div class="recordatorio">
-        <p class="recordatorio-titulo">🔔 Recordatorio diario</p>
+        <p class="recordatorio-titulo">🔔 Avisos</p>
         <ng-container *ngIf="recordatorioNativo; else soloApp">
           <label class="recordatorio-fila">
             <input type="checkbox" [checked]="ajustesRecordatorio.activo"
@@ -224,7 +224,29 @@
           <p *ngIf="avisoRecordatorio" class="recordatorio-aviso">{{ avisoRecordatorio }}</p>
         </ng-container>
         <ng-template #soloApp>
-          <p class="recordatorio-aviso">Por ahora el recordatorio funciona solo en la app instalada en Android.</p>
+          <!-- Versión web: avisos del navegador -->
+          <ng-container *ngIf="avisosWeb === 'si'">
+            <label class="recordatorio-fila">
+              <input type="checkbox" [checked]="ajustesWeb.recordatorio" [disabled]="guardandoWeb"
+                (change)="cambiarWeb({ recordatorio: $any($event.target).checked })">
+              <span>Avísame para practicar</span>
+            </label>
+            <label class="recordatorio-fila" *ngIf="ajustesWeb.recordatorio">
+              <span>Hora</span>
+              <input type="time" [value]="ajustesWeb.hora" step="900"
+                (change)="cambiarWeb({ hora: $any($event.target).value })">
+            </label>
+            <label class="recordatorio-fila">
+              <input type="checkbox" [checked]="ajustesWeb.novedades" [disabled]="guardandoWeb"
+                (change)="cambiarWeb({ novedades: $any($event.target).checked })">
+              <span>Avísame cuando haya mejoras en Kimanke</span>
+            </label>
+            <p *ngIf="avisoWeb" class="recordatorio-aviso">{{ avisoWeb }}</p>
+          </ng-container>
+          <p *ngIf="avisosWeb === 'iphone'" class="recordatorio-aviso">
+            En iPhone, los avisos funcionan con Kimanke en tu pantalla de inicio: en Safari toca Compartir →
+            «Agregar a inicio», abre Kimanke desde ese ícono y vuelve aquí.</p>
+          <p *ngIf="avisosWeb === 'no'" class="recordatorio-aviso">Este navegador no permite avisos. Prueba con Chrome o con la app de Android.</p>
         </ng-template>
       </div>
 

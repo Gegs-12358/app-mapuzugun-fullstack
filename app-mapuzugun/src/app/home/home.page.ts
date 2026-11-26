@@ -184,6 +184,23 @@ export class HomePage implements OnInit, OnDestroy {
     this.tonoFrase = '';
     if (!this.modoRepaso) this.avisarPocoNewen();
     this.iniciarPista();
+    this.registrarInicio();
+  }
+
+  // Para saber en qué pregunta se deja una etapa: solo la etapa y el número de pregunta
+  private idIntento: number | null = null;
+
+  private registrarInicio() {
+    if (this.modoRepaso || !this.unitId || !this.stage) return;
+    this.http.post<{ id: number }>('/api/intento', {
+      unitId: Number(this.unitId), stage: Number(this.stage), total: this.ejercicios.length,
+    }).subscribe({ next: (r) => this.idIntento = r.id, error: () => {} });
+  }
+
+  private registrarAvance() {
+    if (!this.idIntento) return;
+    this.http.post(`/api/intento/${this.idIntento}/avance`, { pregunta: this.currentIndex + 1 })
+      .subscribe({ error: () => {} });
   }
 
   ngOnDestroy() {
@@ -715,6 +732,7 @@ export class HomePage implements OnInit, OnDestroy {
     }
 
     this.currentIndex++;
+    this.registrarAvance();
     this.avisoU = false;
     this.subirAlInicio();
     this.fraseCompanero = '';

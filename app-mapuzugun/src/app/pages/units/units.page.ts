@@ -17,6 +17,7 @@ import { AjustesLecturaComponent } from '../../ajustes-lectura/ajustes-lectura.c
 import {
   AjustesRecordatorio, cambiarRecordatorio, leerAjustes, recordatorioDisponible
 } from '../../recordatorio';
+import { AjustesAvisosWeb, cambiarAvisosWeb, estadoAvisosWeb, leerAvisosWeb } from '../../avisos-web';
 
 const CLAVE_UNIDAD_COMPANERO = 'kimanke_companero_unidad';
 const CLAVE_CONSEJOS = 'kimanke_consejos_vistos';
@@ -84,6 +85,12 @@ export class UnitsPage implements OnInit, OnDestroy {
   recordatorioNativo = recordatorioDisponible();
   ajustesRecordatorio: AjustesRecordatorio = leerAjustes();
   avisoRecordatorio = '';
+
+  // Versión web: avisos del navegador (recordatorio y novedades)
+  avisosWeb = estadoAvisosWeb();
+  ajustesWeb: AjustesAvisosWeb = leerAvisosWeb();
+  avisoWeb = '';
+  guardandoWeb = false;
 
   // Consejos del compañero: cada uno se muestra una sola vez por dispositivo
   @ViewChild(IonContent) contenido?: IonContent;
@@ -354,7 +361,7 @@ export class UnitsPage implements OnInit, OnDestroy {
     if (!this.hayProgreso || this.nivelCelebrado) { this.consejoActual = null; return; }
     let vistos: string[] = [];
     try { vistos = JSON.parse(localStorage.getItem(CLAVE_CONSEJOS) || '[]'); } catch {}
-    this.consejoActual = CONSEJOS.find(c => !vistos.includes(c.id) && (!c.soloApp || this.recordatorioNativo)) ?? null;
+    this.consejoActual = CONSEJOS.find(c => !vistos.includes(c.id) && (!c.soloApp || this.recordatorioNativo || this.avisosWeb === 'si')) ?? null;
   }
 
   private marcarConsejoVisto() {
@@ -391,6 +398,23 @@ export class UnitsPage implements OnInit, OnDestroy {
     await cambiarRecordatorio({ ...this.ajustesRecordatorio, hora });
     this.ajustesRecordatorio = leerAjustes();
     if (this.ajustesRecordatorio.activo) this.avisoRecordatorio = `Listo: te avisaremos cada día a las ${hora}.`;
+  }
+
+  async cambiarWeb(cambio: Partial<AjustesAvisosWeb>) {
+    if (cambio.hora !== undefined && !/^\d{2}:\d{2}$/.test(cambio.hora)) return;
+    const nuevos = { ...this.ajustesWeb, ...cambio };
+    // Se muestra lo pedido mientras se guarda; si falla, al volver al valor guardado
+    // las casillas se desmarcan solas
+    this.ajustesWeb = nuevos;
+    this.guardandoWeb = true;
+    const problema = await cambiarAvisosWeb(this.http, nuevos);
+    this.guardandoWeb = false;
+    this.ajustesWeb = leerAvisosWeb();
+    if (problema) { this.avisoWeb = problema; return; }
+    const partes = [];
+    if (this.ajustesWeb.recordatorio) partes.push(`te avisaremos cada día cerca de las ${this.ajustesWeb.hora} si no has practicado`);
+    if (this.ajustesWeb.novedades) partes.push('te contaremos cuando haya mejoras');
+    this.avisoWeb = partes.length ? `Listo: ${partes.join(' y ')}.` : 'Avisos apagados.';
   }
 
   // --- Navegación ---
