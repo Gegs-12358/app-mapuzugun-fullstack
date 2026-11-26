@@ -127,6 +127,27 @@
         <span>Y <strong>{{ gemasGanadas }} Llankas</strong> para recargar Newen.</span>
       </p>
     </ng-container>
+    <p *ngIf="estadoGuardado === 'listo' && reservasUsadas > 0" class="ganado reserva-usada">
+      🛡️ {{ reservasUsadas === 1 ? 'Tu Kütral de reserva cuidó' : 'Tus ' + reservasUsadas + ' Kütral de reserva cuidaron' }}
+      tu racha: ¡sigue encendida!</p>
+
+    <!-- Resumen de la etapa: cómo le fue y qué palabras repasar -->
+    <div class="resumen-etapa">
+      <p class="resumen-cifra">Acertaste <b>{{ acertadasAlPrimero }} de {{ preguntasDistintas }}</b> al primer intento</p>
+      <div *ngIf="palabrasQueCostaron.length" class="resumen-grupo cuesta">
+        <p class="resumen-titulo">Para repasar</p>
+        <div class="resumen-chips">
+          <span *ngFor="let p of palabrasQueCostaron" class="chip-palabra"><b lang="arn">{{ p.mapu }}</b> {{ p.es }}</span>
+        </div>
+      </div>
+      <div *ngIf="palabrasBien.length && !modoRepaso" class="resumen-grupo bien">
+        <p class="resumen-titulo">{{ palabrasQueCostaron.length ? 'Te salieron bien' : '¡Todas te salieron bien!' }}</p>
+        <div class="resumen-chips">
+          <span *ngFor="let p of palabrasBien" class="chip-palabra"><b lang="arn">{{ p.mapu }}</b> {{ p.es }}</span>
+        </div>
+      </div>
+    </div>
+
     <div *ngIf="estadoGuardado === 'error'" class="guardado-error" role="alert">
       <p>No pudimos guardar tu avance. Revisa tu conexión e inténtalo de nuevo.</p>
       <ion-button expand="block" class="btn-3d" (click)="terminarLeccion()">Reintentar</ion-button>

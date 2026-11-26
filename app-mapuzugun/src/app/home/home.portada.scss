@@ -572,3 +572,30 @@ ion-button.opcion-apagada {
   &.usada { visibility: hidden; }
   &.ficha-puesta { background: #FFF1C7; border-color: #FFB703; box-shadow: 0 3px 0 #C99A1A; }
 }
+
+/* Resumen al terminar la etapa */
+.reserva-usada { justify-content: center; color: #8A1C1C; font-weight: 800; }
+.resumen-etapa {
+  margin: 12px 0;
+  padding: 12px;
+  border-radius: 16px;
+  background: var(--mapu-crema-3d);
+  box-shadow: var(--mapu-canto-crema);
+  text-align: left;
+}
+.resumen-cifra { margin: 0 0 8px; text-align: center; font-size: 16px; color: #2A1640; }
+.resumen-grupo { margin-top: 8px; }
+.resumen-titulo { margin: 0 0 6px; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+.resumen-grupo.cuesta .resumen-titulo { color: #A61E2C; }
+.resumen-grupo.bien .resumen-titulo { color: #0B5E40; }
+.resumen-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip-palabra {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid #E3DCEB;
+  font-size: 13px;
+  color: #5B2A86;
+  b { color: #2A1640; margin-right: 2px; }
+}
+.resumen-grupo.cuesta .chip-palabra { border-color: #F3B8B8; background: #FFF5F5; }

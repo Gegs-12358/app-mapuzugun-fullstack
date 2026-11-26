@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -22,7 +22,7 @@ import { AjustesAvisosWeb, apagarAvisosAlSalir, cambiarAvisosWeb, estadoAvisosWe
 const CLAVE_UNIDAD_COMPANERO = 'kimanke_companero_unidad';
 const CLAVE_CONSEJOS = 'kimanke_consejos_vistos';
 
-interface Consejo { id: string; icono: string; texto: string; soloApp?: boolean; ir?: string; boton?: string; }
+interface Consejo { id: string; icono: string; texto: string; soloApp?: boolean; ir?: string; boton?: string; accion?: 'reserva'; }
 
 // Consejos para practicar: al tocar al compañero en el mapa va diciendo uno distinto.
 // Son sobre cómo aprender y cómo usar la app, no sobre la lengua o la cultura
@@ -41,6 +41,8 @@ const CONSEJOS_PRACTICA: string[] = [
 const CONSEJOS: Consejo[] = [
   { id: 'palabras', icono: '📖', texto: 'En «Mis palabras» puedes ver todas las palabras que has aprendido y cómo vas con cada una.',
     ir: '/palabras', boton: 'Ver mis palabras' },
+  { id: 'reserva', icono: '🛡️', texto: 'Con un Kütral de reserva, tu racha no se apaga si un día no alcanzas a practicar.',
+    accion: 'reserva', boton: 'Ver cómo' },
   { id: 'letra', icono: '🔤', texto: '¿Te cuesta leer? Puedes agrandar la letra o quitar las animaciones.' },
   { id: 'recordatorio', icono: '🔔', texto: 'Puedo recordarte practicar cada día, a la hora que elijas.', soloApp: true },
   { id: 'cuenta', icono: '✏️', texto: 'Si quieres, puedes cambiar tu compañero, tu nombre o tu correo.' },
@@ -71,6 +73,11 @@ export class UnitsPage implements OnInit, OnDestroy {
   selectorAbierto = false;
 
   racha = 0;
+  // Kütral de reserva: cuida la racha un día sin practicar
+  reservasKutral = 0;
+  costoReserva = 50;
+  reservasMax = 2;
+  llankas = 0;
   newen: number | null = null;
 
   // Compañero sobre el camino
@@ -102,7 +109,7 @@ export class UnitsPage implements OnInit, OnDestroy {
 
   // Accesibilidad: tamaño de letra y menos movimiento
 
-  constructor(private http: HttpClient, private router: Router, private alertCtrl: AlertController) {
+  constructor(private http: HttpClient, private router: Router, private alertCtrl: AlertController, private zone: NgZone) {
     addIcons({ logOutOutline, checkmark, lockClosed, flame, informationCircleOutline });
   }
 
@@ -202,6 +209,10 @@ export class UnitsPage implements OnInit, OnDestroy {
       next: (u) => {
         this.racha = u.streak ?? 0;
         this.newen = u.lives ?? null;
+        this.reservasKutral = u.reservas_kutral ?? 0;
+        this.costoReserva = u.costo_reserva ?? 50;
+        this.reservasMax = u.reservas_max ?? 2;
+        this.llankas = u.gems ?? 0;
         // El compañero se puede cambiar desde otro dispositivo: manda el del servidor
         if (u.avatar) this.avatarId = u.avatar;
         try {
@@ -372,7 +383,9 @@ export class UnitsPage implements OnInit, OnDestroy {
     if (!this.hayProgreso || this.nivelCelebrado) { this.consejoActual = null; return; }
     let vistos: string[] = [];
     try { vistos = JSON.parse(localStorage.getItem(CLAVE_CONSEJOS) || '[]'); } catch {}
-    this.consejoActual = CONSEJOS.find(c => !vistos.includes(c.id) && (!c.soloApp || this.recordatorioNativo || this.avisosWeb === 'si')) ?? null;
+    this.consejoActual = CONSEJOS.find(c => !vistos.includes(c.id)
+      && (!c.soloApp || this.recordatorioNativo || this.avisosWeb === 'si')
+      && (c.accion !== 'reserva' || (this.racha >= 2 && this.reservasKutral === 0))) ?? null;
   }
 
   private marcarConsejoVisto() {
@@ -386,9 +399,45 @@ export class UnitsPage implements OnInit, OnDestroy {
 
   verConsejo() {
     const ir = this.consejoActual?.ir;
+    const accion = this.consejoActual?.accion;
     this.marcarConsejoVisto();
-    if (ir) this.router.navigateByUrl(ir);
+    if (accion === 'reserva') this.comprarReserva();
+    else if (ir) this.router.navigateByUrl(ir);
     else this.selectorAbierto = true;
+  }
+
+  // --- Kütral de reserva ---
+  async comprarReserva() {
+    if (this.reservasKutral >= this.reservasMax) {
+      const a = await this.alertCtrl.create({
+        header: 'Kütral de reserva',
+        message: `Ya tienes ${this.reservasMax}, el máximo. Se usan solas si un día no practicas.`,
+        buttons: ['OK'],
+      });
+      return a.present();
+    }
+    const alcanza = this.llankas >= this.costoReserva;
+    const alerta = await this.alertCtrl.create({
+      header: '🛡️ Kütral de reserva',
+      message: `Si un día no alcanzas a practicar, una reserva mantiene encendida tu racha. Se usa sola.
+        Cuesta ${this.costoReserva} Llankas y puedes tener hasta ${this.reservasMax}. Tienes ${this.llankas} Llankas` +
+        (this.reservasKutral ? ` y ${this.reservasKutral} reserva.` : '.') +
+        (alcanza ? '' : ` Te faltan ${this.costoReserva - this.llankas} Llankas: las ganas completando etapas.`),
+      buttons: alcanza
+        ? [{ text: 'Ahora no', role: 'cancel' }, { text: `Comprar por ${this.costoReserva}`, handler: () => this.zone.run(() => this.confirmarReserva()) }]
+        : ['Entendido'],
+    });
+    await alerta.present();
+  }
+
+  private confirmarReserva() {
+    this.http.post<{ gems: number; reservas_kutral: number }>('/api/kutral/reserva', {}).subscribe({
+      next: (r) => { this.llankas = r.gems; this.reservasKutral = r.reservas_kutral; },
+      error: async (err) => {
+        const a = await this.alertCtrl.create({ message: err?.error?.error || 'No se pudo comprar. Prueba de nuevo.', buttons: ['OK'] });
+        await a.present();
+      },
+    });
   }
 
   cerrarConsejo() {

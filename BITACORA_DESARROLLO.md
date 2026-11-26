@@ -448,3 +448,15 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
   - Son de práctica, como los otros armados. Al responder, el compañero dice qué significa la palabra. Con dibujos y verdadero o falso no se ofrecen pistas (serían la respuesta); al ordenar, la pista dice con qué palabra empieza.
 - Al crear la tabla, las palabras de las etapas ya terminadas quedaron todas para hoy (en una cuenta, 59). Una migración de una sola vez (`migraciones`) las repartió en los próximos 7 días; las que costaron siguen primero. No se repite al reiniciar el servidor.
 - "Mis palabras" también en el globo del compañero: es el primer consejo que aparece (una vez por dispositivo, cuando ya hay progreso), con el botón "Ver mis palabras" que lleva directo. Además, uno de los consejos que salen al tocarlo recuerda dónde está. Antes solo estaba arriba del mapa, y como el mapa se abre en la unidad actual, quien llevaba avance no lo veía.
+
+### Actualización 26 de noviembre de 2026 (Kütral de reserva y resumen de la etapa)
+
+**Hecho**
+- Kütral de reserva: cuesta 50 Llankas y se pueden tener hasta 2. Si pasan días sin practicar y alcanzan las reservas para cubrirlos, al volver la racha sigue y se gastan las que hicieron falta; si no alcanzan, la racha parte de nuevo y las reservas no se gastan. La racha que muestra la app ya cuenta las reservas. La regla está en un solo lugar del servidor (`SQL_RACHA`), para lecciones y repasos.
+- En el mapa, bajo la racha, un botón muestra las reservas y explica cómo funcionan antes de comprar. El compañero lo cuenta como consejo a quien lleva 2 días o más de racha y no tiene reservas. La explicación del Kütral también lo menciona.
+- Al terminar, si una reserva cuidó la racha, se avisa.
+- Resumen al terminar la etapa: cuántas preguntas se acertaron al primer intento, las palabras para repasar (las falladas) y las que salieron bien.
+- Probado: comprar (y el límite de 2), un día sin practicar gasta 1, dos días gastan 2, cinco días reinician la racha sin gastarlas, y el resumen con dos errores.
+
+**Decisiones**
+- Nombre propio ("Kütral de reserva") y no el de otras apps.

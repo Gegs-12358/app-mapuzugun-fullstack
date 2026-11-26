@@ -56,6 +56,10 @@
       <span *ngIf="racha > 0">{{ racha }} {{ racha === 1 ? 'día' : 'días' }} de racha</span>
       <span *ngIf="racha === 0">Practica hoy para empezar tu racha</span>
     </div>
+    <button type="button" class="btn-reserva" (click)="comprarReserva()"
+      [attr.aria-label]="'Kütral de reserva: tienes ' + reservasKutral + ' de ' + reservasMax">
+      🛡️ {{ reservasKutral ? (reservasKutral === 1 ? '1 Kütral de reserva' : reservasKutral + ' Kütral de reserva') : 'Cuida tu racha con un Kütral de reserva' }}
+    </button>
   </div>
 
   <div class="path-container" *ngIf="!loading && !errorCarga">

@@ -15,7 +15,7 @@ export const RECURSOS: Recurso[] = [
     id: 'kutral',
     palabra: 'Kütral',
     significado: 'fuego',
-    uso: 'Es tu racha: los días seguidos que practicas. Mantén encendido el fogón.',
+    uso: 'Es tu racha: los días seguidos que practicas. Mantén encendido el fogón. Con un Kütral de reserva, un día sin practicar no la apaga.',
   },
   {
     id: 'kimun',

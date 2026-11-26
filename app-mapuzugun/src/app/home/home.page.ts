@@ -71,6 +71,9 @@ export class HomePage implements OnInit, OnDestroy {
   notaEnRevision = true;
   aciertos = 0;
   xpGanado = 0;
+  reservasUsadas = 0;   // Kütral de reserva que se gastaron para cuidar la racha
+  // Para el resumen del final: qué preguntas se fallaron al primer intento
+  private falladas: any[] = [];
   // Guardado del avance al terminar: 'guardando' hasta que responde el servidor
   estadoGuardado: 'guardando' | 'listo' | 'error' = 'listo';
   gemasGanadas = 0;
@@ -637,6 +640,7 @@ export class HomePage implements OnInit, OnDestroy {
           this.reaccionar('feliz', FRASES.feliz);
           // Un par equivocado se perdona; dos o más cuentan como error para el repaso
           this.registrarRespuesta(this.ejercicioActual, this.fallosMatch < 2);
+          if (this.fallosMatch >= 2 && !this.falladas.includes(this.ejercicioActual)) this.falladas.push(this.ejercicioActual);
         }
 
       } else {
@@ -650,6 +654,34 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   // --- LÓGICA GENERAL DE RESPUESTA ---
+  // --- RESUMEN AL TERMINAR ---
+  // Preguntas distintas de la etapa (sin contar las repetidas al final)
+  get preguntasDistintas(): number {
+    return this.ejercicios.filter(e => !e.isReview).length;
+  }
+
+  get acertadasAlPrimero(): number {
+    return Math.max(0, this.preguntasDistintas - this.falladas.length);
+  }
+
+  // Las palabras que costaron, sacadas de las preguntas falladas
+  get palabrasQueCostaron(): Palabra[] {
+    const lista: Palabra[] = [];
+    for (const e of this.falladas) {
+      // Las de práctica guardan su palabra; las demás se leen de la pregunta
+      const propias = e.palabra && e.type !== 'match'
+        ? this.palabras.filter(p => p.mapu.toLowerCase() === String(e.palabra).toLowerCase())
+        : palabrasDeEtapa([e]);
+      for (const p of propias) if (!lista.some(x => x.mapu.toLowerCase() === p.mapu.toLowerCase())) lista.push(p);
+    }
+    return lista;
+  }
+
+  get palabrasBien(): Palabra[] {
+    const costaron = new Set(this.palabrasQueCostaron.map(p => p.mapu.toLowerCase()));
+    return this.palabras.filter(p => !costaron.has(p.mapu.toLowerCase()));
+  }
+
   // --- ORDENAR PALABRAS ---
   // Las fichas elegidas, por su posición en la lista de piezas (puede haber palabras repetidas)
   ordenElegido: number[] = [];
@@ -708,6 +740,7 @@ export class HomePage implements OnInit, OnDestroy {
         this.aciertos++;
       }
     } else {
+      if (!this.ejercicioActual.isReview && !this.falladas.includes(this.ejercicioActual)) this.falladas.push(this.ejercicioActual);
       this.playWrongSound();
       this.reaccionar('animando', FRASES.animando);
       if (!this.modoRepaso && !practica) {
@@ -813,6 +846,7 @@ export class HomePage implements OnInit, OnDestroy {
         this.streak = res.streak;
         this.gems = res.gems;
         this.xpGanado = res.xpGanado;
+        this.reservasUsadas = res.reservas_usadas ?? 0;
         this.gemasGanadas = res.gemasGanadas;
         const userStr = localStorage.getItem('mapu_user');
         if (userStr) {
@@ -905,6 +939,7 @@ export class HomePage implements OnInit, OnDestroy {
     });
 
     this.currentIndex = 0;
+    this.falladas = [];
     this.aciertos = 0;
     this.leccionTerminada = false;
     this.gameOver = false;

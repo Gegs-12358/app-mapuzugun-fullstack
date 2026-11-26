@@ -8,6 +8,8 @@ const XP_POR_ACIERTO = 20;
 const XP_POR_REPASO = 5;
 const GEMAS_INICIALES = 40;
 const COSTO_RECARGA = 30;
+const COSTO_RESERVA_KUTRAL = 50;   // Kütral de reserva: cuida la racha un día sin practicar
+const RESERVAS_KUTRAL_MAX = 2;
 const GEMAS_POR_ACIERTO = 2; // solo la primera vez que se completa una etapa
 const VIDAS_MAX = 5;
 const MINUTOS_POR_VIDA = 10;
@@ -20,6 +22,22 @@ const soloAprobado = (alias = '') => {
   const col = `${alias ? alias + '.' : ''}estado`;
   return VER_BORRADORES ? `${col} <> 'retirado'` : `${col} = 'aprobado'`;
 };
+// La racha (Kütral) al practicar hoy, con hora de Chile. Si faltaron días, cada
+// Kütral de reserva cubre uno; si alcanzan, la racha sigue y se gastan las reservas.
+const HOY_CHILE = "(CURRENT_TIMESTAMP AT TIME ZONE 'America/Santiago')::date";
+const DIAS_SIN_PRACTICAR = `(${HOY_CHILE} - last_played::date - 1)`;
+const SQL_RACHA = `
+  streak = CASE
+    WHEN last_played IS NULL THEN 1
+    WHEN last_played::date >= ${HOY_CHILE} THEN GREATEST(streak, 1)
+    WHEN ${DIAS_SIN_PRACTICAR} <= reservas_kutral THEN streak + 1
+    ELSE 1
+  END,
+  reservas_kutral = reservas_kutral - CASE
+    WHEN last_played IS NOT NULL AND ${DIAS_SIN_PRACTICAR} BETWEEN 1 AND reservas_kutral THEN ${DIAS_SIN_PRACTICAR}
+    ELSE 0
+  END,
+  last_played = ${HOY_CHILE}`;
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -162,6 +180,8 @@ async function prepararBase() {
     JOIN exercises e ON e.unit_id = p.unit_id AND e.stage = p.stage
     WHERE p.completed AND e.estado <> 'retirado'
     ON CONFLICT DO NOTHING`);
+  // Kütral de reserva: cuántas tiene cada persona
+  await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS reservas_kutral INT NOT NULL DEFAULT 0');
   // Una sola vez: las palabras ya sabidas que quedaron atrasadas al crear la tabla se
   // reparten en los próximos 7 días, para que el repaso no amanezca con decenas de una vez.
   await pool.query('CREATE TABLE IF NOT EXISTS migraciones (nombre TEXT PRIMARY KEY, hecha TIMESTAMPTZ NOT NULL DEFAULT now())');
@@ -832,13 +852,13 @@ app.get('/api/user/:username', async (req, res) => {
     const result = await pool.query(
       `SELECT id, username, avatar, xp, lives, gems, last_life_regen,
         (email IS NOT NULL) AS tiene_correo, $2::boolean AS correo_requerido,
+        reservas_kutral, $3::int AS costo_reserva, $4::int AS reservas_max,
         CASE
-          WHEN last_played::date >= (CURRENT_TIMESTAMP AT TIME ZONE 'America/Santiago')::date - 1
-            THEN streak
+          WHEN last_played IS NOT NULL AND ${DIAS_SIN_PRACTICAR} <= reservas_kutral THEN streak
           ELSE 0
         END AS streak
         FROM users WHERE id = $1`,
-      [req.user.id, CORREO_DISPONIBLE]
+      [req.user.id, CORREO_DISPONIBLE, COSTO_RESERVA_KUTRAL, RESERVAS_KUTRAL_MAX]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
     res.json(result.rows[0]);
@@ -864,6 +884,28 @@ app.post('/api/lose-life', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error en la base de datos' });
+  }
+});
+
+// Comprar un Kütral de reserva con Llankas (hasta RESERVAS_KUTRAL_MAX)
+app.post('/api/kutral/reserva', async (req, res) => {
+  try {
+    const r = await pool.query(
+      `UPDATE users SET gems = gems - $1, reservas_kutral = reservas_kutral + 1
+       WHERE id = $2 AND gems >= $1 AND reservas_kutral < $3
+       RETURNING gems, reservas_kutral`,
+      [COSTO_RESERVA_KUTRAL, req.user.id, RESERVAS_KUTRAL_MAX]);
+    if (r.rows.length === 0) {
+      const u = await pool.query('SELECT gems, reservas_kutral FROM users WHERE id = $1', [req.user.id]);
+      const error = (u.rows[0]?.reservas_kutral ?? 0) >= RESERVAS_KUTRAL_MAX
+        ? `Ya tienes ${RESERVAS_KUTRAL_MAX} Kütral de reserva, el máximo.`
+        : `Necesitas ${COSTO_RESERVA_KUTRAL} Llankas.`;
+      return res.status(400).json({ error });
+    }
+    res.json(r.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error en el servidor' });
   }
 });
 
@@ -970,16 +1012,11 @@ app.post('/api/lessons/complete', limiteCompletar, async (req, res) => {
       `UPDATE users
        SET xp = xp + $1,
            gems = gems + $3,
-           streak = CASE
-             WHEN last_played::date = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Santiago')::date
-               THEN GREATEST(streak, 1)
-             WHEN last_played::date = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Santiago')::date - 1
-               THEN streak + 1
-             ELSE 1
-           END,
-           last_played = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Santiago')::date
+           ${SQL_RACHA}
+       FROM (SELECT reservas_kutral AS reservas_antes FROM users WHERE id = $2) antes
        WHERE id = $2
-       RETURNING id, username, xp, streak, lives, gems`,
+       RETURNING id, username, xp, streak, lives, gems, reservas_kutral,
+                 antes.reservas_antes - users.reservas_kutral AS reservas_usadas`,
       [xpGanado, req.user.id, gemasGanadas]
     );
 
@@ -1187,16 +1224,11 @@ app.post('/api/repaso/completar', limiteCompletar, async (req, res) => {
     const user = await pool.query(
       `UPDATE users
        SET xp = xp + $1,
-           streak = CASE
-             WHEN last_played::date = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Santiago')::date
-               THEN GREATEST(streak, 1)
-             WHEN last_played::date = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Santiago')::date - 1
-               THEN streak + 1
-             ELSE 1
-           END,
-           last_played = (CURRENT_TIMESTAMP AT TIME ZONE 'America/Santiago')::date
+           ${SQL_RACHA}
+       FROM (SELECT reservas_kutral AS reservas_antes FROM users WHERE id = $2) antes
        WHERE id = $2
-       RETURNING id, username, xp, streak, lives, gems`,
+       RETURNING id, username, xp, streak, lives, gems, reservas_kutral,
+                 antes.reservas_antes - users.reservas_kutral AS reservas_usadas`,
       [xpGanado, req.user.id]
     );
     if (user.rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
