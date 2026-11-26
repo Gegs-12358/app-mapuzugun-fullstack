@@ -12,7 +12,7 @@ import { AVATARES, imagenAvatar } from '../avatars';
 import { CompaneroComponent, EstadoVisual } from '../companero/companero.component';
 import { AjustesLecturaComponent } from '../ajustes-lectura/ajustes-lectura.component';
 import { nivelDeUnidad } from '../niveles';
-import { Palabra, ejerciciosDePractica, palabrasDeEtapa, sinTildes } from '../palabras';
+import { Palabra, ejercicioNuevoDePractica, ejerciciosDePractica, palabrasDeEtapa, sinTildes } from '../palabras';
 import { EstadoCompanero, FRASES, PiezaConfeti, crearConfeti, fraseAlAzar } from '../companero';
 import { enlaceReporte } from '../version';
 import { IconoRecursoComponent } from '../icono-recurso/icono-recurso.component';
@@ -130,6 +130,7 @@ export class HomePage implements OnInit, OnDestroy {
       write: ['✍️', 'para escribir', 'para escribir'],
       fill_blank: ['🧩', 'completar la frase', 'completar la frase'],
       match: ['🔗', 'emparejar', 'emparejar'],
+      ordenar: ['🧱', 'ordenar palabras', 'ordenar palabras'],
     };
     const cuenta = new Map<string, number>();
     for (const e of this.ejercicios) cuenta.set(e.type, (cuenta.get(e.type) ?? 0) + 1);
@@ -227,6 +228,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.opcionesApagadas = [];
     this.parejaPista = null;
     this.usoPista = false;
+    if (this.maxNivelPista === 0) return;
     this.relojPista = setTimeout(() => {
       if (this.isAnswered || this.mostrarPortada || this.leccionTerminada || this.gameOver) return;
       this.ofrecerPista = true;
@@ -238,7 +240,8 @@ export class HomePage implements OnInit, OnDestroy {
 
   get maxNivelPista(): number {
     const e = this.ejercicioActual;
-    if (!e) return 0;
+    if (!e || e.sinPista) return 0;   // con dibujos o verdadero o falso, una pista sería la respuesta
+    if (e.type === 'ordenar') return 1;
     if (e.type === 'match') return 1;
     if (e.type === 'multiple_choice') return (e.options?.length ?? 0) >= 4 ? 3 : 2;
     return 3;
@@ -283,6 +286,7 @@ export class HomePage implements OnInit, OnDestroy {
     const e = this.ejercicioActual;
     if (!e || this.nivelPista === 0) return '';
     if (e.type === 'match') return 'Mira la pareja que brilla. Las demás van por tu cuenta.';
+    if (e.type === 'ordenar') return `Empieza con «${String(e.correct_answer).split(/\s+/)[0]}».`;
     const resp = String(e.correct_answer ?? '').trim();
     const primera = `Empieza con «${resp.charAt(0)}».`;
     const aviso = ' Esta palabra quedará para repasar.';
@@ -539,7 +543,10 @@ export class HomePage implements OnInit, OnDestroy {
     // con sus mismas palabras (no inventan contenido). Son de práctica: no dan
     // ni quitan puntos. El emparejamiento va primero; los otros, en cualquier lugar.
     if (!this.modoRepaso) {
-      for (const extra of ejerciciosDePractica(this.ejercicios, this.palabras)) {
+      const extras = ejerciciosDePractica(this.ejercicios, this.palabras);
+      const nuevo = ejercicioNuevoDePractica(this.ejercicios, this.palabras);
+      if (nuevo) extras.push(nuevo);
+      for (const extra of extras) {
         if (extra.type === 'match') this.ejercicios.unshift(extra);
         else {
           // En cualquier lugar después del emparejamiento, pero no pegado a
@@ -643,6 +650,24 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   // --- LÓGICA GENERAL DE RESPUESTA ---
+  // --- ORDENAR PALABRAS ---
+  // Las fichas elegidas, por su posición en la lista de piezas (puede haber palabras repetidas)
+  ordenElegido: number[] = [];
+
+  get fraseArmada(): string {
+    return this.ordenElegido.map(i => this.ejercicioActual.piezas[i]).join(' ');
+  }
+
+  tocarPieza(i: number) {
+    if (this.isAnswered || this.ordenElegido.includes(i)) return;
+    this.ordenElegido = [...this.ordenElegido, i];
+  }
+
+  quitarPieza(pos: number) {
+    if (this.isAnswered) return;
+    this.ordenElegido = this.ordenElegido.filter((_, k) => k !== pos);
+  }
+
   checkAnswer() {
     if (this.isAnswered) return;
 
@@ -662,6 +687,9 @@ export class HomePage implements OnInit, OnDestroy {
     } else if (this.ejercicioActual.type === 'multiple_choice') {
       if (!this.selectedOption) return;
       this.isCorrect = this.selectedOption === this.ejercicioActual.correct_answer;
+    } else if (this.ejercicioActual.type === 'ordenar') {
+      if (!this.ordenElegido.length) return;
+      this.isCorrect = normalizarRespuesta(this.fraseArmada) === normalizarRespuesta(this.ejercicioActual.correct_answer);
     } else if (this.ejercicioActual.type === 'match') {
       return;
     }
@@ -748,6 +776,7 @@ export class HomePage implements OnInit, OnDestroy {
     }
 
     this.currentIndex++;
+    this.ordenElegido = [];
     this.registrarAvance();
     this.avisoU = false;
     this.subirAlInicio();

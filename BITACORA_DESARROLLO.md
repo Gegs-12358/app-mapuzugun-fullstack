@@ -441,3 +441,8 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 
 **Decisiones**
 - El repaso espaciado es un método publicado y libre (caja de Leitner, años 70). Los nombres y el diseño son propios de Kimanke.
+- Tres tipos de ejercicio nuevos, armados con las palabras de la etapa (`ejercicioNuevoDePractica` en `palabras.ts`). Cada etapa trae uno, elegido al azar entre los que se pueden armar, para que varíen sin hacerse largas:
+  - Con dibujos: "¿Cuál es «Epu»?" y se elige entre cuatro dibujos (emoji). Solo para palabras con un dibujo claro: números, colores, animales, comida, el cuerpo, el cielo y algunas acciones. El nombre de cada dibujo se lee en voz alta para lectores de pantalla.
+  - Ordenar palabras: "Arma «Mundo Inferior» en mapuzugun" con fichas (Minche, Mapu y una de más). Solo con expresiones de 2 a 4 palabras distintas.
+  - Verdadero o falso: "¿«Küla» significa «Tres»?", con Sí y No.
+  - Son de práctica, como los otros armados. Al responder, el compañero dice qué significa la palabra. Con dibujos y verdadero o falso no se ofrecen pistas (serían la respuesta); al ordenar, la pista dice con qué palabra empieza.

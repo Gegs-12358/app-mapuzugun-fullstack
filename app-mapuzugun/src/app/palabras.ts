@@ -123,6 +123,85 @@ export function ejerciciosDePractica(ejercicios: any[], palabras: Palabra[]): an
   return extra;
 }
 
+// Dibujos (emoji) para palabras que se pueden mostrar sin ambigüedad.
+// Solo se usan para el castellano: la palabra en mapuzugun sale del contenido.
+const DIBUJOS: Record<string, string> = {
+  'uno': '1️⃣', 'dos': '2️⃣', 'tres': '3️⃣', 'cuatro': '4️⃣', 'cinco': '5️⃣',
+  'seis': '6️⃣', 'siete': '7️⃣', 'ocho': '8️⃣', 'nueve': '9️⃣', 'diez': '🔟',
+  'rojo': '🟥', 'azul': '🟦', 'verde': '🟩', 'negro': '⬛', 'blanco': '⬜', 'amarillo': '🟨',
+  'perro': '🐕', 'vaca': '🐄', 'caballo': '🐎', 'gallina': '🐔', 'zorro': '🦊', 'puma': '🐆', 'oveja': '🐑',
+  'pan': '🍞', 'agua': '💧', 'papa': '🥔', 'sopa': '🍲',
+  'mano': '✋', 'corazón': '❤️', 'ojo': '👁️', 'pie': '🦶',
+  'sol': '☀️', 'luna': '🌙', 'lluvia': '🌧️', 'nieve': '❄️', 'fuego': '🔥', 'noche': '🌃',
+  'comer': '🍽️', 'beber': '🥤', 'dormir': '😴', 'reír': '😄', 'llorar': '😢', 'ver': '👀',
+};
+
+function mezclar<T>(lista: T[]): T[] {
+  const a = [...lista];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+/**
+ * Un ejercicio de los tipos nuevos (con dibujos, ordenar palabras o verdadero o falso),
+ * elegido al azar entre los que se pueden armar con las palabras de la etapa.
+ * Uno por etapa, para que las etapas varíen sin hacerse largas.
+ */
+export function ejercicioNuevoDePractica(ejercicios: any[], palabras: Palabra[]): any | null {
+  const posibles: (() => any)[] = [];
+
+  // Con dibujos: "¿Cuál es «Kalfu»?" y se elige el dibujo
+  const conDibujo = palabras.filter(p => DIBUJOS[p.es.toLowerCase()]);
+  if (conDibujo.length >= 3) {
+    posibles.push(() => {
+      const opciones = mezclar(conDibujo).slice(0, 4);
+      const buena = opciones[0];
+      return {
+        ...base(ejercicios), type: 'multiple_choice', dibujos: true, sinPista: true,
+        question: `¿Cuál es "${buena.mapu}"?`, correct_answer: DIBUJOS[buena.es.toLowerCase()],
+        options: opciones.map(p => DIBUJOS[p.es.toLowerCase()]), palabra: buena.mapu,
+        nombresDibujos: Object.fromEntries(opciones.map(p => [DIBUJOS[p.es.toLowerCase()], p.es])),
+        cultural_note: `«${buena.mapu}» significa «${buena.es}».`,
+      };
+    });
+  }
+
+  // Ordenar palabras: una expresión de 2 a 4 palabras distintas, con una ficha de más
+  const frases = palabras.filter(p => {
+    const partes = p.mapu.replace(/[?¿!¡.,]/g, '').split(/\s+/);
+    return partes.length >= 2 && partes.length <= 4 && new Set(partes.map(w => w.toLowerCase())).size === partes.length;
+  });
+  if (frases.length) {
+    posibles.push(() => {
+      const f = frases[Math.floor(Math.random() * frases.length)];
+      const partes = f.mapu.split(/\s+/);
+      const sobrante = palabras.map(p => p.mapu).find(m => !m.includes(' ') && !partes.some(w => w.toLowerCase() === m.toLowerCase()));
+      return {
+        ...base(ejercicios), type: 'ordenar', question: `Arma «${f.es}» en mapuzugun`,
+        correct_answer: f.mapu, piezas: mezclar(sobrante ? [...partes, sobrante] : partes), palabra: f.mapu, options: [],
+        cultural_note: `«${f.mapu}» significa «${f.es}».`,
+      };
+    });
+  }
+
+  // Verdadero o falso: "¿«Küla» significa «Tres»?"
+  if (palabras.length >= 2) {
+    posibles.push(() => {
+      const [p, otra] = mezclar(palabras);
+      const verdad = Math.random() < 0.5;
+      return {
+        ...base(ejercicios), type: 'multiple_choice', sinPista: true, verdaderoFalso: true,
+        question: `¿"${p.mapu}" significa «${verdad ? p.es : otra.es}»?`,
+        correct_answer: verdad ? 'Sí' : 'No', options: ['Sí', 'No'], palabra: p.mapu,
+        cultural_note: `«${p.mapu}» significa «${p.es}».`,
+      };
+    });
+  }
+
+  if (!posibles.length) return null;
+  return posibles[Math.floor(Math.random() * posibles.length)]();
+}
+
 export function sinTildes(texto: string): string {
   return texto.normalize('NFD').replace(/[̀-ͯ]/g, '').normalize('NFC');
 }

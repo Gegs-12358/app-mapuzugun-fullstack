@@ -529,3 +529,46 @@ ion-button.opcion-apagada {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.12); }
 }
+
+/* Alternativas: en columna; con dibujos, en cuadrícula de 2 y más grandes; Sí/No lado a lado */
+.opciones { display: flex; flex-direction: column; gap: 12px; }
+.opciones ion-button { height: 50px; }
+.opciones-dibujos { display: grid; grid-template-columns: 1fr 1fr; }
+.opciones-dibujos ion-button { height: 96px; font-size: 48px; }
+.opciones-vf { flex-direction: row; }
+.opciones-vf ion-button { flex: 1; height: 64px; font-size: 20px; }
+
+/* Ordenar palabras */
+.ordenar { margin-top: 8px; }
+.ordenar-linea {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 64px;
+  margin-bottom: 16px;
+  padding: 10px;
+  border: 2px dashed #C9B8E0;
+  border-radius: 14px;
+  background: #fff;
+  &.correcta { border-style: solid; border-color: #18A06E; background: #EAF8F0; }
+  &.incorrecta { border-style: solid; border-color: #C8303D; background: #FDECEC; }
+}
+.ordenar-ayuda { color: #6B6480; font-size: 14px; }
+.ordenar-piezas { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.ficha {
+  min-height: 48px;
+  padding: 0 16px;
+  border: 2px solid #C9B8E0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #FFFFFF, #F1EAF9);
+  box-shadow: 0 3px 0 #A58BC8;
+  color: #2A1640;
+  font: inherit;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  &.usada { visibility: hidden; }
+  &.ficha-puesta { background: #FFF1C7; border-color: #FFB703; box-shadow: 0 3px 0 #C99A1A; }
+}
