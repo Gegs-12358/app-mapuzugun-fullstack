@@ -437,7 +437,7 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - Repaso espaciado (cajas de Leitner): cada palabra respondida queda en una caja de 0 a 5 (`palabras_usuario`). Al acertar sube de caja y vuelve al repaso en 1, 3, 7, 15 o 30 días; al fallar vuelve a la caja 0. El repaso trae primero las palabras que costaron y después las que ya se sabían y les toca hoy, hasta 8 por vez.
 - Al arrancar, el servidor llena la tabla con lo jugado antes: las palabras falladas (caja 0) y las de las etapas terminadas (caja 1, para el día siguiente de terminarlas).
 - "Mis palabras" (`/palabras`, botón en el resumen de arriba del mapa): todas las palabras vistas, en tres grupos (te cuestan, aprendiendo, dominadas), con cinco puntitos de avance y un botón para repasar. Las palabras salen de las mismas preguntas (`palabrasDeEtapa`).
-- El botón del mapa ahora dice "Repasar N palabras" (ya no solo las que costaron).
+- El botón del mapa dice cuántas palabras trae este repaso (máximo 8), no el total pendiente, que se ve en "Mis palabras".
 
 **Decisiones**
 - El repaso espaciado es un método publicado y libre (caja de Leitner, años 70). Los nombres y el diseño son propios de Kimanke.
@@ -446,3 +446,4 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
   - Ordenar palabras: "Arma «Mundo Inferior» en mapuzugun" con fichas (Minche, Mapu y una de más). Solo con expresiones de 2 a 4 palabras distintas.
   - Verdadero o falso: "¿«Küla» significa «Tres»?", con Sí y No.
   - Son de práctica, como los otros armados. Al responder, el compañero dice qué significa la palabra. Con dibujos y verdadero o falso no se ofrecen pistas (serían la respuesta); al ordenar, la pista dice con qué palabra empieza.
+- Al crear la tabla, las palabras de las etapas ya terminadas quedaron todas para hoy (en una cuenta, 59). Una migración de una sola vez (`migraciones`) las repartió en los próximos 7 días; las que costaron siguen primero. No se repite al reiniciar el servidor.
