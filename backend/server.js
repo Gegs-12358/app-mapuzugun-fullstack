@@ -162,6 +162,21 @@ async function prepararBase() {
     JOIN exercises e ON e.unit_id = p.unit_id AND e.stage = p.stage
     WHERE p.completed AND e.estado <> 'retirado'
     ON CONFLICT DO NOTHING`);
+  // Una sola vez: las palabras ya sabidas que quedaron atrasadas al crear la tabla se
+  // reparten en los próximos 7 días, para que el repaso no amanezca con decenas de una vez.
+  await pool.query('CREATE TABLE IF NOT EXISTS migraciones (nombre TEXT PRIMARY KEY, hecha TIMESTAMPTZ NOT NULL DEFAULT now())');
+  const migracion = await pool.query(
+    "INSERT INTO migraciones (nombre) VALUES ('repartir_repaso_atrasado') ON CONFLICT DO NOTHING RETURNING nombre");
+  if (migracion.rowCount) {
+    await pool.query(`
+      UPDATE palabras_usuario p
+      SET proxima = (now() AT TIME ZONE 'America/Santiago')::date
+                    + (abs(hashtext(p.user_id::text || '-' || p.exercise_id::text)) % 7)
+      WHERE p.caja >= 1
+        AND p.proxima < (now() AT TIME ZONE 'America/Santiago')::date
+        AND NOT EXISTS (SELECT 1 FROM user_errores r
+                        WHERE r.user_id = p.user_id AND r.exercise_id = p.exercise_id AND r.aciertos_seguidos < 2)`);
+  }
   // El progreso apunta al nombre de usuario: al cambiar el nombre, el progreso lo sigue
   await pool.query(`
     DO $$
@@ -1129,7 +1144,7 @@ app.get('/api/repaso', async (req, res) => {
     if (result.rows.length) {
       sesionesRepaso.set(req.user.id, { preguntas: result.rows.length, hasta: Date.now() + MS_SESION_REPASO });
     }
-    res.json({ total, ejercicios: result.rows.map(({ total, ...e }) => e) });
+    res.json({ total, porVez: PREGUNTAS_POR_REPASO, ejercicios: result.rows.map(({ total, ...e }) => e) });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error al cargar el repaso' });

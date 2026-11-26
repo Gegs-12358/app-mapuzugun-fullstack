@@ -135,8 +135,9 @@ export class UnitsPage implements OnInit, OnDestroy {
   }
 
   cargarRepaso() {
-    this.http.get<{ total: number }>('/api/repaso').subscribe({
-      next: (r) => this.repasoPendientes = r.total ?? 0,
+    this.http.get<{ total: number; porVez?: number }>('/api/repaso').subscribe({
+      // El botón dice cuántas trae este repaso (como máximo 8), no el total pendiente
+      next: (r) => this.repasoPendientes = Math.min(r.total ?? 0, r.porVez ?? 8),
       error: (err) => console.error('Error al cargar el repaso:', err)
     });
   }
