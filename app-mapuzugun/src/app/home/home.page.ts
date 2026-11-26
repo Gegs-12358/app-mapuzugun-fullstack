@@ -342,6 +342,14 @@ export class HomePage implements OnInit, OnDestroy {
     return nombreGrafemario(this.ejercicioActual?.grafemario);
   }
 
+  // El botón de "listo" o "enter" del teclado solo cierra el teclado. No comprueba:
+  // así un toque sin querer no gasta Newen, y la persona revisa y toca COMPROBAR.
+  enterEnRespuesta(evento: Event) {
+    evento.preventDefault();
+    (evento.target as HTMLElement | null)?.blur();
+    (document.activeElement as HTMLElement | null)?.blur();
+  }
+
   // Agrega una letra que no está en el teclado (por ejemplo la ü)
   insertarLetra(letra: string) {
     if (this.isAnswered) return;

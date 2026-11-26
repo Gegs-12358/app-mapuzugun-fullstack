@@ -312,7 +312,8 @@
       <!-- MODO ESCRITURA -->
       <div *ngIf="ejercicioActual.type === 'write'" style="margin-top: 20px;">
         <ion-input [(ngModel)]="writtenAnswer" [disabled]="isAnswered" placeholder="Escribe tu respuesta aquí..."
-          class="campo-respuesta">
+          class="campo-respuesta" enterkeyhint="done" autocapitalize="off" autocorrect="off" spellcheck="false"
+          (keyup.enter)="enterEnRespuesta($event)">
         </ion-input>
         <div class="letras-especiales" *ngIf="!isAnswered">
           <span class="ayuda-letra" aria-hidden="true">Letras del mapuzugun que no están en tu teclado:</span>
@@ -325,7 +326,8 @@
       <div *ngIf="ejercicioActual.type === 'fill_blank'" style="margin-top: 20px;">
         <p class="frase-completar" lang="arn">{{ ejercicioActual.frase || ejercicioActual.question }}</p>
         <ion-input [(ngModel)]="writtenAnswer" [disabled]="isAnswered" placeholder="Escribe la palabra que falta..."
-          class="campo-respuesta">
+          class="campo-respuesta" enterkeyhint="done" autocapitalize="off" autocorrect="off" spellcheck="false"
+          (keyup.enter)="enterEnRespuesta($event)">
         </ion-input>
         <div class="letras-especiales" *ngIf="!isAnswered">
           <span class="ayuda-letra" aria-hidden="true">Letras del mapuzugun que no están en tu teclado:</span>
