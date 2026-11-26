@@ -26,6 +26,7 @@ const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const crypto = require('crypto');
+const avisos = require('./avisos');
 
 if (!process.env.JWT_SECRET) {
   console.error('Falta JWT_SECRET en el archivo .env');
@@ -118,6 +119,21 @@ async function prepararBase() {
       creado      TIMESTAMPTZ NOT NULL DEFAULT now()
     )`);
   await pool.query('CREATE INDEX IF NOT EXISTS codigos_correo_usuario ON codigos_correo (user_id, proposito)');
+  // Intentos de etapa: en qué pregunta queda cada intento, para ver dónde se abandona
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS intentos_etapa (
+      id              SERIAL PRIMARY KEY,
+      user_id         INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      unit_id         INT NOT NULL,
+      stage           INT NOT NULL,
+      total           INT NOT NULL,
+      ultima_pregunta INT NOT NULL DEFAULT 0,
+      terminado       BOOLEAN NOT NULL DEFAULT false,
+      iniciado        TIMESTAMPTZ NOT NULL DEFAULT now(),
+      actualizado     TIMESTAMPTZ NOT NULL DEFAULT now()
+    )`);
+  await pool.query('CREATE INDEX IF NOT EXISTS intentos_etapa_usuario ON intentos_etapa (user_id, unit_id, stage)');
+  await avisos.prepararTablas(pool);
   // El progreso apunta al nombre de usuario: al cambiar el nombre, el progreso lo sigue
   await pool.query(`
     DO $$
@@ -541,6 +557,9 @@ app.get('/api/units', async (req, res) => {
   }
 });
 
+// Avisos web: clave pública y envíos que hace la tarea programada (con secreto)
+avisos.rutasPublicas(app, pool);
+
 // ---------- RUTAS PROTEGIDAS ----------
 // De aquí en adelante hace falta token. El usuario sale del token,
 // no del cuerpo de la petición.
@@ -556,6 +575,53 @@ app.use('/api', async (req, res, next) => {
     next();
   } catch (err) {
     next(err);
+  }
+});
+
+avisos.rutasProtegidas(app, pool);
+
+// ---------- INTENTOS DE ETAPA ----------
+// Solo guarda la etapa y hasta qué pregunta llegó, para saber dónde se deja una etapa.
+const limiteIntentos = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 600,
+  keyGenerator: (req) => `usuario-${req.user?.id}`,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: 'Demasiadas peticiones' }
+});
+
+app.post('/api/intento', limiteIntentos, async (req, res) => {
+  const { unitId, stage, total } = req.body || {};
+  if (!esId(unitId) || !esId(stage) || !Number.isInteger(total) || total < 1 || total > 50) {
+    return res.status(400).json({ error: 'Datos inválidos' });
+  }
+  try {
+    const r = await pool.query(
+      'INSERT INTO intentos_etapa (user_id, unit_id, stage, total) VALUES ($1, $2, $3, $4) RETURNING id',
+      [req.user.id, unitId, stage, total]);
+    res.json({ id: r.rows[0].id });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al guardar el intento' });
+  }
+});
+
+app.post('/api/intento/:id/avance', limiteIntentos, async (req, res) => {
+  const id = Number(req.params.id);
+  const { pregunta } = req.body || {};
+  if (!esId(id) || !Number.isInteger(pregunta) || pregunta < 1 || pregunta > 50) {
+    return res.status(400).json({ error: 'Datos inválidos' });
+  }
+  try {
+    await pool.query(
+      `UPDATE intentos_etapa SET ultima_pregunta = GREATEST(ultima_pregunta, LEAST($3, total)), actualizado = now()
+       WHERE id = $1 AND user_id = $2 AND NOT terminado`,
+      [id, req.user.id, pregunta]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al guardar el avance' });
   }
 });
 
@@ -846,6 +912,13 @@ app.post('/api/lessons/complete', limiteCompletar, async (req, res) => {
         [req.user.username, unitId, stage, aciertos]
       );
     }
+
+    // El intento abierto más reciente de esta etapa queda como terminado
+    await client.query(
+      `UPDATE intentos_etapa SET terminado = true, ultima_pregunta = total, actualizado = now()
+       WHERE id = (SELECT id FROM intentos_etapa WHERE user_id = $1 AND unit_id = $2 AND stage = $3 AND NOT terminado
+                   ORDER BY id DESC LIMIT 1)`,
+      [req.user.id, unitId, stage]);
 
     const xpGanado = aciertos * (primeraVez ? XP_POR_ACIERTO : XP_POR_REPASO);
     const gemasGanadas = primeraVez ? aciertos * GEMAS_POR_ACIERTO : 0;

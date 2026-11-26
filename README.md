@@ -34,7 +34,8 @@ Quedan por definir con hablantes: la ortografía y el significado del nombre "Ki
 - Cuatro tipos de ejercicio: selección múltiple, escritura, completar la frase y emparejamiento. El audio se reproduce desde la URL del ejercicio, cuando la tiene.
 - **Repaso**: cada respuesta se guarda, y el mapa ofrece repasar las palabras que más costaron. Una palabra sale del repaso al responderla bien dos veces seguidas. El repaso no gasta Newen.
 - **Accesibilidad:** en el panel del compañero se elige el tamaño de letra (Normal, Grande o Muy grande) y se pueden quitar las animaciones ("Menos movimiento"). Se guarda en cada dispositivo. La app también respeta la opción de reducir movimiento del sistema y permite hacer zoom.
-- **Recordatorio diario** (solo en la APK de Android): un aviso a la hora que la persona elija, que se salta si ese día ya practicó.
+- **Avisos:** en la APK de Android, un recordatorio local a la hora que la persona elija, que se salta si ese día ya practicó. En la web, avisos del navegador (`src/sw.js` y `src/app/avisos-web.ts`): el recordatorio diario y, si la persona lo acepta, avisos cuando hay mejoras. En Android funcionan en el navegador; en iPhone (iOS 16.4 o más) solo con Kimanke agregada a la pantalla de inicio y abierta desde ese ícono.
+- **Dónde se deja una etapa:** se guarda hasta qué pregunta llegó cada intento (`intentos_etapa`), para ver qué preguntas hacen que la gente abandone.
 - Juego: experiencia (Kimün), racha diaria (Kütral, con hora de Chile), gemas (Llanka) y vidas (Newen). Al tocarlos en la barra de la lección se explica qué significa cada palabra.
 - Economía: 40 Llankas al registrarse, 2 por acierto la primera vez que se completa una etapa, 30 por una recarga completa de Newen. El Newen es 5 como máximo y se recupera uno cada 10 minutos, o practicando.
 
@@ -150,6 +151,7 @@ WHERE id = 1;
 - **Versión web:** Render, sitio estático `kimanke` (carpeta `app-mapuzugun`, build `npm ci && npx ng build`, publica `www/browser`, con una regla que reescribe `/*` a `/index.html`).
 - **Correos:** se envían con la API de Brevo (plan gratuito). Variables en `kimanke-api`: `BREVO_API_KEY` y `CORREO_REMITENTE` (el correo verificado en Brevo). Sin ellas, la app no pide correo a nadie.
 - **Servidor despierto:** el plan gratuito de Render se duerme tras 15 minutos sin uso. Una tarea en cron-job.org consulta `/api/salud` cada 10 minutos.
+- **Avisos web:** variables en `kimanke-api`: `VAPID_PUBLIC_KEY` y `VAPID_PRIVATE_KEY` (se generan con `npx web-push generate-vapid-keys`), `VAPID_CONTACTO` y `AVISOS_SECRETO`. Otra tarea en cron-job.org llama cada 15 minutos a `POST /api/avisos/recordatorios` con el encabezado `x-avisos-secreto`. Las novedades se mandan a mano con `POST /api/avisos/novedad` (`{"titulo": "...", "texto": "..."}`), con el mismo encabezado. Sin las claves, los avisos quedan apagados.
 - Cada cambio que llega a `main` en GitHub se publica solo en Render. La APK, en cambio, hay que compilarla y compartirla de nuevo.
 
 **Respaldo de la base:** con el cliente de PostgreSQL 18 (la versión de Neon), guardando el archivo fuera del repositorio:
