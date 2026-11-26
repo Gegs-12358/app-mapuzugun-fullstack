@@ -598,6 +598,29 @@ export class UnitsPage implements OnInit, OnDestroy {
     const s = this.siguienteEtapa;
     if (!s || !navigator.onLine) return;
     this.http.get(`/api/exercises?unitId=${s.unitId}&stage=${s.stage}`).subscribe({ error: () => {} });
+    this.guardarEtapasHechas();
+  }
+
+  // Una vez al día, con internet, se descargan también las etapas ya desbloqueadas,
+  // de a una y sin apuro, para poder repetirlas sin conexión.
+  private guardarEtapasHechas() {
+    if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
+    const hoy = new Date().toDateString();
+    try { if (localStorage.getItem('kimanke_etapas_guardadas') === hoy) return; } catch {}
+    const pendientes = this.unidades.flatMap(u => this.etapasDe(u.id)
+      .filter(e => this.estadoEtapa(u.id, e.stage) !== 'bloqueada')
+      .map(e => `/api/exercises?unitId=${u.id}&stage=${e.stage}`));
+    const siguiente = (i: number) => {
+      if (i >= pendientes.length || !navigator.onLine) {
+        if (i >= pendientes.length) { try { localStorage.setItem('kimanke_etapas_guardadas', hoy); } catch {} }
+        return;
+      }
+      this.http.get(pendientes[i]).subscribe({
+        next: () => setTimeout(() => siguiente(i + 1), 300),
+        error: () => setTimeout(() => siguiente(i + 1), 300),
+      });
+    };
+    setTimeout(() => siguiente(0), 3000);
   }
 
   // --- Qué sigue ---

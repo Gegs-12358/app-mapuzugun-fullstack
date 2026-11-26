@@ -45,5 +45,9 @@ export function partirPregunta(pregunta: string): { antes: string; clave: string
   const verbo = texto.match(/^(.*?\b(?:se dice|se escribe|significa)\s+)(.+?)(\s*[?:.!]*\s*)$/is);
   if (verbo && verbo[2].trim()) return { antes: verbo[1], clave: verbo[2], despues: verbo[3] };
 
+  // Preguntas culturales: «¿Cómo se llama el ave de mal agüero?», «¿Quién es el jefe…?»
+  const cultural = texto.match(/^(¿?\s*(?:cómo se llama|quién es|cuál es)\s+)(.+?)(\s*\?\s*)$/is);
+  if (cultural && cultural[2].trim()) return { antes: cultural[1], clave: cultural[2], despues: cultural[3] };
+
   return { antes: texto, clave: '', despues: '' };
 }

@@ -12,6 +12,7 @@ export function palabrasDeEtapa(ejercicios: any[]): Palabra[] {
   const agregar = (mapu: string, es: string) => {
     mapu = (mapu ?? '').trim();
     es = (es ?? '').trim();
+    es = es.charAt(0).toUpperCase() + es.slice(1);
     if (!mapu || !es || mapu === 'COMPLETE') return;
     const clave = mapu.toLowerCase();
     if (vistas.has(clave)) return;
