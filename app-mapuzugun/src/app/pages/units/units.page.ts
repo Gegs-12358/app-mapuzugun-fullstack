@@ -401,13 +401,13 @@ export class UnitsPage implements OnInit, OnDestroy {
     const ir = this.consejoActual?.ir;
     const accion = this.consejoActual?.accion;
     this.marcarConsejoVisto();
-    if (accion === 'reserva') this.comprarReserva();
+    if (accion === 'reserva') this.canjearReserva();
     else if (ir) this.router.navigateByUrl(ir);
     else this.selectorAbierto = true;
   }
 
   // --- Kütral de reserva ---
-  async comprarReserva() {
+  async canjearReserva() {
     if (this.reservasKutral >= this.reservasMax) {
       const a = await this.alertCtrl.create({
         header: 'Kütral de reserva',
@@ -420,11 +420,11 @@ export class UnitsPage implements OnInit, OnDestroy {
     const alerta = await this.alertCtrl.create({
       header: '🛡️ Kütral de reserva',
       message: `Si un día no alcanzas a practicar, una reserva mantiene encendida tu racha. Se usa sola.
-        Cuesta ${this.costoReserva} Llankas y puedes tener hasta ${this.reservasMax}. Tienes ${this.llankas} Llankas` +
+        Se canjea por ${this.costoReserva} Llankas, que ganas jugando, y puedes tener hasta ${this.reservasMax}. Tienes ${this.llankas} Llankas` +
         (this.reservasKutral ? ` y ${this.reservasKutral} reserva.` : '.') +
         (alcanza ? '' : ` Te faltan ${this.costoReserva - this.llankas} Llankas: las ganas completando etapas.`),
       buttons: alcanza
-        ? [{ text: 'Ahora no', role: 'cancel' }, { text: `Comprar por ${this.costoReserva}`, handler: () => this.zone.run(() => this.confirmarReserva()) }]
+        ? [{ text: 'Ahora no', role: 'cancel' }, { text: `Canjear ${this.costoReserva} Llankas`, handler: () => this.zone.run(() => this.confirmarReserva()) }]
         : ['Entendido'],
     });
     await alerta.present();
@@ -434,7 +434,7 @@ export class UnitsPage implements OnInit, OnDestroy {
     this.http.post<{ gems: number; reservas_kutral: number }>('/api/kutral/reserva', {}).subscribe({
       next: (r) => { this.llankas = r.gems; this.reservasKutral = r.reservas_kutral; },
       error: async (err) => {
-        const a = await this.alertCtrl.create({ message: err?.error?.error || 'No se pudo comprar. Prueba de nuevo.', buttons: ['OK'] });
+        const a = await this.alertCtrl.create({ message: err?.error?.error || 'No se pudo canjear. Prueba de nuevo.', buttons: ['OK'] });
         await a.present();
       },
     });
