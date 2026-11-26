@@ -462,3 +462,17 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - Nombre propio ("Kütral de reserva") y no el de otras apps.
 - En los textos de la app se dice "canjear" y no "comprar": las Llankas se ganan jugando y nunca se paga con dinero, y "comprar" podía hacer pensar lo contrario. Vale para el Kütral de reserva y para el Newen ("CANJEAR 5 NEWEN").
 - Versión 0.10.0 beta, por todo lo agregado (avisos, repaso espaciado, Mis palabras, ejercicios nuevos, Kütral de reserva, resumen). "Acerca de" actualizado: qué se guarda (cómo va cada palabra, las reservas), que no hay compras dentro de la app, y las explicaciones de Llanka y Newen.
+
+### Actualización 26 de noviembre de 2026 (sin internet)
+
+**Hecho**
+- El service worker ahora también guarda la app: las pantallas (siempre la última versión, y la guardada si no hay red), el código, los estilos, las imágenes y las fuentes (lo guardado al tiro y se actualiza por detrás), y los datos del servidor que sirven para jugar (unidades, etapas, ejercicios, usuario, repaso y Mis palabras: primero la red y, si falla, lo guardado). El mapa pide por adelantado los ejercicios de la etapa que sigue.
+- Lo jugado sin conexión (respuestas, Newen gastado, hasta qué pregunta se llegó y terminar lecciones y repasos) se guarda en el teléfono (`pendientes.ts`) y se envía en orden al abrir la app, al volver al mapa y cuando vuelve internet. Si el servidor rechaza algo viejo, se descarta; si se corta otra vez, sigue después.
+- Al terminar una etapa sin conexión: "📴 Sin conexión. Tu avance quedó guardado en este teléfono y se enviará solo cuando vuelva internet", y se puede volver al mapa.
+- Aviso de "Sin conexión" unos segundos abajo y después una etiqueta chica en la esquina, que no tapa botones. Sin conexión, el interceptor no reintenta ni muestra "despertando el servidor".
+- Al cerrar sesión se intenta enviar lo pendiente y se borran los datos guardados de esa cuenta.
+- Probado en local: con la app abierta una vez, se cortó la conexión, se recargó el mapa, se jugó la etapa 1 completa, quedaron 6 envíos pendientes y, al volver la conexión, el servidor recibió la etapa terminada y las 5 respuestas.
+
+**Pendiente**
+- Sin conexión no se desbloquea la etapa siguiente hasta que el servidor recibe el avance. Tampoco funciona en la APK (usa los archivos instalados, pero no guarda los datos del servidor).
+- Si se juega sin conexión y se envía al otro día, la racha cuenta el día en que llegó al servidor.

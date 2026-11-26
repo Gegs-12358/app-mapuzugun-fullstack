@@ -17,6 +17,7 @@ import { AjustesLecturaComponent } from '../../ajustes-lectura/ajustes-lectura.c
 import {
   AjustesRecordatorio, cambiarRecordatorio, leerAjustes, recordatorioDisponible
 } from '../../recordatorio';
+import { cerrarPendientes, enviarPendientes } from '../../pendientes';
 import { AjustesAvisosWeb, apagarAvisosAlSalir, cambiarAvisosWeb, estadoAvisosWeb, leerAvisosWeb, sincronizarAvisosWeb } from '../../avisos-web';
 
 const CLAVE_UNIDAD_COMPANERO = 'kimanke_companero_unidad';
@@ -184,6 +185,7 @@ export class UnitsPage implements OnInit, OnDestroy {
   // Se ejecuta cada vez que se vuelve a esta pantalla (por ejemplo, al terminar una lección)
   ionViewWillEnter() {
     this.leerAvisoDeLaUrl();
+    enviarPendientes(this.http);
     if (this.errorCarga) this.cargarUnidades();
     else if (!this.loading) this.cargarEtapas();
     this.cargarRacha();
@@ -244,6 +246,7 @@ export class UnitsPage implements OnInit, OnDestroy {
         this.revisarLlegada();
         this.revisarNiveles();
         this.elegirConsejo();
+        this.guardarSiguienteParaSinConexion();
         // Esperar a que el camino se dibuje antes de bajar hasta la unidad actual
         setTimeout(() => this.irAUnidadActual(), 80);
       },
@@ -576,6 +579,14 @@ export class UnitsPage implements OnInit, OnDestroy {
     return `Te faltan ${faltan} etapas para terminar «${unidad.title}».`;
   }
 
+  // Se pide por adelantado la etapa que sigue (y el repaso), así el service worker
+  // la guarda y se puede jugar aunque después falte internet. No muestra nada.
+  private guardarSiguienteParaSinConexion() {
+    const s = this.siguienteEtapa;
+    if (!s || !navigator.onLine) return;
+    this.http.get(`/api/exercises?unitId=${s.unitId}&stage=${s.stage}`).subscribe({ error: () => {} });
+  }
+
   // --- Qué sigue ---
   // La primera etapa disponible y sin completar de la unidad en que va la persona
   get siguienteEtapa(): { unitId: number; stage: number; tituloUnidad: string; tituloEtapa: string } | null {
@@ -642,8 +653,12 @@ export class UnitsPage implements OnInit, OnDestroy {
   }
 
   async cerrarSesion() {
-    // Primero se apagan los avisos de esta cuenta en este navegador (necesita la sesión)
+    // Primero se apagan los avisos de esta cuenta en este navegador y se envía lo
+    // jugado sin conexión (necesita la sesión). Lo guardado para usar sin internet
+    // era de esta cuenta, así que se borra.
     await apagarAvisosAlSalir(this.http);
+    await cerrarPendientes(this.http);
+    navigator.serviceWorker?.controller?.postMessage('borrar-datos');
     localStorage.removeItem('mapu_user');
     localStorage.removeItem('mapu_token');
     this.router.navigateByUrl('/login', { replaceUrl: true });

@@ -37,7 +37,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   // Solo se reintentan las lecturas: repetir un POST podría sumar dos veces
   // la misma lección o restar dos vidas.
-  const reintentable = esApi && req.method === 'GET';
+  // Sin conexión no tiene sentido reintentar ni avisar que el servidor despierta
+  const sinRed = typeof navigator !== 'undefined' && !navigator.onLine;
+  const reintentable = esApi && req.method === 'GET' && !sinRed;
 
   // Cada petición se cuenta como lenta una sola vez, la marque el temporizador
   // o un reintento (lo que ocurra primero).
@@ -47,7 +49,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     marcada = true;
     servidor.marcarLenta();
   };
-  const aviso = esApi ? setTimeout(marcar, MS_HASTA_AVISO) : null;
+  const aviso = esApi && !sinRed ? setTimeout(marcar, MS_HASTA_AVISO) : null;
 
   return next(req).pipe(
     retry({

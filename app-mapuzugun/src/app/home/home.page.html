@@ -148,6 +148,9 @@
       </div>
     </div>
 
+    <p *ngIf="estadoGuardado === 'pendiente'" class="guardado-pendiente" role="status">
+      📴 Sin conexión. Tu avance quedó guardado en este teléfono y se enviará solo cuando vuelva internet.</p>
+
     <div *ngIf="estadoGuardado === 'error'" class="guardado-error" role="alert">
       <p>No pudimos guardar tu avance. Revisa tu conexión e inténtalo de nuevo.</p>
       <ion-button expand="block" class="btn-3d" (click)="terminarLeccion()">Reintentar</ion-button>

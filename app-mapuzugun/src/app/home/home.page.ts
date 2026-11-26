@@ -12,6 +12,7 @@ import { AVATARES, imagenAvatar } from '../avatars';
 import { CompaneroComponent, EstadoVisual } from '../companero/companero.component';
 import { AjustesLecturaComponent } from '../ajustes-lectura/ajustes-lectura.component';
 import { nivelDeUnidad } from '../niveles';
+import { esSinConexion, guardarPendiente } from '../pendientes';
 import { Palabra, ejercicioNuevoDePractica, ejerciciosDePractica, palabrasDeEtapa, sinTildes } from '../palabras';
 import { EstadoCompanero, FRASES, PiezaConfeti, crearConfeti, fraseAlAzar } from '../companero';
 import { enlaceReporte } from '../version';
@@ -75,7 +76,7 @@ export class HomePage implements OnInit, OnDestroy {
   // Para el resumen del final: qué preguntas se fallaron al primer intento
   private falladas: any[] = [];
   // Guardado del avance al terminar: 'guardando' hasta que responde el servidor
-  estadoGuardado: 'guardando' | 'listo' | 'error' = 'listo';
+  estadoGuardado: 'guardando' | 'listo' | 'error' | 'pendiente' = 'listo';
   gemasGanadas = 0;
 
   letrasEspeciales = LETRAS_ESPECIALES;
@@ -203,8 +204,9 @@ export class HomePage implements OnInit, OnDestroy {
 
   private registrarAvance() {
     if (!this.idIntento) return;
-    this.http.post(`/api/intento/${this.idIntento}/avance`, { pregunta: this.currentIndex + 1 })
-      .subscribe({ error: () => {} });
+    const url = `/api/intento/${this.idIntento}/avance`;
+    const datos = { pregunta: this.currentIndex + 1 };
+    this.http.post(url, datos).subscribe({ error: (err) => { if (esSinConexion(err)) guardarPendiente(url, datos); } });
   }
 
   // Con la pantalla de "sin Newen" abierta, cada minuto se revisa si ya volvió uno
@@ -577,8 +579,13 @@ export class HomePage implements OnInit, OnDestroy {
   private registrarRespuesta(ejercicio: any, correcta: boolean) {
     if (!ejercicio?.id) return;
     // Con pista, la palabra queda para el repaso aunque se acierte
-    this.http.post('/api/respuesta', { exerciseId: ejercicio.id, correcta: correcta && !this.usoPista }).subscribe({
-      error: (err) => console.error('Error al guardar la respuesta:', err)
+    const datos = { exerciseId: ejercicio.id, correcta: correcta && !this.usoPista };
+    this.http.post('/api/respuesta', datos).subscribe({
+      error: (err) => {
+        // Sin conexión: se guarda y se envía al volver internet
+        if (esSinConexion(err)) guardarPendiente('/api/respuesta', datos);
+        else console.error('Error al guardar la respuesta:', err);
+      }
     });
   }
 
@@ -796,7 +803,10 @@ export class HomePage implements OnInit, OnDestroy {
           localStorage.setItem('mapu_user', JSON.stringify(user));
         }
       },
-      error: (err) => console.error('Error al restar vida:', err)
+      error: (err) => {
+        if (esSinConexion(err)) guardarPendiente('/api/lose-life', {});
+        else console.error('Error al restar vida:', err);
+      }
     });
   }
 
@@ -827,13 +837,11 @@ export class HomePage implements OnInit, OnDestroy {
   terminarLeccion() {
     if (!this.unitId && !this.modoRepaso) return;
 
-    const guardar = this.modoRepaso
-      ? this.http.post('/api/repaso/completar', { correct: this.aciertos })
-      : this.http.post('/api/lessons/complete', {
-          unitId: parseInt(this.unitId ?? '0', 10),
-          stage: parseInt(this.stage ?? '1', 10),
-          correct: this.aciertos
-        });
+    const url = this.modoRepaso ? '/api/repaso/completar' : '/api/lessons/complete';
+    const datos = this.modoRepaso
+      ? { correct: this.aciertos }
+      : { unitId: parseInt(this.unitId ?? '0', 10), stage: parseInt(this.stage ?? '1', 10), correct: this.aciertos };
+    const guardar = this.http.post(url, datos);
 
     this.estadoGuardado = 'guardando';
     guardar.subscribe({
@@ -858,6 +866,13 @@ export class HomePage implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
+        // Sin conexión: el avance queda en el teléfono y se envía solo al volver internet
+        if (esSinConexion(err)) {
+          guardarPendiente(url, datos);
+          marcarPracticaDeHoy();
+          this.estadoGuardado = 'pendiente';
+          return;
+        }
         console.error('Error al guardar la lección:', err);
         this.estadoGuardado = 'error';
       }
