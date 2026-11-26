@@ -471,6 +471,7 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - Al terminar una etapa sin conexión: "📴 Sin conexión. Tu avance quedó guardado en este teléfono y se enviará solo cuando vuelva internet", y se puede volver al mapa.
 - Aviso de "Sin conexión" unos segundos abajo y después una etiqueta chica en la esquina, que no tapa botones. Sin conexión, el interceptor no reintenta ni muestra "despertando el servidor".
 - Al cerrar sesión se intenta enviar lo pendiente y se borran los datos guardados de esa cuenta.
+- "Acerca de" explica qué se guarda en el teléfono para jugar sin internet y que se borra al cerrar sesión.
 - Probado en local: con la app abierta una vez, se cortó la conexión, se recargó el mapa, se jugó la etapa 1 completa, quedaron 6 envíos pendientes y, al volver la conexión, el servidor recibió la etapa terminada y las 5 respuestas.
 
 **Pendiente**
