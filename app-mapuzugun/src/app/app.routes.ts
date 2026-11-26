@@ -38,6 +38,12 @@ export const routes: Routes = [
     loadComponent: () => import('./home/home.page').then(m => m.HomePage)
   },
   {
+    // Todas las palabras vistas, con cómo va cada una en el repaso espaciado
+    path: 'palabras',
+    canActivate: [authGuard, correoGuard],
+    loadComponent: () => import('./pages/palabras/palabras.page').then(m => m.PalabrasPage)
+  },
+  {
     // Agregar o cambiar el correo de la cuenta
     path: 'correo',
     canActivate: [authGuard],

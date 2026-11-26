@@ -380,3 +380,20 @@
 @media (prefers-reduced-motion: reduce) {
   .compa-etapa, .compa-etapa-btn.llegando { animation: none; }
 }
+
+/* Botón a "Mis palabras", en el resumen de arriba del mapa */
+.btn-mis-palabras {
+  display: block;
+  margin: 10px auto 2px;
+  min-height: 40px;
+  padding: 0 18px;
+  border: 2px solid #C9B8E0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #FFFFFF, #F1EAF9);
+  box-shadow: 0 3px 0 #A58BC8;
+  color: #5B2A86;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}

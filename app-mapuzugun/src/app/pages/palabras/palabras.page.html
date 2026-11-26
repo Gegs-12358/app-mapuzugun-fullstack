@@ -1,0 +1,55 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="barra-kimanke">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/units" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Mis palabras</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding palabras-content">
+  <div class="palabras">
+
+    <div *ngIf="cargando" class="estado-espera" role="status">
+      <p>Juntando tus palabras<span class="puntitos" aria-hidden="true"><i></i><i></i><i></i></span></p>
+    </div>
+
+    <div *ngIf="!cargando && error" class="estado-tarjeta" role="alert">
+      <p>No pudimos cargar tus palabras. Revisa tu conexión.</p>
+      <button type="button" class="btn-volver-a-intentar" (click)="cargar()">Reintentar</button>
+    </div>
+
+    <ng-container *ngIf="!cargando && !error">
+      <section class="resumen">
+        <p class="total"><strong>{{ palabras.length }}</strong> {{ palabras.length === 1 ? 'palabra vista' : 'palabras vistas' }}</p>
+        <div class="cifras">
+          <span class="cifra cuesta"><b>{{ de('cuesta').length }}</b> te cuestan</span>
+          <span class="cifra aprendiendo"><b>{{ de('aprendiendo').length }}</b> aprendiendo</span>
+          <span class="cifra dominada"><b>{{ de('dominada').length }}</b> dominadas</span>
+        </div>
+        <button type="button" class="btn-ir-repaso" (click)="irARepaso()">🔁 Repasar ahora</button>
+      </section>
+
+      <p *ngIf="palabras.length === 0" class="vacio">
+        Todavía no hay palabras. Juega tu primera etapa y aquí irán apareciendo.
+        <button type="button" class="btn-ir-repaso" (click)="irAlMapa()">Ir al mapa</button>
+      </p>
+
+      <section *ngFor="let g of grupos" class="grupo" [ngClass]="'grupo-' + g.estado" [hidden]="de(g.estado).length === 0">
+        <h2>{{ g.titulo }} <span class="cuenta">{{ de(g.estado).length }}</span></h2>
+        <p class="ayuda">{{ g.ayuda }}</p>
+        <ul>
+          <li *ngFor="let p of de(g.estado)">
+            <span class="mapu" lang="arn">{{ p.mapu }}</span>
+            <span class="es">{{ p.es }}</span>
+            <span class="cajas" [attr.aria-label]="'Nivel ' + p.caja + ' de 5'">
+              <i *ngFor="let lleno of puntos(p.caja)" [class.lleno]="lleno"></i>
+            </span>
+          </li>
+        </ul>
+      </section>
+
+      <p class="aviso">⚠️ Contenido en revisión con hablantes</p>
+    </ng-container>
+  </div>
+</ion-content>
