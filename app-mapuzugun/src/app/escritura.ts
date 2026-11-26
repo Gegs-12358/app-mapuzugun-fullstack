@@ -18,6 +18,13 @@ export function nombreGrafemario(clave?: string | null): string {
 // de celular. Se ofrecen como botones en los ejercicios de escritura.
 export const LETRAS_ESPECIALES = ['ü'];
 
+// ¿La respuesta está bien salvo que puso "u" donde va "ü"?
+export function soloFaltaDieresis(escrito: string, correcta: string): boolean {
+  const a = normalizarRespuesta(escrito ?? '');
+  const b = normalizarRespuesta(correcta ?? '');
+  return b.includes('ü') && a !== b && a === b.replace(/ü/g, 'u');
+}
+
 // Compara respuestas escritas: sin espacios extra, sin mayúsculas y con la misma
 // codificación Unicode (una "ü" puede llegar como un solo carácter o como u + ¨).
 export function normalizarRespuesta(texto: string): string {
