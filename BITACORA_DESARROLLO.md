@@ -477,3 +477,5 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 **Pendiente**
 - Sin conexión no se desbloquea la etapa siguiente hasta que el servidor recibe el avance. Tampoco funciona en la APK (usa los archivos instalados, pero no guarda los datos del servidor).
 - Si se juega sin conexión y se envía al otro día, la racha cuenta el día en que llegó al servidor.
+- Arreglo de la prueba en el celular: en modo avión el mapa no cargaba y las imágenes salían rotas. La primera visita después de publicar se carga antes de que el service worker nuevo tome el control, así que nada quedaba guardado. Ahora, al tomar el control, la app le manda la lista de lo que ya cargó (imágenes, estilos, código) para que lo guarde, y el mapa vuelve a pedir sus datos. Probado con una sola visita, sin recargar: sin conexión el mapa abre sin imágenes rotas y la etapa se juega completa.
+- Si falta algo sin conexión, el mensaje lo dice ("Este teléfono todavía no tiene el mapa guardado…", "Esta etapa todavía no está guardada…") en vez de hablar del servidor despertando.

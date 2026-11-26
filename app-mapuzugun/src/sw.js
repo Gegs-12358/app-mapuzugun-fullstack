@@ -3,7 +3,7 @@
 // 2) Sin internet: guarda la app y lo que ya se abrió (mapa, lecciones, palabras)
 //    para seguir practicando sin conexión. El avance hecho sin conexión lo guarda
 //    la app y lo envía al volver internet (ver src/app/pendientes.ts).
-const ESTATICOS = 'kimanke-estaticos-v1';
+const ESTATICOS = 'kimanke-estaticos-v1';  // si se cambia el nombre, se descarta lo guardado
 const DATOS = 'kimanke-datos-v1';
 const RUTAS_API = /^\/api\/(units|stages|exercises|user|repaso|mis-palabras)\b/;
 
@@ -20,9 +20,26 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
-// La app pide borrar lo guardado al cerrar sesión (los datos son de esa cuenta)
+// Mensajes de la app:
+// - 'borrar-datos': al cerrar sesión (lo guardado era de esa cuenta)
+// - { tipo: 'guardar', urls }: lo que la página cargó antes de que este service
+//   worker la controlara (imágenes, estilos, código). Sin esto, la primera visita
+//   después de publicar una versión nueva no quedaba guardada.
 self.addEventListener('message', (event) => {
-  if (event.data === 'borrar-datos') event.waitUntil(caches.delete(DATOS));
+  if (event.data === 'borrar-datos') { event.waitUntil(caches.delete(DATOS)); return; }
+  if (event.data && event.data.tipo === 'guardar' && Array.isArray(event.data.urls)) {
+    event.waitUntil((async () => {
+      const cache = await caches.open(ESTATICOS);
+      for (const url of event.data.urls.slice(0, 300)) {
+        try {
+          if (new URL(url).origin !== self.location.origin || url.endsWith('/sw.js')) continue;
+          if (await cache.match(url)) continue;
+          const r = await fetch(url);
+          if (r.ok) await cache.put(url, r);
+        } catch (e) {}
+      }
+    })());
+  }
 });
 
 async function primeroLaRed(request, cacheName, respaldo) {

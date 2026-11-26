@@ -125,12 +125,23 @@ export class UnitsPage implements OnInit, OnDestroy {
     this.cargarRepaso();
   };
 
+  // El service worker recién empezó a funcionar: se piden otra vez los datos del mapa
+  // para que queden guardados y sirvan sin conexión
+  private alActivarseSinConexion = () => {
+    if (!navigator.onLine) return;
+    this.cargarRacha();
+    this.cargarUnidades();
+    this.cargarRepaso();
+  };
+
   ngOnDestroy() {
     window.removeEventListener('kimanke:avance-guardado', this.alGuardarAvance);
+    window.removeEventListener('kimanke:sw-listo', this.alActivarseSinConexion);
   }
 
   ngOnInit() {
     window.addEventListener('kimanke:avance-guardado', this.alGuardarAvance);
+    window.addEventListener('kimanke:sw-listo', this.alActivarseSinConexion);
     this.leerAvisoDeLaUrl();
     const userStr = localStorage.getItem('mapu_user');
     if (userStr) {
@@ -152,6 +163,8 @@ export class UnitsPage implements OnInit, OnDestroy {
       error: (err) => console.error('Error al cargar el repaso:', err)
     });
   }
+
+  get enLinea(): boolean { return navigator.onLine; }
 
   irAPalabras() {
     this.router.navigateByUrl('/palabras');
