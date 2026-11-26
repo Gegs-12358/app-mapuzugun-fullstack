@@ -125,3 +125,22 @@ export async function sincronizarAvisosWeb(http: HttpClient) {
     console.error('No se pudieron revisar los avisos:', err);
   }
 }
+
+/**
+ * Al cerrar sesión: este navegador deja de recibir los avisos de esta cuenta.
+ * Se borra la suscripción en el servidor (mientras todavía hay sesión) y en el
+ * navegador, y se olvidan los ajustes. No espera más de 3 segundos, para que
+ * salir nunca quede trabado por la red.
+ */
+export async function apagarAvisosAlSalir(http: HttpClient) {
+  try { localStorage.removeItem(CLAVE); } catch {}
+  if (Capacitor.isNativePlatform() || !('serviceWorker' in navigator)) return;
+  const tarea = (async () => {
+    const registro = await navigator.serviceWorker.getRegistration();
+    const sub = await registro?.pushManager.getSubscription();
+    if (!sub) return;
+    await firstValueFrom(http.delete('/api/push/suscripcion', { body: { endpoint: sub.endpoint } })).catch(() => {});
+    await sub.unsubscribe().catch(() => false);
+  })().catch(() => {});
+  await Promise.race([tarea, new Promise(r => setTimeout(r, 3000))]);
+}
