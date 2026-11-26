@@ -1,5 +1,11 @@
 <ion-app>
-  @if (servidor.despertando()) {
+  @if (sinConexion() && avisoLargo()) {
+    <div class="aviso-servidor aviso-sin-conexion" role="status" aria-live="polite">
+      📴 Sin conexión. Puedes seguir con lo que ya abriste; tu avance se enviará al volver internet.
+    </div>
+  } @else if (sinConexion()) {
+    <div class="etiqueta-sin-conexion" role="status" aria-label="Sin conexión">📴 Sin conexión</div>
+  } @else if (servidor.despertando()) {
     <div class="aviso-servidor" role="status" aria-live="polite">
       <span class="punto" aria-hidden="true"></span>
       Despertando el servidor… la primera carga puede tardar hasta un minuto.

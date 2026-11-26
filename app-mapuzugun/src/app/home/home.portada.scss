@@ -599,3 +599,12 @@ ion-button.opcion-apagada {
   b { color: #2A1640; margin-right: 2px; }
 }
 .resumen-grupo.cuesta .chip-palabra { border-color: #F3B8B8; background: #FFF5F5; }
+
+.guardado-pendiente {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #EEF3FF;
+  color: #1D3F8F;
+  font-weight: 700;
+}
