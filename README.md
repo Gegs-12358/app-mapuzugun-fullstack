@@ -2,7 +2,7 @@
 
 Aplicación gratuita para aprender y practicar mapuzugun con lecciones cortas, a tu ritmo.
 
-> **Estado: beta (0.9.0), en prueba con un grupo de un taller de mapuzugun.** El contenido (palabras, notas culturales, audios) todavía no ha sido validado por hablantes: está en revisión y la app lo indica en cada pregunta. Por eso las lecciones no se publican en este repositorio, y la app no debería presentarse como material de enseñanza hasta que esa revisión exista.
+> **Estado: beta (0.10.0), en prueba con un grupo de un taller de mapuzugun.** El contenido (palabras, notas culturales, audios) todavía no ha sido validado por hablantes: está en revisión y la app lo indica en cada pregunta. Por eso las lecciones no se publican en este repositorio, y la app no debería presentarse como material de enseñanza hasta que esa revisión exista.
 >
 > - Versión web: https://kimanke.onrender.com (funciona en cualquier navegador, también en iPhone).
 > - Android: APK de prueba, compartida directamente con quienes prueban.

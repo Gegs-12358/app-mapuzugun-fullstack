@@ -461,3 +461,4 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 **Decisiones**
 - Nombre propio ("Kütral de reserva") y no el de otras apps.
 - En los textos de la app se dice "canjear" y no "comprar": las Llankas se ganan jugando y nunca se paga con dinero, y "comprar" podía hacer pensar lo contrario. Vale para el Kütral de reserva y para el Newen ("CANJEAR 5 NEWEN").
+- Versión 0.10.0 beta, por todo lo agregado (avisos, repaso espaciado, Mis palabras, ejercicios nuevos, Kütral de reserva, resumen). "Acerca de" actualizado: qué se guarda (cómo va cada palabra, las reservas), que no hay compras dentro de la app, y las explicaciones de Llanka y Newen.
