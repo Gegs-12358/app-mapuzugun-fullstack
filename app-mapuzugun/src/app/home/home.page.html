@@ -295,8 +295,9 @@
         <div class="btn-audio">🔊</div>
       </ion-button>
 
-      <!-- MODO SELECCIÓN MÚLTIPLE -->
-      <div *ngIf="ejercicioActual.type === 'multiple_choice'" style="display: flex; flex-direction: column; gap: 12px;">
+      <!-- MODO SELECCIÓN MÚLTIPLE (también con dibujos y verdadero o falso) -->
+      <div *ngIf="ejercicioActual.type === 'multiple_choice'" class="opciones"
+        [class.opciones-dibujos]="ejercicioActual.dibujos" [class.opciones-vf]="ejercicioActual.verdaderoFalso">
         <ion-button *ngFor="let option of ejercicioActual.options" expand="block" fill="outline"
           [class.opcion-apagada]="opcionesApagadas.includes(option) && !isAnswered"
           [disabled]="opcionesApagadas.includes(option) && !isAnswered" [ngClass]="{
@@ -304,7 +305,8 @@
             'btn-correct': isAnswered && option === ejercicioActual.correct_answer,
             'btn-incorrect': isAnswered && selectedOption === option && !isCorrect
           }" (click)="selectOption(option)"
-          style="border-radius: 12px; --border-color: #C9B8E0; --color: #5B2A86; text-transform: none; font-weight: bold; height: 50px;">
+          [attr.aria-label]="ejercicioActual.dibujos ? ejercicioActual.nombresDibujos?.[option] : null"
+          style="border-radius: 12px; --border-color: #C9B8E0; --color: #5B2A86; text-transform: none; font-weight: bold;">
           {{ option }}
         </ion-button>
       </div>
@@ -333,6 +335,21 @@
           <span class="ayuda-letra" aria-hidden="true">Letras del mapuzugun que no están en tu teclado:</span>
           <button *ngFor="let letra of letrasEspeciales" type="button" class="btn-letra" [class.btn-letra-aviso]="avisoU"
             (click)="insertarLetra(letra)" [attr.aria-label]="'Escribir la letra ' + letra">{{ letra }}</button>
+        </div>
+      </div>
+
+      <!-- MODO ORDENAR PALABRAS: se tocan las fichas en orden -->
+      <div *ngIf="ejercicioActual.type === 'ordenar'" class="ordenar">
+        <div class="ordenar-linea" [class.correcta]="isAnswered && isCorrect" [class.incorrecta]="isAnswered && !isCorrect"
+          aria-live="polite" [attr.aria-label]="'Tu frase: ' + (fraseArmada || 'vacía')">
+          <button type="button" *ngFor="let i of ordenElegido; let pos = index" class="ficha ficha-puesta"
+            (click)="quitarPieza(pos)" [disabled]="isAnswered" lang="arn">{{ ejercicioActual.piezas[i] }}</button>
+          <span *ngIf="!ordenElegido.length" class="ordenar-ayuda">Toca las palabras en orden</span>
+        </div>
+        <div class="ordenar-piezas">
+          <button type="button" *ngFor="let pieza of ejercicioActual.piezas; let i = index" class="ficha"
+            [class.usada]="ordenElegido.includes(i)" [disabled]="isAnswered || ordenElegido.includes(i)"
+            (click)="tocarPieza(i)" lang="arn">{{ pieza }}</button>
         </div>
       </div>
 
@@ -376,7 +393,7 @@
   <!-- COMPROBAR se oculta en modo match hasta que se completen las parejas -->
   <ion-button *ngIf="ejercicioActual.type !== 'match' || isAnswered" expand="block"
     (click)="isAnswered ? nextExercise() : checkAnswer()"
-    [disabled]="(ejercicioActual.type === 'multiple_choice' && !selectedOption && !isAnswered) || ((ejercicioActual.type === 'write' || ejercicioActual.type === 'fill_blank') && !writtenAnswer && !isAnswered)"
+    [disabled]="(ejercicioActual.type === 'multiple_choice' && !selectedOption && !isAnswered) || ((ejercicioActual.type === 'write' || ejercicioActual.type === 'fill_blank') && !writtenAnswer && !isAnswered) || (ejercicioActual.type === 'ordenar' && !ordenElegido.length && !isAnswered)"
     class="btn-accion" [class.btn-continuar]="isAnswered">
     {{ isAnswered ? (currentIndex === ejercicios.length - 1 ? 'FINALIZAR' : 'CONTINUAR') : 'COMPROBAR' }}
   </ion-button>
