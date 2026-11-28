@@ -522,3 +522,4 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 
 **Decisión**
 - El resultado también se ve donde la persona está mirando (la respuesta elegida en verde o rojo); el globo agrega la explicación y la nota cultural.
+- En el computador (puntero de mouse), al aparecer una pregunta para escribir o completar la frase, el cursor queda en el campo: se puede escribir de inmediato sin hacer clic. Antes el cursor podía quedar en la pregunta y no se escribía nada hasta hacer clic en el campo. En el teléfono no se hace, para no abrir el teclado encima de la pregunta.

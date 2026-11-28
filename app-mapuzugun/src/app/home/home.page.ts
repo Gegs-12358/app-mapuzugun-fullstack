@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -33,7 +33,7 @@ import { marcarPracticaDeHoy } from '../recordatorio';
     IonProgressBar, IonBackButton, IonInput, IonFooter, CompaneroComponent, IconoRecursoComponent, AjustesLecturaComponent
   ]
 })
-export class HomePage implements OnInit, OnDestroy {
+export class HomePage implements OnInit, AfterViewInit, OnDestroy {
   ejercicios: any[] = [];
   currentIndex = 0;
   loading = true;
@@ -49,6 +49,26 @@ export class HomePage implements OnInit, OnDestroy {
   ajustesAbiertos = false;
   avisoU = false;  // ya se avisó en esta pregunta que falta la ü
   @ViewChild(IonContent) private contenido?: IonContent;
+  // Campo para escribir la respuesta (escribir y completar la frase)
+  @ViewChildren('campoRespuesta') private camposRespuesta?: QueryList<IonInput>;
+  private campoSub?: { unsubscribe(): void };
+
+  // En el computador, al aparecer una pregunta para escribir, el cursor queda
+  // en el campo: se puede escribir de inmediato sin hacer clic. En el teléfono
+  // no, para no abrir el teclado encima de la pregunta.
+  ngAfterViewInit() {
+    this.campoSub = this.camposRespuesta?.changes.subscribe(() => this.enfocarCampo());
+  }
+
+  private enfocarCampo() {
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+    // Se espera a que el campo nuevo esté dibujado y a que termine de subir la pantalla
+    setTimeout(() => {
+      const tipo = this.ejercicioActual?.type;
+      if (this.isAnswered || (tipo !== 'write' && tipo !== 'fill_blank')) return;
+      this.camposRespuesta?.first?.setFocus();
+    }, 300);
+  }
   private avisoPrimerIntento = false;  // ya se explicó que el primer error no gasta Newen
 
   // Las palabras de la etapa, para conocerlas antes de empezar
@@ -192,6 +212,7 @@ export class HomePage implements OnInit, OnDestroy {
     if (!this.modoRepaso) this.avisarPocoNewen();
     this.iniciarPista();
     this.registrarInicio();
+    this.enfocarCampo();
   }
 
   // Para saber en qué pregunta se deja una etapa: solo la etapa y el número de pregunta
@@ -219,6 +240,7 @@ export class HomePage implements OnInit, OnDestroy {
   }, 60_000);
 
   ngOnDestroy() {
+    this.campoSub?.unsubscribe();
     clearInterval(this.relojNewen);
     clearTimeout(this.relojPista);
   }
@@ -846,6 +868,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.isCorrect = false;
     this.initMatchGame();
     this.iniciarPista();
+    this.enfocarCampo();
   }
 
   terminarLeccion() {
