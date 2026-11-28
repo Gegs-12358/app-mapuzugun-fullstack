@@ -15,7 +15,13 @@ export function palabrasDeEtapa(ejercicios: any[]): Palabra[] {
     es = es.charAt(0).toUpperCase() + es.slice(1);
     if (!mapu || !es || mapu === 'COMPLETE') return;
     const clave = mapu.toLowerCase();
-    if (vistas.has(clave)) return;
+    if (vistas.has(clave)) {
+      // Si la palabra ya estaba, queda la traducción más corta: «Canelo»
+      // en vez de «El árbol sagrado mapuche» (que viene de una pregunta cultural)
+      const previa = lista.find(p => p.mapu.toLowerCase() === clave);
+      if (previa && es.length < previa.es.length) previa.es = es;
+      return;
+    }
     vistas.add(clave);
     lista.push({ mapu, es });
   };

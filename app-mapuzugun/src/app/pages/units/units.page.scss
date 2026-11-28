@@ -695,6 +695,12 @@ ion-toolbar.barra-kimanke ion-title.titulo-mapa {
     max-width: none;
     align-self: stretch;
     border-radius: 0;
+    /* Sin barra: el mapa sigue por detrás y los botones flotan sobre él */
+    background: transparent;
+    border-top: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     padding-left: calc(50% + 180px);
     padding-right: calc(50% - 540px);
   }
