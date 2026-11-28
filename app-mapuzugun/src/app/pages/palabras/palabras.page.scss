@@ -90,3 +90,33 @@ ion-toolbar.barra-kimanke ion-title { font-size: 24px; }
 
 .vacio { text-align: center; color: #2A1640; }
 .aviso { margin: 4px 0 0; text-align: center; font-size: 12px; font-weight: 700; color: #8B5E00; }
+
+/* ===== Pantallas anchas (computador) =====
+   Los tres grupos (te cuestan, aprendiendo, dominadas) lado a lado.
+   En el teléfono no cambia nada. */
+@media (min-width: 1180px) {
+  .palabras {
+    max-width: 1120px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    column-gap: 16px;
+  }
+
+  /* Lo general ocupa todo el ancho; los grupos se reparten el resto
+     (si uno está vacío, los otros se ensanchan) */
+  .palabras > * {
+    flex: 1 1 100%;
+  }
+
+  .palabras > .grupo {
+    flex: 1 1 320px;
+    min-width: 0;
+  }
+
+  .palabras > .resumen {
+    flex: 0 1 560px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
