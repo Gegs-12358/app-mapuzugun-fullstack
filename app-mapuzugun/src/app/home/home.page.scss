@@ -905,3 +905,33 @@ ion-card ion-button.btn-lago { --background: var(--mapu-brillo), linear-gradient
   45% { transform: scale(1.04); }
   100% { transform: scale(1); }
 }
+
+/* ===== Portada, resumen y "sin Newen" en dos columnas (computador) =====
+   Igual que la pregunta: a la izquierda el título y el compañero, a la
+   derecha lo que hay que leer o elegir. En pantallas angostas, una columna. */
+@media (min-width: 1180px) {
+  ion-content > .dos-columnas {
+    max-width: 1080px;
+  }
+
+  .dos-columnas {
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr);
+    column-gap: 32px;
+    align-items: center;
+  }
+
+  .dos-columnas > .col-izq,
+  .dos-columnas > .col-der {
+    min-width: 0;
+  }
+
+  /* El confeti sigue cubriendo toda la tarjeta */
+  .dos-columnas > .confeti {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .dos-columnas > .col-izq { grid-column: 1; grid-row: 1; }
+  .dos-columnas > .col-der { grid-column: 2; grid-row: 1; }
+}
