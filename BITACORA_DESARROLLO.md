@@ -512,3 +512,13 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 
 **Pendiente**
 - La etapa 7-1 tiene solo 2 palabras activas (Foye y Kulen): se retiraron Pange y su emparejar hasta validarlos, así que el emparejar de práctica sale con 2 pares. Se arregla con contenido nuevo (folil, lawen…, en la planilla de la profesora).
+
+### Actualización 28 de noviembre de 2026 (pregunta en dos columnas)
+
+**Hecho**
+- Desde 1180 px de ancho, la pregunta va en dos columnas, como Ingresar: a la izquierda el avance («Etapa · Pregunta»), Reportar error, las etiquetas y el compañero con su globo; a la derecha la pregunta y las respuestas (emparejar, alternativas, dibujos, escribir, completar la frase, ordenar). La tarjeta y el pie llegan a 1080 px. En tablets y teléfonos sigue en una sola columna.
+- Como la explicación del compañero queda a un lado de las respuestas, al responder el globo se destaca: un pequeño salto, borde más grueso y un halo verde o rojo. Con «quitar animaciones» no salta.
+- Probado a 1440×690 con todos los tipos de pregunta y con una respuesta incorrecta: todo queda a la vista sin bajar.
+
+**Decisión**
+- El resultado también se ve donde la persona está mirando (la respuesta elegida en verde o rojo); el globo agrega la explicación y la nota cultural.

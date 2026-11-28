@@ -836,3 +836,72 @@ ion-card ion-button.btn-lago { --background: var(--mapu-brillo), linear-gradient
     border-radius: 20px 20px 0 0;
   }
 }
+
+/* ===== Pregunta en dos columnas (computador) =====
+   Como en Ingresar: a la izquierda el avance, las etiquetas y el compañero con
+   su globo; a la derecha la pregunta y las respuestas. Así todo queda a la
+   vista sin bajar. En pantallas más angostas sigue en una sola columna. */
+@media (min-width: 1180px) {
+  ion-content > .tarjeta-pregunta {
+    max-width: 1080px;
+  }
+
+  .tarjeta-pregunta {
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr);
+    column-gap: 28px;
+    align-items: start;
+    padding: 8px 20px 20px 8px;
+  }
+
+  .tarjeta-pregunta > ion-card-header {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  /* El contenido se reparte en la cuadrícula de la tarjeta */
+  .tarjeta-pregunta > ion-card-content {
+    display: contents;
+  }
+
+  .tarjeta-pregunta .companero-arriba {
+    grid-column: 1;
+    grid-row: 2 / span 12;
+    margin: 0 0 0 16px;
+  }
+
+  .tarjeta-pregunta > ion-card-content > :not(.companero-arriba) {
+    grid-column: 2;
+  }
+
+  .tarjeta-pregunta .pregunta {
+    grid-row: 1;
+    margin-top: 16px;
+  }
+
+  .pie-accion {
+    max-width: 1080px;
+  }
+
+  /* Al responder, el globo de la izquierda se destaca para que la
+     explicación y la nota cultural no pasen inadvertidas */
+  .tarjeta-pregunta .companero-burbuja.feliz,
+  .tarjeta-pregunta .companero-burbuja.error {
+    animation: destacar-globo 0.6s ease-out;
+    border-width: 3px;
+  }
+
+  .tarjeta-pregunta .companero-burbuja.feliz {
+    box-shadow: 0 4px 0 #1E7D47, 0 0 0 6px rgba(30, 125, 71, 0.18), 0 8px 18px rgba(30, 125, 71, 0.25);
+  }
+
+  .tarjeta-pregunta .companero-burbuja.error {
+    box-shadow: 0 4px 0 #A61E2C, 0 0 0 6px rgba(200, 48, 61, 0.18), 0 8px 18px rgba(166, 30, 44, 0.25);
+  }
+}
+
+@keyframes destacar-globo {
+  0% { transform: scale(0.94); }
+  45% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
