@@ -47,6 +47,8 @@
     <p>Cada lección se revisa con hablantes de mapuzugun antes de publicarse. ¡Vuelve pronto!</p>
   </div>
 
+  <!-- En pantallas anchas, el camino y el resumen van lado a lado -->
+  <div class="mapa-ancho">
   <!-- CONTADOR DE PROGRESO + RACHA -->
   <div *ngIf="!loading && !errorCarga && unidades.length > 0" class="progress-summary">
     <button type="button" class="etiqueta-beta beta-mapa" (click)="irAAcerca()"
@@ -165,6 +167,7 @@
     </ng-container>
   </div>
 
+  </div>
 </ion-content>
 
 <!-- Qué sigue: el compañero lo dice y el botón lleva directo -->

@@ -647,3 +647,51 @@ ion-toolbar.barra-kimanke ion-title.titulo-mapa {
     background: linear-gradient(180deg, #F1F2F5 0%, #D9DCE2 100%);
   }
 }
+
+/* ===== Pantallas anchas (computador, tablet horizontal) =====
+   En el teléfono no cambia nada. Desde 760 px el camino va en una
+   columna central; desde 1180 px el resumen (racha, Mis palabras)
+   pasa a un panel a la derecha y los botones quedan debajo de él. */
+@media (min-width: 760px) {
+  .mapa-ancho {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .pie-mapa {
+    width: 100%;
+    max-width: 680px;
+    align-self: center;
+    border-radius: 20px 20px 0 0;
+  }
+}
+
+@media (min-width: 1180px) {
+  .mapa-ancho {
+    max-width: 1080px;
+    display: grid;
+    grid-template-columns: 680px 360px;
+    gap: 40px;
+    align-items: start;
+  }
+
+  .progress-summary {
+    grid-column: 2;
+    grid-row: 1;
+    position: sticky;
+    top: 8px;
+    margin-bottom: 0;
+    z-index: 2;
+  }
+
+  .path-container {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .pie-mapa {
+    max-width: 360px;
+    align-self: auto;
+    margin-left: calc(50% + 180px);
+  }
+}

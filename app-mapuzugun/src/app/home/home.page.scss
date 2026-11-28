@@ -773,3 +773,36 @@ ion-card ion-button.btn-lago { --background: var(--mapu-brillo), linear-gradient
     transform: none;
   }
 }
+
+/* ===== Pantallas anchas (computador, tablet horizontal) =====
+   En el teléfono no cambia nada. Desde 760 px la lección va en una
+   columna central de 680 px sobre un cielo de atardecer, como en las
+   ilustraciones de la app, y el pie queda del mismo ancho. */
+@media (min-width: 760px) {
+  ion-content {
+    --background: linear-gradient(180deg, #6FA8E0 0%, #9CC5EC 30%, #F5C66B 68%, #E9865A 86%, #C8303D 100%);
+  }
+
+  ion-content > * {
+    max-width: 680px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  ion-card {
+    background: rgba(255, 253, 247, 0.94);
+    box-shadow: 0 10px 36px rgba(42, 22, 64, 0.22);
+  }
+
+  .estadisticas {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .pie-accion {
+    width: 100%;
+    max-width: 680px;
+    align-self: center;
+    border-radius: 20px 20px 0 0;
+  }
+}

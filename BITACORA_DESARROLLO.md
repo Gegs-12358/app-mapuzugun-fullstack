@@ -482,3 +482,18 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - Probado en el celular: en modo avión se jugó la etapa 2 de "Animales y Comida" (que el mapa había descargado por adelantado) y, al volver internet, el mapa la mostró completada.
 - Las etapas ya desbloqueadas también se pueden repetir sin conexión: una vez al día, con internet, el mapa las descarga de a una y sin apuro. Antes solo estaban las abiertas desde la actualización.
 - La palabra clave también se destaca en las preguntas culturales: «¿Cómo se llama *el ave de mal agüero*?», «¿Quién es…?», «¿Cuál es…?».
+
+### Actualización 28 de noviembre de 2026 (pantallas anchas)
+
+**Hecho**
+- La app se adapta al computador y a la tablet en horizontal. En el teléfono no cambia nada: todo está dentro de `@media (min-width: 760px)` y `(min-width: 1180px)`.
+- Lección (portada de la etapa, preguntas, resumen y "sin Newen"): el contenido va en una columna central de 680 px sobre un cielo de atardecer (azul, dorado, naranjo y el rojo de la franja), en vez de estirarse a todo el ancho. Las tarjetas son más sólidas, para que el fondo no compita con el texto. Los contadores del encabezado y el botón del pie quedan del mismo ancho que la columna.
+- Mapa: desde 760 px el camino va en una columna central. Desde 1180 px el resumen (avance, Mis palabras, racha y Kütral de reserva) pasa a un panel fijo a la derecha, y Continuar y Repasar quedan debajo de ese panel.
+- Probado en local a 1440×900, 1024×768 y 412×820 (teléfono, sin cambios).
+
+**Decisiones**
+- Se tomó la idea de la columna central y el panel lateral, que es común en apps web; los colores, ilustraciones, compañeros y textos son de Kimanke.
+- Ingresar, Crear cuenta, Bienvenida, Mis palabras y Acerca ya se veían centradas en el computador, así que no se tocaron.
+
+**Pendiente**
+- Modo noche: ordenar los colores en una paleta central primero (hoy hay unos 700 escritos directamente).
