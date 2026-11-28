@@ -794,9 +794,23 @@ ion-card ion-button.btn-lago { --background: var(--mapu-brillo), linear-gradient
     box-shadow: 0 10px 36px rgba(42, 22, 64, 0.22);
   }
 
+  /* Detrás del pie, el mismo rojo con que termina el cielo */
+  :host {
+    background: #C8303D;
+  }
+
+  /* Los cuatro contadores en una sola línea, para dejar más alto a la pregunta */
   .estadisticas {
     max-width: 680px;
     margin: 0 auto;
+    grid-template-columns: repeat(4, auto);
+    justify-content: space-between;
+  }
+
+  /* Alternativas en dos columnas: caben sin bajar */
+  .opciones:not(.opciones-vf) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 
   .pie-accion {

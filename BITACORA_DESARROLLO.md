@@ -490,6 +490,7 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - Lección (portada de la etapa, preguntas, resumen y "sin Newen"): el contenido va en una columna central de 680 px sobre un cielo de atardecer (azul, dorado, naranjo y el rojo de la franja), en vez de estirarse a todo el ancho. Las tarjetas son más sólidas, para que el fondo no compita con el texto. Los contadores del encabezado y el botón del pie quedan del mismo ancho que la columna.
 - Mapa: desde 760 px el camino va en una columna central. Desde 1180 px el resumen (avance, Mis palabras, racha y Kütral de reserva) pasa a un panel fijo a la derecha, y Continuar y Repasar quedan debajo de ese panel.
 - Probado en local a 1440×900, 1024×768 y 412×820 (teléfono, sin cambios).
+- Ajuste tras verlo publicado en un notebook (pantalla de unos 690 px de alto): las alternativas no cabían sin bajar. En pantallas anchas, los cuatro contadores van en una sola línea, las alternativas en dos columnas, y detrás del pie va el mismo rojo con que termina el cielo (antes se veía una franja crema a los lados).
 
 **Decisiones**
 - Se tomó la idea de la columna central y el panel lateral, que es común en apps web; los colores, ilustraciones, compañeros y textos son de Kimanke.
