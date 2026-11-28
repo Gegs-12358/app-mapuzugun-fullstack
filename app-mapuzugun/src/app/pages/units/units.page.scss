@@ -689,9 +689,13 @@ ion-toolbar.barra-kimanke ion-title.titulo-mapa {
     grid-row: 1;
   }
 
+  /* El pie ocupa todo el ancho, como en el teléfono, y los botones
+     quedan justo debajo del panel de la derecha */
   .pie-mapa {
-    max-width: 360px;
-    align-self: auto;
-    margin-left: calc(50% + 180px);
+    max-width: none;
+    align-self: stretch;
+    border-radius: 0;
+    padding-left: calc(50% + 180px);
+    padding-right: calc(50% - 540px);
   }
 }

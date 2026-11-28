@@ -67,3 +67,39 @@ ion-content {
     text-decoration: underline;
   }
 }
+
+/* ===== Pantallas anchas (computador) =====
+   El saludo con el logo a la izquierda y el formulario a la derecha,
+   para que todo quepa sin bajar. En el teléfono no cambia nada. */
+@media (min-width: 900px) {
+  .login-wrapper {
+    max-width: 980px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 440px;
+    column-gap: 56px;
+    align-items: center;
+    align-content: center;
+  }
+
+  .textile-band {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin: 0 0 16px;
+  }
+
+  .login-hero {
+    grid-column: 1;
+    grid-row: 2 / span 2;
+  }
+
+  .login-card {
+    grid-column: 2;
+    grid-row: 2;
+    width: 100%;
+  }
+
+  .login-footer {
+    grid-column: 2;
+    grid-row: 3;
+  }
+}

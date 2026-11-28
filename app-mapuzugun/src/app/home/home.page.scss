@@ -813,6 +813,22 @@ ion-card ion-button.btn-lago { --background: var(--mapu-brillo), linear-gradient
     grid-template-columns: 1fr 1fr;
   }
 
+  /* «Palabras de esta etapa»: más ancho y en dos columnas, para verlas todas */
+  .capa-ajustes .panel-palabras {
+    max-width: 640px;
+  }
+
+  .lista-palabras {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    align-content: start;
+
+    li {
+      margin: 0;
+    }
+  }
+
   .pie-accion {
     width: 100%;
     max-width: 680px;
