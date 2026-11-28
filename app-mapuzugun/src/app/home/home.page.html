@@ -243,7 +243,7 @@
           ¡Mari mari! {{ tituloUnidad ? 'Practiquemos «' + tituloUnidad + '».' : 'Practiquemos paso a paso.' }}
           {{ palabras.length ? 'Mira primero las palabras aquí abajo 👇' : '¡Vamos de a poco!' }}
         </p>
-        <p *ngIf="modoRepaso">Practiquemos las palabras que te costaron y las que toca recordar hoy. Aquí no se gasta Newen.</p>
+        <p *ngIf="modoRepaso">Practiquemos las palabras que te costaron y las que toca recordar hoy. Aquí no se gasta Newen. {{ palabras.length ? 'Míralas primero aquí abajo 👇' : '' }}</p>
       </div>
     </div>
 
@@ -251,11 +251,11 @@
 
     <div class="col-der">
     <!-- Conocer las palabras antes de empezar -->
-    <button type="button" class="btn-ver-palabras" *ngIf="!modoRepaso && palabras.length > 0" (click)="verPalabras = true">
+    <button type="button" class="btn-ver-palabras" *ngIf="palabras.length > 0" (click)="verPalabras = true">
       <span class="icono" aria-hidden="true">📖</span>
       <span class="textos">
-        <b>Conocer las palabras</b>
-        <small>Mira las {{ palabras.length }} {{ palabras.length === 1 ? 'palabra' : 'palabras' }} de esta etapa antes de empezar</small>
+        <b>{{ modoRepaso ? 'Ver las palabras' : 'Conocer las palabras' }}</b>
+        <small>Mira las {{ palabras.length }} {{ palabras.length === 1 ? 'palabra' : 'palabras' }} {{ modoRepaso ? 'que vas a repasar' : 'de esta etapa' }} antes de empezar</small>
       </span>
       <span class="flecha" aria-hidden="true">›</span>
     </button>
@@ -460,7 +460,7 @@
 <!-- Palabras de la etapa -->
 <div class="capa-ajustes" *ngIf="verPalabras" (click)="verPalabras = false">
   <div class="panel-palabras" role="dialog" aria-labelledby="titulo-palabras" (click)="$event.stopPropagation()">
-    <p class="panel-ajustes-titulo" id="titulo-palabras">📖 Palabras de esta etapa</p>
+    <p class="panel-ajustes-titulo" id="titulo-palabras">📖 {{ modoRepaso ? 'Palabras de este repaso' : 'Palabras de esta etapa' }}</p>
     <p class="palabras-ayuda">Míralas con calma. Después las vas a practicar.</p>
     <ul class="lista-palabras">
       <li *ngFor="let p of palabras">
