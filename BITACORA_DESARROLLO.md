@@ -501,3 +501,7 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 
 **Pendiente**
 - Modo noche: ordenar los colores en una paleta central primero (hoy hay unos 700 escritos directamente).
+- Mis palabras desde 1180 px: los grupos (te cuestan, aprendiendo, dominadas) van lado a lado; si uno está vacío, los otros se reparten el ancho.
+
+**Arreglo**
+- Resumen al terminar la etapa: si en el emparejar se unían mal dos pares o más, «Para repasar» mostraba todas las palabras del ejercicio (por ejemplo, las 4 de la comida con 5 de 7 acertadas). Ahora solo aparecen las palabras de los pares que se unieron mal, y las demás quedan en «Te salieron bien». Probado: dos pares mal entre 3 palabras → esas 3 para repasar y la cuarta bien.

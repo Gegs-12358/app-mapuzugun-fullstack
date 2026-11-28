@@ -101,6 +101,8 @@ export class HomePage implements OnInit, OnDestroy {
   etapasUnidad: { stage: number; completed: boolean; title?: string }[] = [];
   estadoPortada: EstadoVisual = 'quieto';
   private fallosMatch = 0;
+  // Palabras en mapuzugun de los pares que se unieron mal (para el resumen)
+  private palabrasFalloMatch: string[] = [];
 
   // Explicación de Kütral, Kimün, Llanka o Newen al tocarlos en la barra
   recursoInfo: Recurso | null = null;
@@ -599,6 +601,7 @@ export class HomePage implements OnInit, OnDestroy {
       this.matchedLeft = [];
       this.matchedRight = [];
       this.fallosMatch = 0;
+      this.palabrasFalloMatch = [];
     }
   }
 
@@ -647,11 +650,18 @@ export class HomePage implements OnInit, OnDestroy {
           this.reaccionar('feliz', FRASES.feliz);
           // Un par equivocado se perdona; dos o más cuentan como error para el repaso
           this.registrarRespuesta(this.ejercicioActual, this.fallosMatch < 2);
-          if (this.fallosMatch >= 2 && !this.falladas.includes(this.ejercicioActual)) this.falladas.push(this.ejercicioActual);
+          if (this.fallosMatch >= 2 && !this.falladas.includes(this.ejercicioActual)) {
+            // Solo cuentan para repasar las palabras que se unieron mal, no todas las del ejercicio
+            this.ejercicioActual.palabrasFalladas = [...this.palabrasFalloMatch];
+            this.falladas.push(this.ejercicioActual);
+          }
         }
 
       } else {
         this.fallosMatch++;
+        for (const m of [this.selectedLeft.mapuche, this.selectedRight.mapuche]) {
+          if (m && !this.palabrasFalloMatch.includes(m)) this.palabrasFalloMatch.push(m);
+        }
         this.playWrongSound();
         this.reaccionar('animando', FRASES.animando);
       }
@@ -678,9 +688,11 @@ export class HomePage implements OnInit, OnDestroy {
     const lista: Palabra[] = [];
     for (const e of this.falladas) {
       // Las de práctica guardan su palabra; las demás se leen de la pregunta
-      const propias = e.palabra && e.type !== 'match'
-        ? this.palabras.filter(p => p.mapu.toLowerCase() === String(e.palabra).toLowerCase())
-        : palabrasDeEtapa([e]);
+      const propias = e.type === 'match' && e.palabrasFalladas?.length
+        ? palabrasDeEtapa([e]).filter(p => e.palabrasFalladas.some((m: string) => m.toLowerCase() === p.mapu.toLowerCase()))
+        : e.palabra && e.type !== 'match'
+          ? this.palabras.filter(p => p.mapu.toLowerCase() === String(e.palabra).toLowerCase())
+          : palabrasDeEtapa([e]);
       for (const p of propias) if (!lista.some(x => x.mapu.toLowerCase() === p.mapu.toLowerCase())) lista.push(p);
     }
     return lista;
