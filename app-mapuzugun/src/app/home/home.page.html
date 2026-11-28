@@ -61,8 +61,9 @@
   </div>
 
   <!-- PANTALLA DE JUEGO TERMINADO (Sin Newen) -->
-  <ion-card *ngIf="gameOver" class="ion-margin-top tarjeta-roja"
+  <ion-card *ngIf="gameOver" class="ion-margin-top tarjeta-roja dos-columnas"
     style="text-align: center; padding: 20px;">
+    <div class="col-izq">
     <h2 style="color: #C8303D; font-weight: 900;">¡Te has quedado sin Newen!</h2>
     <div class="durmiendo-wrap">
       <app-companero [avatarId]="avatarId" estado="durmiendo" [tamano]="150"
@@ -82,6 +83,9 @@
         puedes recuperarlo.
       </p>
     </div>
+    </div>
+
+    <div class="col-der">
 
     <!-- TEMPORIZADOR DE PRÓXIMA VIDA -->
     <p *ngIf="nextLifeInMinutes > 0" style="color: #5B2A86; font-size: 0.9em; margin-bottom: 15px; font-weight: bold;">
@@ -107,17 +111,19 @@
     <p style="color: #555; font-size: 0.95em; margin-top: 15px; font-style: italic;">
       💡 El Newen se regenera 1 punto cada 10 minutos (máximo 5)
     </p>
+    </div>
   </ion-card>
 
   <!-- PANTALLA DE LECCIÓN TERMINADA -->
-  <ion-card *ngIf="leccionTerminada" class="ion-margin-top tarjeta-maqui"
+  <ion-card *ngIf="leccionTerminada" class="ion-margin-top tarjeta-maqui dos-columnas"
     style="text-align: center; padding: 20px;">
     <div class="confeti" aria-hidden="true">
       <span *ngFor="let c of confeti" [style.left.%]="c.izquierda" [style.background]="c.color"
         [style.animation-delay.s]="c.retraso" [style.animation-duration.s]="c.duracion"
         [style.transform]="'rotate(' + c.giro + 'deg)'"></span>
     </div>
-    <h2 style="color: #5B2A86; font-weight: 900;">{{ modoRepaso ? '¡Repaso completado!' : '¡Lección Completada!' }}</h2>
+    <div class="col-izq">
+    <h2 style="color: #5B2A86; font-weight: 900;">{{ modoRepaso ? '¡Repaso completado!' : '¡Lección completada!' }}</h2>
     <div class="celebracion">
       <app-companero [avatarId]="avatarId" estado="celebra" [tamano]="120"
         role="img" [attr.aria-label]="nombreCompanero + ' celebra contigo'"></app-companero>
@@ -137,6 +143,9 @@
     <p *ngIf="estadoGuardado === 'listo' && reservasUsadas > 0" class="ganado reserva-usada">
       🛡️ {{ reservasUsadas === 1 ? 'Tu Kütral de reserva cuidó' : 'Tus ' + reservasUsadas + ' Kütral de reserva cuidaron' }}
       tu racha: ¡sigue encendida!</p>
+    </div>
+
+    <div class="col-der">
 
     <!-- Resumen de la etapa: cómo le fue y qué palabras repasar -->
     <div class="resumen-etapa">
@@ -176,6 +185,7 @@
       [disabled]="estadoGuardado === 'guardando'">
       {{ estadoGuardado === 'guardando' ? 'GUARDANDO…' : 'VOLVER AL MENÚ' }}
     </ion-button>
+    </div>
   </ion-card>
 
   <!-- REPASO SIN PALABRAS PENDIENTES -->
@@ -195,8 +205,9 @@
 
   <!-- PORTADA DE LA ETAPA -->
   <div *ngIf="!loading && !gameOver && !leccionTerminada && mostrarPortada && ejercicios.length > 0"
-    class="portada">
+    class="portada dos-columnas">
 
+    <div class="col-izq">
     <!-- Estrella de la unidad, como en el mapa (o el símbolo del repaso) -->
     <div class="portada-cabecera">
       <div class="portada-estrella" [ngClass]="modoRepaso ? 'es-repaso' : 'color-' + colorUnidad" aria-hidden="true">
@@ -236,6 +247,9 @@
       </div>
     </div>
 
+    </div>
+
+    <div class="col-der">
     <!-- Conocer las palabras antes de empezar -->
     <button type="button" class="btn-ver-palabras" *ngIf="!modoRepaso && palabras.length > 0" (click)="verPalabras = true">
       <span class="icono" aria-hidden="true">📖</span>
@@ -258,6 +272,7 @@
         <span class="chip-premio" *ngIf="llankasPosibles > 0"><app-icono-recurso nombre="llanka" [tamano]="20"></app-icono-recurso> hasta {{ llankasPosibles }} Llankas</span>
       </div>
       <p class="info-aviso">⚠️ Contenido en revisión con hablantes</p>
+    </div>
     </div>
   </div>
 
