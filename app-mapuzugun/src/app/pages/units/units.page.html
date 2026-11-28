@@ -58,6 +58,19 @@
       <div class="progress-bar-fill" [style.width.%]="(completadas / totalUnidades) * 100"></div>
     </div>
 
+    <!-- Lo que llevas: lo mismo que se ve arriba en la lección -->
+    <div class="recursos-mapa" *ngIf="newen !== null">
+      <button type="button" (click)="explicar('kimun')" [attr.aria-label]="'Kimün: ' + kimun + '. Qué significa'">
+        <app-icono-recurso nombre="kimun" [tamano]="20"></app-icono-recurso><b>{{ kimun }}</b><small>Kimün</small></button>
+      <button type="button" (click)="explicar('llanka')" [attr.aria-label]="'Llanka: ' + llankas + '. Qué significa'">
+        <app-icono-recurso nombre="llanka" [tamano]="20"></app-icono-recurso><b>{{ llankas }}</b><small>Llanka</small></button>
+      <button type="button" class="newen" (click)="explicar('newen')" [attr.aria-label]="'Newen: ' + newen + '. Qué significa'">
+        <app-icono-recurso nombre="newen" [tamano]="20"></app-icono-recurso><b>{{ newen }}</b><small>Newen</small></button>
+    </div>
+    <div *ngIf="recursoInfo" class="info-recurso-mapa" role="status" (click)="recursoInfo = null">
+      <p><strong>{{ recursoInfo.palabra }}</strong> significa «{{ recursoInfo.significado }}». {{ recursoInfo.uso }}</p>
+    </div>
+
     <button type="button" class="btn-mis-palabras" (click)="irAPalabras()">📖 Mis palabras</button>
 
     <div class="racha" [class.racha-activa]="racha > 0">

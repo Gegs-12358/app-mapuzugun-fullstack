@@ -50,6 +50,7 @@ const CONSEJOS: Consejo[] = [
 ];
 
 import { IconoRecursoComponent } from '../../icono-recurso/icono-recurso.component';
+import { IdRecurso, Recurso, recurso } from '../../recursos';
 @Component({
   selector: 'app-units',
   templateUrl: './units.page.html',
@@ -79,6 +80,16 @@ export class UnitsPage implements OnInit, OnDestroy {
   costoReserva = 50;
   reservasMax = 2;
   llankas = 0;
+  kimun = 0;
+
+  // Qué significa cada recurso: se explica al tocarlo, como en la lección
+  recursoInfo: Recurso | null = null;
+  private temporizadorInfo?: ReturnType<typeof setTimeout>;
+  explicar(id: IdRecurso) {
+    clearTimeout(this.temporizadorInfo);
+    this.recursoInfo = this.recursoInfo?.id === id ? null : recurso(id);
+    if (this.recursoInfo) this.temporizadorInfo = setTimeout(() => this.recursoInfo = null, 6000);
+  }
   newen: number | null = null;
 
   // Compañero sobre el camino
@@ -228,6 +239,7 @@ export class UnitsPage implements OnInit, OnDestroy {
         this.costoReserva = u.costo_reserva ?? 50;
         this.reservasMax = u.reservas_max ?? 2;
         this.llankas = u.gems ?? 0;
+        this.kimun = u.xp ?? 0;
         // El compañero se puede cambiar desde otro dispositivo: manda el del servidor
         if (u.avatar) this.avatarId = u.avatar;
         try {
