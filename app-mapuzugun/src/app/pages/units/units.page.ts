@@ -373,7 +373,7 @@ export class UnitsPage implements OnInit, OnDestroy {
   // --- Mostrar el mapa desde donde vas ---
   // Baja el camino hasta la unidad en la que vas (o la última, si terminaste todo)
   // y la deja al centro. En la primera unidad baja lo mínimo.
-  private async irAUnidadActual() {
+  private async irAUnidadActual(revision = false) {
     if (!this.visible || !this.contenido || this.selectorAbierto || this.loading) return;
     const destino = this.unidadCompanero;
     if (destino === null) return;
@@ -388,9 +388,19 @@ export class UnitsPage implements OnInit, OnDestroy {
     const y = destino === this.unidades[0]?.id
       ? Math.max(0, arriba + nodo.offsetHeight + 70 - caja.clientHeight)
       : Math.max(0, arriba - caja.clientHeight / 2 + 70);
+    if (revision) {
+      // Si el compañero quedó a la vista, no se mueve nada
+      const r = nodo.getBoundingClientRect(), c = caja.getBoundingClientRect();
+      if (r.top >= c.top && r.bottom <= c.bottom) return;
+      this.contenido.scrollToPoint(0, y, 0);
+      return;
+    }
     if (y === 0) return;
     const suave = !leerAccesibilidad().menosMovimiento;
     this.contenido.scrollToPoint(0, y, suave ? 500 : 0);
+    // Después de que terminan de aparecer el globo, los consejos y las imágenes
+    // el camino puede cambiar de alto: se revisa una vez que el compañero siga a la vista
+    setTimeout(() => this.irAUnidadActual(true), 1200);
   }
 
   // --- Consejos del compañero ---

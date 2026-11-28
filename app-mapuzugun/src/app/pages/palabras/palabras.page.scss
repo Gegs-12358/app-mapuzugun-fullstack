@@ -114,9 +114,12 @@ ion-toolbar.barra-kimanke ion-title { font-size: 24px; }
     min-width: 0;
   }
 
+  /* El resumen va solo en su línea, centrado; los grupos, debajo */
   .palabras > .resumen {
-    flex: 0 1 560px;
-    margin-left: auto;
-    margin-right: auto;
+    flex: 0 0 560px;
+    box-sizing: border-box;
+    /* Los márgenes completan la línea, así los grupos bajan a la siguiente */
+    margin-left: calc(50% - 280px);
+    margin-right: calc(50% - 280px);
   }
 }

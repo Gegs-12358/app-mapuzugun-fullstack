@@ -20,7 +20,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding map-content">
+<ion-content class="ion-padding map-content" [fullscreen]="true">
 
   <div *ngIf="loading" class="estado-espera" role="status">
     <app-companero [avatarId]="avatarId" estado="quieto" [tamano]="96"></app-companero>

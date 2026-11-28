@@ -505,3 +505,10 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 
 **Arreglo**
 - Resumen al terminar la etapa: si en el emparejar se unían mal dos pares o más, «Para repasar» mostraba todas las palabras del ejercicio (por ejemplo, las 4 de la comida con 5 de 7 acertadas). Ahora solo aparecen las palabras de los pares que se unieron mal, y las demás quedan en «Te salieron bien». Probado: dos pares mal entre 3 palabras → esas 3 para repasar y la cuarta bien.
+- Mis palabras: el resumen de arriba queda solo en su línea y centrado (antes, en algunos anchos, se ponía al lado de «Te cuestan» y «Aprendiendo» bajaba).
+- Mapa desde 1180 px: sin barra abajo; el mapa sigue por detrás (`fullscreen` en `ion-content`) y Continuar y Repasar flotan bajo el panel. Se acabó la franja crema vacía.
+- Mapa al entrar: después de bajar hasta el compañero se revisa una vez más (1,2 s después) que siga a la vista, porque el globo, los consejos y las imágenes pueden cambiar el alto del camino. En el notebook a veces quedaba más abajo, sin el compañero.
+- Palabras de la etapa: si una palabra sale con dos traducciones, queda la más corta («Foye: Canelo» y no «El árbol sagrado mapuche», que viene de la pregunta cultural).
+
+**Pendiente**
+- La etapa 7-1 tiene solo 2 palabras activas (Foye y Kulen): se retiraron Pange y su emparejar hasta validarlos, así que el emparejar de práctica sale con 2 pares. Se arregla con contenido nuevo (folil, lawen…, en la planilla de la profesora).
