@@ -491,6 +491,9 @@ Quince preguntas por tema eran demasiadas. Cada unidad se divide ahora en tres e
 - Mapa: desde 760 px el camino va en una columna central. Desde 1180 px el resumen (avance, Mis palabras, racha y Kütral de reserva) pasa a un panel fijo a la derecha, y Continuar y Repasar quedan debajo de ese panel.
 - Probado en local a 1440×900, 1024×768 y 412×820 (teléfono, sin cambios).
 - Ajuste tras verlo publicado en un notebook (pantalla de unos 690 px de alto): las alternativas no cabían sin bajar. En pantallas anchas, los cuatro contadores van en una sola línea, las alternativas en dos columnas, y detrás del pie va el mismo rojo con que termina el cielo (antes se veía una franja crema a los lados).
+- «Palabras de esta etapa» en pantallas anchas: el panel es más ancho (640 px) y las palabras van en dos columnas, así se ven todas sin bajar dentro del panel.
+- Ingresar en pantallas anchas: el logo y el saludo a la izquierda y el formulario a la derecha, para que quepa sin bajar en un notebook.
+- Mapa desde 1180 px: el pie vuelve a ocupar todo el ancho, como en el teléfono, con Continuar y Repasar justo debajo del panel de la derecha (antes quedaba una franja crema vacía a la izquierda).
 
 **Decisiones**
 - Se tomó la idea de la columna central y el panel lateral, que es común en apps web; los colores, ilustraciones, compañeros y textos son de Kimanke.
